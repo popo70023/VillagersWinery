@@ -1,0 +1,14 @@
+{
+  "_comment": "村民酒莊 物品",
+  "item.villagerswinery.empty_wine_bowl": "空酒杯",
+
+  "_comment": "村民酒莊 藥水效果",
+
+  "effect.villagerswinery.drunk": "酒醉",
+  "effect.villagerswinery.hapiness": "開心",
+
+  "_comment": "村民酒莊 瓶裝酒",
+  "item.minecraft.potion.effect.beer": "瓶裝啤酒",
+  "item.minecraft.splash_potion.effect.beer": "飛濺 瓶裝啤酒",
+  "item.minecraft.lingering_potion.effect.beer": "滯留 瓶裝啤酒"
+}
