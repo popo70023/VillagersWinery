@@ -176,8 +176,9 @@
 			"translation": [0, 0, -4.25]
 		},
 		"gui": {
-			"rotation": [50.75, 43.75, 0],
-			"translation": [0, 2.75, 0]
+			"rotation": [37.25, 43.75, 0],
+			"translation": [0, 3.75, 0],
+			"scale": [1.16406, 1.16406, 1.16406]
 		}
 	},
 	"groups": [
