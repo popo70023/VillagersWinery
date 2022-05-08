@@ -24,11 +24,13 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.RegistryObject;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
 public class Winebowl extends Item {
+
     public Winebowl(Properties properties) {
         super(properties);
     }
@@ -53,12 +55,12 @@ public class Winebowl extends Item {
                     entityLiving.addPotionEffect(new EffectInstance(effectinstance));
                 }
             }
-            EffectInstance drunk = entityLiving.getActivePotionEffect(RegistryEvents.drunk.getEffect());
+            EffectInstance drunk = entityLiving.getActivePotionEffect(RegistryEvents.drunk.get());
             int time = 0;
             if(drunk != null) {
                 time = drunk.getDuration();
             }
-            entityLiving.addPotionEffect(new EffectInstance(RegistryEvents.drunk.getEffect(), time + 3600));
+            entityLiving.addPotionEffect(new EffectInstance(RegistryEvents.drunk.get(), time + 3600));
         }
 
         if (playerentity != null) {
@@ -96,7 +98,7 @@ public class Winebowl extends Item {
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        EffectInstance drunk = playerIn.getActivePotionEffect(RegistryEvents.drunk.getEffect());
+        EffectInstance drunk = playerIn.getActivePotionEffect(RegistryEvents.drunk.get());
 
         if(drunk ==null || drunk.getDuration() < 3600) {
             return DrinkHelper.startDrinking(worldIn, playerIn, handIn);
@@ -119,18 +121,10 @@ public class Winebowl extends Item {
 
 
     @Override
-    public boolean hasEffect(ItemStack stack) {
-        return super.hasEffect(stack) || !PotionUtils.getEffectsFromStack(stack).isEmpty();
-    }
-
-
-    @Override
     public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items) {
         if (this.isInGroup(group)) {
-            for(Potion potion: RegistryEvents.Wines.values()) {
-                if (potion != Potions.EMPTY) {
-                    items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potion));
-                }
+            for(RegistryObject<Potion> potion: RegistryEvents.POTION.getEntries()) {
+                items.add(PotionUtils.addPotionToItemStack(new ItemStack(this), potion.get()));
             }
         }
     }
@@ -140,13 +134,13 @@ public class Winebowl extends Item {
         if (entity.world.isRemote) return net.minecraft.util.ActionResultType.PASS;
         if (entity instanceof net.minecraft.entity.merchant.IMerchant) {
 
-            EffectInstance drunk = entity.getActivePotionEffect(RegistryEvents.drunk.getEffect());
+            EffectInstance drunk = entity.getActivePotionEffect(RegistryEvents.drunk.get());
             if(drunk == null || drunk.getDuration() < 3600) {
                 int time = 0;
                 if(drunk != null) {
                     time = drunk.getDuration();
                 }
-                entity.addPotionEffect(new EffectInstance(RegistryEvents.drunk.getEffect(), time + 3600));
+                entity.addPotionEffect(new EffectInstance(RegistryEvents.drunk.get(), time + 3600));
 
                 for(EffectInstance effectinstance : PotionUtils.getEffectsFromStack(stack)) {
                     if (effectinstance.getPotion().isInstant()) {
@@ -165,11 +159,11 @@ public class Winebowl extends Item {
 
                 if (playerIn == null || !playerIn.abilities.isCreativeMode) {
                     if (stack.isEmpty()) {
-                        stack = new ItemStack(RegistryEvents.emptyWinebowl);
+                        stack = new ItemStack(RegistryEvents.emptyWinebowl.get());
                     }
 
                     if (playerIn != null) {
-                        playerIn.inventory.addItemStackToInventory(new ItemStack(RegistryEvents.emptyWinebowl));
+                        playerIn.inventory.addItemStackToInventory(new ItemStack(RegistryEvents.emptyWinebowl.get()));
                     }
                 }
 

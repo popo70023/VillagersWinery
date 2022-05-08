@@ -18,7 +18,7 @@ public class WineEffect extends Effect {
     @Override
     public void performEffect(LivingEntity entityLivingBaseIn, int amplifier) {
         if(entityLivingBaseIn instanceof IMerchant) {
-            if(this == RegistryEvents.hapiness) {
+            if(this == RegistryEvents.hapiness.get()) {
                 IMerchant Villager = (IMerchant)entityLivingBaseIn;
                 Villager.setXP(Villager.getXp() + 100 + 100 * amplifier);
             }

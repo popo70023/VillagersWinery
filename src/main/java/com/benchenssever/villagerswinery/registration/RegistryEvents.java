@@ -2,91 +2,85 @@ package com.benchenssever.villagerswinery.registration;
 
 import com.benchenssever.villagerswinery.VillagersWineryMod;
 import com.benchenssever.villagerswinery.Wine.Wine;
+import com.benchenssever.villagerswinery.Wine.WineEffect;
+import com.benchenssever.villagerswinery.block.LiquidBarrel;
+import com.benchenssever.villagerswinery.fluid.FluidTransferUtil;
 import com.benchenssever.villagerswinery.item.EmptyWinebowl;
 import com.benchenssever.villagerswinery.item.Winebowl;
-import com.benchenssever.villagerswinery.Wine.WineEffect;
+import com.benchenssever.villagerswinery.tileentity.LiquidBarrelTileEntity;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.FlowingFluidBlock;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.EffectType;
 import net.minecraft.potion.Potion;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fluids.ForgeFlowingFluid;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.HashMap;
-import java.util.Map;
+import static net.minecraft.item.Items.BUCKET;
 
-// You can use EventBusSubscriber to automatically subscribe events on the contained class (this is subscribing to the MOD
-// Event bus for receiving Registry Events)
-@Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
 public class RegistryEvents {
 
-    public static Item winebowl;
-    public static Item emptyWinebowl;
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, VillagersWineryMod.MODID);
+    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, VillagersWineryMod.MODID);
+    public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(ForgeRegistries.FLUIDS, VillagersWineryMod.MODID);
+    public static final DeferredRegister<Effect> EFFECT = DeferredRegister.create(ForgeRegistries.POTIONS, VillagersWineryMod.MODID);
+    public static final DeferredRegister<Potion> POTION = DeferredRegister.create(ForgeRegistries.POTION_TYPES, VillagersWineryMod.MODID);
+    public static final DeferredRegister<TileEntityType<?>> TILE_ENTITIES  = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, VillagersWineryMod.MODID);
 
-    public static Effect drunk;
-    public static Effect hapiness;
+    public static final RegistryObject<Item> winebowl = ITEMS.register("wine_bowl", () -> new Winebowl(new Item.Properties().group(RegistryEvents.wineryItemGroup).maxStackSize(1)));
+    public static final RegistryObject<Item> emptyWinebowl = ITEMS.register("empty_wine_bowl", () -> new EmptyWinebowl(new Item.Properties().group(RegistryEvents.wineryItemGroup).maxStackSize(16)));
+    public static final RegistryObject<Item> bucketBeer = ITEMS.register("beer_fluid_bucket", () -> new BucketItem(RegistryEvents.fluidBeer, new Item.Properties().group(RegistryEvents.wineryItemGroup).containerItem(BUCKET)));
 
-    public static Map<String, Potion> Wines = new HashMap<>();
-    public static Potion beer;
+    public static final RegistryObject<Item> liquidBarrelItem = ITEMS.register("liquid_barrel", () -> new BlockItem(RegistryEvents.liquidBarrelBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
 
-    public static ItemGroup wineryItemGroup = new ItemGroup("villagers.winery") {
+    public static final RegistryObject<Block> liquidBarrelBlock = BLOCKS.register("liquid_barrel", () -> new LiquidBarrel(AbstractBlock.Properties.create(Material.WOOD).hardnessAndResistance(2.5F).sound(SoundType.WOOD)));
+
+    public static final RegistryObject<FlowingFluidBlock> fluidBeerBlock = BLOCKS.register("fluid_beer_block", () -> new FlowingFluidBlock(RegistryEvents.fluidBeer, Block.Properties.create(Material.WATER).doesNotBlockMovement().hardnessAndResistance(100.0F).noDrops()));
+
+    public static final RegistryObject<FlowingFluid> fluidBeer = FLUIDS.register("fluid_beer", () -> new ForgeFlowingFluid.Source(FluidTransferUtil.waterProperties(RegistryEvents.fluidBeer, RegistryEvents.fluidBeerFlowing, 0xFF796400, RegistryEvents.bucketBeer, RegistryEvents.fluidBeerBlock)));
+    public static final RegistryObject<FlowingFluid> fluidBeerFlowing = FLUIDS.register("fluid_beer_flowing", () -> new ForgeFlowingFluid.Flowing(FluidTransferUtil.waterProperties(RegistryEvents.fluidBeer, RegistryEvents.fluidBeerFlowing, 0xFF796400, RegistryEvents.bucketBeer, RegistryEvents.fluidBeerBlock)));
+
+    public static final RegistryObject<Effect> drunk = EFFECT.register("drunk", () -> new WineEffect(EffectType.NEUTRAL, 0xFF796400));
+    public static final RegistryObject<Effect> hapiness = EFFECT.register("hapiness", () -> new WineEffect(EffectType.BENEFICIAL, 0xFF796400));
+
+    public static final RegistryObject<Potion> beer = POTION.register("beer", () -> new Wine("beer", fluidBeer.get(), new EffectInstance(RegistryEvents.hapiness.get(), 3600)));
+
+    public static final RegistryObject<TileEntityType<LiquidBarrelTileEntity>> liquidBarrelTileEntity = TILE_ENTITIES.register("liquid_barrel_tileentity", () -> TileEntityType.Builder.create(LiquidBarrelTileEntity::new, RegistryEvents.liquidBarrelBlock.get()).build(null));
+
+    public static ItemGroup wineryItemGroup = new ItemGroup("villagerswinery") {
         @Override
         public ItemStack createIcon() {
-            return new ItemStack(emptyWinebowl);
+            return new ItemStack(RegistryEvents.emptyWinebowl.get());
         }
     };
 
-    @SubscribeEvent
-    public static void onItemRegistry(final RegistryEvent.Register<Item> itemRegistryEvent) {
-        // register a new item here
-        winebowl = new Winebowl(new Item.Properties().group(wineryItemGroup).maxStackSize(1)).setRegistryName(VillagersWineryMod.MODID, "wine_bowl");
-        emptyWinebowl = new EmptyWinebowl(new Item.Properties().group(wineryItemGroup).maxStackSize(16)).setRegistryName(VillagersWineryMod.MODID, "empty_wine_bowl");
-
-        IForgeRegistry<Item> registry = itemRegistryEvent.getRegistry();
-        registry.registerAll(winebowl, emptyWinebowl);
+    public static void setRegister(IEventBus eventBus) {
+        ITEMS.register(eventBus);
+        BLOCKS.register(eventBus);
+        FLUIDS.register(eventBus);
+        EFFECT.register(eventBus);
+        POTION.register(eventBus);
+        TILE_ENTITIES.register(eventBus);
     }
 
-    @SubscribeEvent
-    public static void onBlocksRegistry(final RegistryEvent.Register<Block> blockRegistryEvent) {
-        // register a new block here
-
-        IForgeRegistry<Block> registry = blockRegistryEvent.getRegistry();
-    }
-
-    @SubscribeEvent
-    public static void onFluidRegistry(final RegistryEvent.Register<Fluid> fluidRegistryEvent) {
-        // register a new fluid here
-
-        IForgeRegistry<Fluid> registry = fluidRegistryEvent.getRegistry();
-    }
-
-    @SubscribeEvent
-    public static void onEffectsRegistry(final RegistryEvent.Register<Effect> effectRegistryEvent) {
-        // register a new effect here
-
-        drunk = new WineEffect(EffectType.NEUTRAL, 0x796400).setRegistryName(VillagersWineryMod.MODID, "drunk");
-        hapiness = new WineEffect(EffectType.BENEFICIAL, 0x796400).setRegistryName(VillagersWineryMod.MODID, "hapiness");
-
-        IForgeRegistry<Effect> registry = effectRegistryEvent.getRegistry();
-        registry.registerAll(drunk, hapiness);
-    }
-
-    @SubscribeEvent
-    public static void onPotionRegistry(final RegistryEvent.Register<Potion> potionRegistryEvent) {
-        // register a new potion here
-
-        beer = new Wine("beer", new EffectInstance(hapiness.getEffect(), 3600)).setRegistryName("beer");
-
-        Wines.put("beer", beer);
-
-        IForgeRegistry<Potion> registry = potionRegistryEvent.getRegistry();
-        registry.registerAll(beer);
+    public static void setRender(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> {
+            RenderTypeLookup.setRenderLayer(RegistryEvents.fluidBeer.get(), RenderType.getTranslucent());
+            RenderTypeLookup.setRenderLayer(RegistryEvents.fluidBeerFlowing.get(), RenderType.getTranslucent());
+        });
     }
 }
