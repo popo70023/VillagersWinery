@@ -175,6 +175,9 @@
 			"rotation": [0, -84.25, 0],
 			"translation": [0, 0, -4.25]
 		},
+		"ground": {
+			"translation": [0, 4.5, 0]
+		},
 		"gui": {
 			"rotation": [37.25, 43.75, 0],
 			"translation": [0, 3.75, 0],

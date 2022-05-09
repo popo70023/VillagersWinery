@@ -1,6 +1,11 @@
 package com.benchenssever.villagerswinery;
 
+import com.benchenssever.villagerswinery.model.WineBowlBackedModel;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -13,6 +18,8 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Map;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(VillagersWineryMod.MODID)
@@ -65,5 +72,21 @@ public class VillagersWineryMod
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
         // do something when the server starts
+    }
+
+    //TODO: move to client side only
+    @SubscribeEvent
+    public static void onModelBaked(ModelBakeEvent event) {
+        Map<ResourceLocation, IBakedModel> modelRegistry = event.getModelRegistry();
+        ModelResourceLocation location = new ModelResourceLocation(RegistryEvents.winebowl.get().getRegistryName(), "inventory");
+        IBakedModel existingModel = modelRegistry.get(location);
+        if (existingModel == null) {
+            throw new RuntimeException("Did not find WineBowl in registry");
+        } else if (existingModel instanceof WineBowlBackedModel) {
+            throw new RuntimeException("Tried to WineBowl twice");
+        } else {
+            WineBowlBackedModel backedModel = new WineBowlBackedModel(existingModel);
+            event.getModelRegistry().put(location, backedModel);
+        }
     }
 }
