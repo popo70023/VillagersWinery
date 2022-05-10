@@ -39,7 +39,7 @@ public class LiquidBarrel extends HorizontalBlock {
 
     @Override
     public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
-        if((state.get(VERTICAL) && hit.getFace() == Direction.UP) || state.get(HORIZONTAL_FACING) == hit.getFace()) {
+        if(state.get(VERTICAL)? hit.getFace() == Direction.UP : hit.getFace() == state.get(HORIZONTAL_FACING)) {
             if (FluidTransferUtil.interactWithTank(world, pos, player, hand, hit)) {
                 return ActionResultType.SUCCESS;
             }
