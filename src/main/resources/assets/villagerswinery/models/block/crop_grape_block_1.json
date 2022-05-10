@@ -1,0 +1,6 @@
+{
+  "parent": "block/crop",
+  "textures": {
+    "crop": "villagerswinery:block/crop_grape_block_1"
+  }
+}

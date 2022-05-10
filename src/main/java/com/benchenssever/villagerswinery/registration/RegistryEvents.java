@@ -4,8 +4,10 @@ import com.benchenssever.villagerswinery.VillagersWineryMod;
 import com.benchenssever.villagerswinery.Wine.Wine;
 import com.benchenssever.villagerswinery.Wine.WineEffect;
 import com.benchenssever.villagerswinery.block.LiquidBarrel;
+import com.benchenssever.villagerswinery.block.StandAndVine;
 import com.benchenssever.villagerswinery.fluid.FluidTransferUtil;
 import com.benchenssever.villagerswinery.item.EmptyWinebowl;
+import com.benchenssever.villagerswinery.item.VineSeeds;
 import com.benchenssever.villagerswinery.item.Winebowl;
 import com.benchenssever.villagerswinery.tileentity.LiquidBarrelTileEntity;
 import net.minecraft.block.*;
@@ -43,8 +45,12 @@ public class RegistryEvents {
     public static final RegistryObject<Item> bucketBeer = ITEMS.register("beer_fluid_bucket", () -> new BucketItem(RegistryEvents.fluidBeer, new Item.Properties().group(RegistryEvents.wineryItemGroup).containerItem(BUCKET)));
 
     public static final RegistryObject<Item> liquidBarrelItem = ITEMS.register("liquid_barrel", () -> new BlockItem(RegistryEvents.liquidBarrelBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
+    public static final RegistryObject<Item> standItem = ITEMS.register("stand", () -> new BlockNamedItem(RegistryEvents.standBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
+    public static final RegistryObject<Item> grapeSeed = ITEMS.register("grapeseed", () -> new VineSeeds(RegistryEvents.grapeBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
 
     public static final RegistryObject<Block> liquidBarrelBlock = BLOCKS.register("liquid_barrel", () -> new LiquidBarrel(AbstractBlock.Properties.create(Material.WOOD).hardnessAndResistance(2.5F).sound(SoundType.WOOD)));
+    public static final RegistryObject<Block> standBlock = BLOCKS.register("stand", () -> new StandAndVine(AbstractBlock.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(2.5F).sound(SoundType.WOOD).notSolid(), 0));
+    public static final RegistryObject<Block> grapeBlock = BLOCKS.register("grape", () -> new StandAndVine(AbstractBlock.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(2.5F).sound(SoundType.WOOD).notSolid(), 3));
 
     public static final RegistryObject<FlowingFluidBlock> fluidBeerBlock = BLOCKS.register("fluid_beer_block", () -> new FlowingFluidBlock(RegistryEvents.fluidBeer, Block.Properties.create(Material.WATER).doesNotBlockMovement().hardnessAndResistance(100.0F).noDrops()));
 
@@ -78,6 +84,8 @@ public class RegistryEvents {
         event.enqueueWork(() -> {
             RenderTypeLookup.setRenderLayer(RegistryEvents.fluidBeer.get(), RenderType.getTranslucent());
             RenderTypeLookup.setRenderLayer(RegistryEvents.fluidBeerFlowing.get(), RenderType.getTranslucent());
+            RenderTypeLookup.setRenderLayer(RegistryEvents.standBlock.get(), RenderType.getCutout());
+            RenderTypeLookup.setRenderLayer(RegistryEvents.grapeBlock.get(), RenderType.getCutout());
         });
     }
 }

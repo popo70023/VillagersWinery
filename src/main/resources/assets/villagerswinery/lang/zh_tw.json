@@ -4,6 +4,14 @@
 
   "_comment": "村民酒莊 物品",
   "item.villagerswinery.empty_wine_bowl": "空酒杯",
+  "item.villagerswinery.stand": "支架",
+  "item.villagerswinery.grapeseed": "葡萄種子",
+
+  "_comment": "村民酒莊 液體",
+  "item.villagerswinery.beer_fluid_bucket": "桶裝啤酒",
+
+  "_comment": "村民酒莊 物品",
+  "Block.villagerswinery.liquid_barrel": "儲液木桶",
 
   "_comment": "村民酒莊 藥水效果",
 
