@@ -1,5 +1,12 @@
 {
   "variants": {
-    "": { "model": "villagerswinery:block/liquid_barrel" }
+    "facing=east,vertical=false": { "model": "villagerswinery:block/liquid_barrel", "x": 90, "y": 90 },
+    "facing=south,vertical=false": { "model": "villagerswinery:block/liquid_barrel", "x": 90, "y": 180 },
+    "facing=west,vertical=false": { "model": "villagerswinery:block/liquid_barrel", "x": 90, "y": 270 },
+    "facing=north,vertical=false": { "model": "villagerswinery:block/liquid_barrel", "x": 90 },
+    "facing=east,vertical=true": { "model": "villagerswinery:block/liquid_barrel_vertical", "y": 90 },
+    "facing=south,vertical=true": { "model": "villagerswinery:block/liquid_barrel_vertical", "y": 180 },
+    "facing=west,vertical=true": { "model": "villagerswinery:block/liquid_barrel_vertical", "y": 270 },
+    "facing=north,vertical=true": { "model": "villagerswinery:block/liquid_barrel_vertical"}
   }
 }

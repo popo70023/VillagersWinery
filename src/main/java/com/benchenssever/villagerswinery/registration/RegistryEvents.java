@@ -48,7 +48,7 @@ public class RegistryEvents {
     public static final RegistryObject<Item> standItem = ITEMS.register("stand", () -> new BlockNamedItem(RegistryEvents.standBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
     public static final RegistryObject<Item> grapeSeed = ITEMS.register("grapeseed", () -> new VineSeeds(RegistryEvents.grapeBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
 
-    public static final RegistryObject<Block> liquidBarrelBlock = BLOCKS.register("liquid_barrel", () -> new LiquidBarrel(AbstractBlock.Properties.create(Material.WOOD).hardnessAndResistance(2.5F).sound(SoundType.WOOD)));
+    public static final RegistryObject<Block> liquidBarrelBlock = BLOCKS.register("liquid_barrel", () -> new LiquidBarrel(AbstractBlock.Properties.create(Material.WOOD).hardnessAndResistance(2.5F).sound(SoundType.WOOD).notSolid()));
     public static final RegistryObject<Block> standBlock = BLOCKS.register("stand", () -> new StandAndVine(AbstractBlock.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(2.5F).sound(SoundType.WOOD).notSolid(), 0));
     public static final RegistryObject<Block> grapeBlock = BLOCKS.register("grape", () -> new StandAndVine(AbstractBlock.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(2.5F).sound(SoundType.WOOD).notSolid(), 3));
 
