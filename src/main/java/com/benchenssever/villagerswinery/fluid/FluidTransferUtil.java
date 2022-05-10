@@ -25,6 +25,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 
 import java.util.function.Supplier;
 
+//TODO: 要重構
 public class FluidTransferUtil{
 
     public static final ResourceLocation STILL_WATER_TEXTURE = new ResourceLocation("block/water_still");
