@@ -25,7 +25,7 @@ public class GrapeVine extends VineBlock implements IGrowable, ICrop {
 
     @Override
     public IntegerProperty getAgeProperty() {
-        return this.AGE;
+        return AGE;
     }
 
     @Override
