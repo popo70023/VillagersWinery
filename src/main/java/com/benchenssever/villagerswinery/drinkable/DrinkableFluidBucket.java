@@ -1,10 +1,12 @@
 package com.benchenssever.villagerswinery.drinkable;
 
+import com.benchenssever.villagerswinery.VillagersWineryMod;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.BucketItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
@@ -21,11 +23,11 @@ public class DrinkableFluidBucket extends BucketItem {
 
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+        tooltip.add(new TranslationTextComponent("drinks."+VillagersWineryMod.MODID+"."+drinks.id+".information"));
     }
 
     @Override
     public ITextComponent getDisplayName(ItemStack stack) {
-        return super.getDisplayName(stack);
+        return new TranslationTextComponent("item."+VillagersWineryMod.MODID+".bucket",new TranslationTextComponent("drinks."+VillagersWineryMod.MODID+"."+drinks.id));
     }
 }
