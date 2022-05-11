@@ -4,6 +4,8 @@
     "villagerswinery:fluid_beer",
     "villagerswinery:fluid_beer_flowing",
     "villagerswinery:fluid_grape_wine",
-    "villagerswinery:fluid_grape_wine_flowing"
+    "villagerswinery:fluid_grape_wine_flowing",
+    "villagerswinery:fluid_wort",
+    "villagerswinery:fluid_wort_flowing"
   ]
 }
