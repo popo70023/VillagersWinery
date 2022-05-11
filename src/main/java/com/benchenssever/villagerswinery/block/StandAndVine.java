@@ -20,12 +20,11 @@ import java.util.Random;
 
 public class StandAndVine extends CropsBlock {
     private final int heightLimit;
-    public static final BooleanProperty MATURE = BooleanProperty.create("mature");
     private static final VoxelShape STAND_SHAPE = Block.makeCuboidShape(1.0D, 0.0D, 1.0D, 15.0D, 16.0D, 15.0D);
 
     public StandAndVine(Properties properties, int heightLimit) {
         super(properties);
-        this.setDefaultState(this.stateContainer.getBaseState().with(this.getAgeProperty(), 0).with(this.getMatureProperty(), false));
+        this.setDefaultState(this.stateContainer.getBaseState().with(this.getAgeProperty(), 0));
         this.heightLimit = heightLimit;
     }
 
@@ -37,26 +36,13 @@ public class StandAndVine extends CropsBlock {
         return state.matchesBlock(Blocks.FARMLAND) || state.getBlock() instanceof StandAndVine;
     }
 
-    public BooleanProperty getMatureProperty() {
-        return MATURE;
-    }
-
     protected int getAge(BlockState state) {
         return state.get(this.getAgeProperty());
-    }
-    protected Boolean getMature(BlockState state) {
-        return state.get(this.getMatureProperty());
     }
 
     public BlockState withAge(BlockState state, int age) {
         return state.with(this.getAgeProperty(), age);
     }
-
-    public BlockState withMature(BlockState state, Boolean mature) {
-        return state.with(this.getMatureProperty(), mature);
-    }
-
-    public boolean ticksRandomly(BlockState state) { return !this.getMature(state);}
 
     public void randomTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
         if (!worldIn.isAreaLoaded(pos, 1)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light
@@ -150,11 +136,5 @@ public class StandAndVine extends CropsBlock {
                 this.growth(worldIn, pos.up(h));
             }
         }
-    }
-
-    @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-        super.fillStateContainer(builder);
-        builder.add(MATURE);
     }
 }
