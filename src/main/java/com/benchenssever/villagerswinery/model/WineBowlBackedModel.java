@@ -1,5 +1,6 @@
 package com.benchenssever.villagerswinery.model;
 
+import com.benchenssever.villagerswinery.registration.DrinksRegistry;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.BlockState;
@@ -35,7 +36,7 @@ public class WineBowlBackedModel implements IBakedModel {
 
     public WineBowlBackedModel(IBakedModel existingModel) {
         this.existingModel = existingModel;
-        this.fluidStack = new FluidStack(RegistryEvents.fluidBeer.get(), 1000);
+        this.fluidStack = new FluidStack(DrinksRegistry.beer.getFluid(), 1000);
         this.fluidQuad = getLiquidQuad(fluidStack);
         Random rand = new Random();
         for (Direction side : Direction.values()) {

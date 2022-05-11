@@ -1,16 +1,12 @@
 package com.benchenssever.villagerswinery.drinkable;
 
-import com.benchenssever.villagerswinery.VillagersWineryMod;
 import com.benchenssever.villagerswinery.registration.DrinksRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.fluid.FlowingFluid;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.BucketItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvents;
@@ -18,12 +14,7 @@ import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.function.Supplier;
 
 import static net.minecraft.item.Items.BUCKET;
@@ -54,10 +45,12 @@ public class Drinks {
     private RegistryObject<FlowingFluidBlock> fluidBlock;
     private RegistryObject<FlowingFluid> fluid;
     private RegistryObject<FlowingFluid> flowingFluid;
+
     public final Supplier<EffectInstance[]> effects;
     public final String id;
     public final int color;
 
+    //TODO: 添加factories模式更換支持，來更換可用的初始化class類別，參考FluidAttributes.Builder
     public Drinks(Builder builder) {
         this.id = builder.id;
         this.color = builder.color;
@@ -103,6 +96,22 @@ public class Drinks {
 
     EffectInstance[] getEffects(FluidStack fluidStack) {
         return this.effects.get();
+    }
+
+    public FlowingFluid getFluid(){
+        return fluid.get();
+    }
+
+    public FlowingFluid getFlowingFluid(){
+        return flowingFluid.get();
+    }
+
+    public Item getBucket(){
+        return bucket.get();
+    }
+
+    public FlowingFluidBlock getFluidBlock(){
+        return fluidBlock.get();
     }
 
 

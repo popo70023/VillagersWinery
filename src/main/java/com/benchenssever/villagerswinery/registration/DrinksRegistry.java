@@ -28,6 +28,16 @@ public class DrinksRegistry {
             .group(RegistryEvents.wineryItemGroup)
             .build();
 
+    public static final Drinks beer = new Drinks.Builder("beer")
+            .effects(() -> new EffectInstance[]{
+                    new EffectInstance(RegistryEvents.hapiness.get(), 3600)
+            })
+            .color(0xFF796400)
+            .group(RegistryEvents.wineryItemGroup)
+            .build();
+
+    public static final Drinks[] drinksCollection = {grape_wine, beer};
+
     public static void setRegister(IEventBus eventBus) {
         ITEMS.register(eventBus);
         BLOCKS.register(eventBus);
@@ -37,10 +47,10 @@ public class DrinksRegistry {
 
     public static void setRender(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-//            RenderTypeLookup.setRenderLayer(grape_wine.get(), RenderType.getTranslucent());
-//            RenderTypeLookup.setRenderLayer(RegistryEvents.fluidBeerFlowing.get(), RenderType.getTranslucent());
-//            RenderTypeLookup.setRenderLayer(RegistryEvents.standBlock.get(), RenderType.getCutout());
-//            RenderTypeLookup.setRenderLayer(RegistryEvents.grapeBlock.get(), RenderType.getCutout());
+            for (Drinks drinks : drinksCollection) {
+                RenderTypeLookup.setRenderLayer(drinks.getFluid(), RenderType.getTranslucent());
+                RenderTypeLookup.setRenderLayer(drinks.getFlowingFluid(), RenderType.getTranslucent());
+            }
         });
     }
 }

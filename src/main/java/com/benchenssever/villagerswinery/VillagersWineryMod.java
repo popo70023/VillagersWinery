@@ -60,6 +60,7 @@ public class VillagersWineryMod
     private void doClientStuff(final FMLClientSetupEvent event) {
         // do something that can only be done on the client
         RegistryEvents.setRender(event);
+        DrinksRegistry.setRender(event);
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event) {

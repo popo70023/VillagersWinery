@@ -42,7 +42,6 @@ public class RegistryEvents {
 
     public static final RegistryObject<Item> winebowl = ITEMS.register("wine_bowl", () -> new Winebowl(new Item.Properties().group(RegistryEvents.wineryItemGroup).maxStackSize(1)));
     public static final RegistryObject<Item> emptyWinebowl = ITEMS.register("empty_wine_bowl", () -> new EmptyWinebowl(new Item.Properties().group(RegistryEvents.wineryItemGroup).maxStackSize(16)));
-    public static final RegistryObject<Item> bucketBeer = ITEMS.register("beer_fluid_bucket", () -> new BucketItem(RegistryEvents.fluidBeer, new Item.Properties().group(RegistryEvents.wineryItemGroup).containerItem(BUCKET)));
 
     public static final RegistryObject<Item> liquidBarrelItem = ITEMS.register("liquid_barrel", () -> new BlockItem(RegistryEvents.liquidBarrelBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
     public static final RegistryObject<Item> standItem = ITEMS.register("stand", () -> new BlockNamedItem(RegistryEvents.standBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
@@ -52,14 +51,10 @@ public class RegistryEvents {
     public static final RegistryObject<Block> standBlock = BLOCKS.register("stand", () -> new StandAndVine(AbstractBlock.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(2.5F).sound(SoundType.WOOD).notSolid(), 0));
     public static final RegistryObject<Block> grapeBlock = BLOCKS.register("grape", () -> new StandAndVine(AbstractBlock.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(2.5F).sound(SoundType.WOOD).notSolid(), 3));
 
-    public static final RegistryObject<FlowingFluidBlock> fluidBeerBlock = BLOCKS.register("fluid_beer_block", () -> new FlowingFluidBlock(RegistryEvents.fluidBeer, Block.Properties.create(Material.WATER).doesNotBlockMovement().hardnessAndResistance(100.0F).noDrops()));
-    public static final RegistryObject<FlowingFluid> fluidBeer = FLUIDS.register("fluid_beer", () -> new ForgeFlowingFluid.Source(FluidTransferUtil.waterProperties(RegistryEvents.fluidBeer, RegistryEvents.fluidBeerFlowing, 0xFF796400, RegistryEvents.bucketBeer, RegistryEvents.fluidBeerBlock)));
-    public static final RegistryObject<FlowingFluid> fluidBeerFlowing = FLUIDS.register("fluid_beer_flowing", () -> new ForgeFlowingFluid.Flowing(FluidTransferUtil.waterProperties(RegistryEvents.fluidBeer, RegistryEvents.fluidBeerFlowing, 0xFF796400, RegistryEvents.bucketBeer, RegistryEvents.fluidBeerBlock)));
-
     public static final RegistryObject<Effect> drunk = EFFECT.register("drunk", () -> new WineEffect(EffectType.NEUTRAL, 0xFF796400));
     public static final RegistryObject<Effect> hapiness = EFFECT.register("hapiness", () -> new WineEffect(EffectType.BENEFICIAL, 0xFF796400));
 
-    public static final RegistryObject<Potion> beer = POTION.register("beer", () -> new Wine("beer", fluidBeer.get(), new EffectInstance(RegistryEvents.hapiness.get(), 3600)));
+//    public static final RegistryObject<Potion> beer = POTION.register("beer", () -> new Wine("beer", fluidBeer.get(), new EffectInstance(RegistryEvents.hapiness.get(), 3600)));
 
     public static final RegistryObject<TileEntityType<LiquidBarrelTileEntity>> liquidBarrelTileEntity = TILE_ENTITIES.register("liquid_barrel_tileentity", () -> TileEntityType.Builder.create(LiquidBarrelTileEntity::new, RegistryEvents.liquidBarrelBlock.get()).build(null));
 
@@ -81,8 +76,8 @@ public class RegistryEvents {
 
     public static void setRender(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            RenderTypeLookup.setRenderLayer(RegistryEvents.fluidBeer.get(), RenderType.getTranslucent());
-            RenderTypeLookup.setRenderLayer(RegistryEvents.fluidBeerFlowing.get(), RenderType.getTranslucent());
+//            RenderTypeLookup.setRenderLayer(RegistryEvents.fluidBeer.get(), RenderType.getTranslucent());
+//            RenderTypeLookup.setRenderLayer(RegistryEvents.fluidBeerFlowing.get(), RenderType.getTranslucent());
             RenderTypeLookup.setRenderLayer(RegistryEvents.standBlock.get(), RenderType.getCutout());
             RenderTypeLookup.setRenderLayer(RegistryEvents.grapeBlock.get(), RenderType.getCutout());
         });
