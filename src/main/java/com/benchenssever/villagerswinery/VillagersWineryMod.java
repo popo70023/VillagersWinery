@@ -1,6 +1,7 @@
 package com.benchenssever.villagerswinery;
 
 import com.benchenssever.villagerswinery.model.WineBowlBackedModel;
+import com.benchenssever.villagerswinery.registration.DrinksRegistry;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
@@ -46,6 +47,7 @@ public class VillagersWineryMod
         eventBus.addListener(this::doClientStuff);
 
         RegistryEvents.setRegister(eventBus);
+        DrinksRegistry.setRegister(eventBus);
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);

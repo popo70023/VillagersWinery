@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "villagerswinery:fluid_beer",
+    "villagerswinery:fluid_beer_flowing"
+  ]
+}

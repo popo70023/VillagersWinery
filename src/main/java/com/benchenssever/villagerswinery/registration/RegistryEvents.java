@@ -53,7 +53,6 @@ public class RegistryEvents {
     public static final RegistryObject<Block> grapeBlock = BLOCKS.register("grape", () -> new StandAndVine(AbstractBlock.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(2.5F).sound(SoundType.WOOD).notSolid(), 3));
 
     public static final RegistryObject<FlowingFluidBlock> fluidBeerBlock = BLOCKS.register("fluid_beer_block", () -> new FlowingFluidBlock(RegistryEvents.fluidBeer, Block.Properties.create(Material.WATER).doesNotBlockMovement().hardnessAndResistance(100.0F).noDrops()));
-
     public static final RegistryObject<FlowingFluid> fluidBeer = FLUIDS.register("fluid_beer", () -> new ForgeFlowingFluid.Source(FluidTransferUtil.waterProperties(RegistryEvents.fluidBeer, RegistryEvents.fluidBeerFlowing, 0xFF796400, RegistryEvents.bucketBeer, RegistryEvents.fluidBeerBlock)));
     public static final RegistryObject<FlowingFluid> fluidBeerFlowing = FLUIDS.register("fluid_beer_flowing", () -> new ForgeFlowingFluid.Flowing(FluidTransferUtil.waterProperties(RegistryEvents.fluidBeer, RegistryEvents.fluidBeerFlowing, 0xFF796400, RegistryEvents.bucketBeer, RegistryEvents.fluidBeerBlock)));
 

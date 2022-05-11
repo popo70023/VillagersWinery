@@ -26,13 +26,13 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import java.util.function.Supplier;
 
 //TODO: 要重構
-public class FluidTransferUtil{
+public class FluidTransferUtil {
 
     public static final ResourceLocation STILL_WATER_TEXTURE = new ResourceLocation("block/water_still");
     public static final ResourceLocation FLOWING_WATER_TEXTURE = new ResourceLocation("block/water_flow");
 
     public static ForgeFlowingFluid.Properties waterProperties(Supplier<FlowingFluid> still, Supplier<FlowingFluid> flowing, int color, Supplier<Item> bucket, Supplier<FlowingFluidBlock> block) {
-        return new ForgeFlowingFluid.Properties(still, flowing, FluidAttributes.builder(STILL_WATER_TEXTURE, FLOWING_WATER_TEXTURE).color(color).density(4000).viscosity(4000).sound(SoundEvents.ITEM_BUCKET_FILL,SoundEvents.ITEM_BUCKET_EMPTY)).bucket(bucket).block(block).slopeFindDistance(3).explosionResistance(100F);
+        return new ForgeFlowingFluid.Properties(still, flowing, FluidAttributes.builder(STILL_WATER_TEXTURE, FLOWING_WATER_TEXTURE).color(color).density(4000).viscosity(4000).sound(SoundEvents.ITEM_BUCKET_FILL, SoundEvents.ITEM_BUCKET_EMPTY)).bucket(bucket).block(block).slopeFindDistance(3).explosionResistance(100F);
     }
 
     public static FluidStack tryTransfer(IFluidHandler input, IFluidHandler output, int maxFill) {
