@@ -12,6 +12,8 @@
   "drinks.villagerswinery.beer.information": "ben精心釀造的第一桶啤酒",
   "drinks.villagerswinery.grape_wine": "葡萄酒",
   "drinks.villagerswinery.grape_wine.information": "鐳鍶憑空變出來的葡萄酒",
+  "drinks.villagerswinery.wort": "麥芽汁",
+  "drinks.villagerswinery.wort.information": "神說，要有麥芽汁，所以世界上第一桶麥芽汁就啵的一聲這麼冒出來了",
 
   "_comment": "村民酒莊 物品",
   "block.villagerswinery.liquid_barrel": "儲液木桶",

@@ -36,7 +36,12 @@ public class DrinksRegistry {
             .group(RegistryEvents.wineryItemGroup)
             .build();
 
-    public static final Drinks[] drinksCollection = {grape_wine, beer};
+    public static final Drinks wort = new Drinks.Builder("wort")
+            .color(0xFFf5b642)
+            .group(RegistryEvents.wineryItemGroup)
+            .build();
+
+    public static final Drinks[] drinksCollection = {grape_wine, beer,wort};
 
     public static void setRegister(IEventBus eventBus) {
         ITEMS.register(eventBus);
