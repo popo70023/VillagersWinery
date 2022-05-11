@@ -82,6 +82,7 @@ public class RegistryEvents {
 //            RenderTypeLookup.setRenderLayer(RegistryEvents.fluidBeerFlowing.get(), RenderType.getTranslucent());
             RenderTypeLookup.setRenderLayer(RegistryEvents.standBlock.get(), RenderType.getCutout());
             RenderTypeLookup.setRenderLayer(RegistryEvents.grapeBlock.get(), RenderType.getCutout());
+            RenderTypeLookup.setRenderLayer(RegistryEvents.grapeVineBlock.get(), RenderType.getCutout());
         });
     }
 }

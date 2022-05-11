@@ -20,7 +20,7 @@ public class GrapeVine extends VineBlock implements IGrowable, ICrop {
 
     public GrapeVine(Properties properties) {
         super(properties);
-        this.setDefaultState(this.stateContainer.getBaseState().with(AGE, 0));
+        this.setDefaultState(this.getDefaultState().with(AGE, 0));
     }
 
     @Override
@@ -36,12 +36,13 @@ public class GrapeVine extends VineBlock implements IGrowable, ICrop {
     @Override
     public void randomTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
         super.randomTick(state, worldIn, pos, random);
-        if (!worldIn.isAreaLoaded(pos, 1)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light
+        if (!worldIn.isAreaLoaded(pos, 1))
+            return; // Forge: prevent loading unloaded chunks when checking neighbor's light
         if (worldIn.getLightSubtracted(pos, 0) >= 9) {
             int i = this.getAge(state);
             if (i < this.getMaxAge()) {
                 float f = 1.0F;
-                if (net.minecraftforge.common.ForgeHooks.onCropsGrowPre(worldIn, pos, state, random.nextInt((int)(25.0F / f) + 1) == 0)) {
+                if (net.minecraftforge.common.ForgeHooks.onCropsGrowPre(worldIn, pos, state, random.nextInt((int) (25.0F / f) + 1) == 0)) {
                     worldIn.setBlockState(pos, this.withAge(state, i + 1), 2);
                     net.minecraftforge.common.ForgeHooks.onCropsGrowPost(worldIn, pos, state);
                 }
@@ -68,7 +69,7 @@ public class GrapeVine extends VineBlock implements IGrowable, ICrop {
     @Override
     public void grow(ServerWorld worldIn, Random rand, BlockPos pos, BlockState state) {
         int age = this.getAge(state) + MathHelper.nextInt(worldIn.rand, 2, 5);
-        if(age > this.getMaxAge()) age = this.getMaxAge();
+        if (age > this.getMaxAge()) age = this.getMaxAge();
         worldIn.setBlockState(pos, this.withAge(state, age), 2);
     }
 }
