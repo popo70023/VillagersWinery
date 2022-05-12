@@ -1,6 +1,7 @@
 {
-  "parent": "block/crop",
-  "textures": {
-    "crop": "villagerswinery:block/crop_stand_block_0"
-  }
+	"credit": "Made with Blockbench",
+	"parent": "block/crop",
+	"textures": {
+		"crop": "villagerswinery:block/crop_stand_block_0"
+	}
 }

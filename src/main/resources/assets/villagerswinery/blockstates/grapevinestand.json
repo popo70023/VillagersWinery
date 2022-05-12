@@ -1,0 +1,42 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "villagerswinery:block/stand"
+      }
+    },
+    {
+      "apply": {
+        "model": "villagerswinery:block/grape_crop"
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {"age": 3},
+          {"age": 4}
+        ]
+      },
+      "apply": {
+        "model": "villagerswinery:block/grape_crop_growth_1"
+      }
+    },
+    {
+      "when": {
+        "OR": [
+          {"age": 5},
+          {"age": 6}
+        ]
+      },
+      "apply": {
+        "model": "villagerswinery:block/grape_crop_growth_2"
+      }
+    },
+    {
+      "when":  {"age": 7},
+      "apply": {
+        "model": "villagerswinery:block/grape_crop_growth_3"
+      }
+    }
+  ]
+}
