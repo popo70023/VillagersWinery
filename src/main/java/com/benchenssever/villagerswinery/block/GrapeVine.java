@@ -24,20 +24,16 @@ public class GrapeVine extends VineBlock implements IGrowable, ICrop {
     }
 
     @Override
-    public IntegerProperty getAgeProperty() {
-        return AGE;
-    }
+    public IntegerProperty getAgeProperty() { return AGE; }
 
     @Override
-    public int getMaxAge() {
-        return 7;
-    }
+    public int getMaxAge() { return 7; }
 
     @Override
     public void randomTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
         super.randomTick(state, worldIn, pos, random);
         if (!worldIn.isAreaLoaded(pos, 1))
-            return; // Forge: prevent loading unloaded chunks when checking neighbor's light
+            return;
         if (worldIn.getLightSubtracted(pos, 0) >= 9) {
             int i = this.getAge(state);
             if (i < this.getMaxAge()) {
@@ -57,9 +53,7 @@ public class GrapeVine extends VineBlock implements IGrowable, ICrop {
     }
 
     @Override
-    public boolean canGrow(IBlockReader worldIn, BlockPos pos, BlockState state, boolean isClient) {
-        return this.isMaxAge(state);
-    }
+    public boolean canGrow(IBlockReader worldIn, BlockPos pos, BlockState state, boolean isClient) { return !this.isMaxAge(state); }
 
     @Override
     public boolean canUseBonemeal(World worldIn, Random rand, BlockPos pos, BlockState state) {
@@ -69,7 +63,7 @@ public class GrapeVine extends VineBlock implements IGrowable, ICrop {
     @Override
     public void grow(ServerWorld worldIn, Random rand, BlockPos pos, BlockState state) {
         int age = this.getAge(state) + MathHelper.nextInt(worldIn.rand, 2, 5);
-        if (age > this.getMaxAge()) age = this.getMaxAge();
+        if (age > this.getMaxAge()) {age = this.getMaxAge();}
         worldIn.setBlockState(pos, this.withAge(state, age), 2);
     }
 }

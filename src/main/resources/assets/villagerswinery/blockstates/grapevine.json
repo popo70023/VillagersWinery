@@ -1,14 +1,8 @@
 {
   "multipart": [
     {
-      "when": {
-        "up": "true"
-      },
-      "apply": {
-        "model": "villagerswinery:block/grapevine",
-        "x": 270,
-        "uvlock": true
-      }
+      "when": { "up": "true" },
+      "apply": { "model": "villagerswinery:block/grapevine", "x": 270, "uvlock": true }
     },
     {
       "when": {
@@ -18,19 +12,64 @@
         "south": "false",
         "east": "false"
       },
-      "apply": {
-        "model": "villagerswinery:block/grapevine",
-        "x": 270,
-        "uvlock": true
-      }
+      "apply": { "model": "villagerswinery:block/grapevine", "x": 270, "uvlock": true }
+    },
+    {
+      "when": { "OR": [
+        {"up": "true", "age": 3},
+        {"up": "true", "age": 4}
+      ]},
+      "apply": { "model": "villagerswinery:block/grapevine_growth_1", "x": 270, "uvlock": true }
+    },
+    {
+      "when": { "OR": [
+        {"up": "true", "age": 5},
+        {"up": "true", "age": 6}
+      ]},
+      "apply": { "model": "villagerswinery:block/grapevine_growth_2", "x": 270, "uvlock": true }
     },
     {
       "when": {
-        "north": "true"
+        "up": "true", "age": 7
       },
-      "apply": {
-        "model": "villagerswinery:block/grapevine"
-      }
+      "apply": { "model": "villagerswinery:block/grapevine_growth_3", "x": 270, "uvlock": true }
+    },
+    {
+      "when": { "north": "true" },
+      "apply": { "model": "villagerswinery:block/grapevine" }
+    },
+    {
+      "when": { "up": "false",
+        "north": "false",
+        "west": "false",
+        "south": "false",
+        "east": "false"
+      },
+      "apply": { "model": "villagerswinery:block/grapevine" }
+    },
+    {
+      "when": { "OR": [
+        {"north": "true", "age": 3},
+        {"north": "true", "age": 4}
+      ]},
+      "apply": { "model": "villagerswinery:block/grapevine_growth_1"}
+    },
+    {
+      "when": { "OR": [
+        {"north": "true", "age": 5},
+        {"north": "true", "age": 6}
+      ]},
+      "apply": { "model": "villagerswinery:block/grapevine_growth_2"}
+    },
+    {
+      "when": {
+        "north": "true", "age": 7
+      },
+      "apply": { "model": "villagerswinery:block/grapevine_growth_3"}
+    },
+    {
+      "when": { "west": "true" },
+      "apply": { "model": "villagerswinery:block/grapevine", "y": 270, "uvlock": true }
     },
     {
       "when": {
@@ -40,43 +79,31 @@
         "south": "false",
         "east": "false"
       },
-      "apply": {
-        "model": "villagerswinery:block/grapevine"
-      }
+      "apply": { "model": "villagerswinery:block/grapevine", "y": 270, "uvlock": true }
+    },
+    {
+      "when": { "OR": [
+        {"west": "true", "age": 3},
+        {"west": "true", "age": 4}
+      ]},
+      "apply": { "model": "villagerswinery:block/grapevine_growth_1", "y": 270, "uvlock": true }
+    },
+    {
+      "when": { "OR": [
+        {"west": "true", "age": 5},
+        {"west": "true", "age": 6}
+      ]},
+      "apply": { "model": "villagerswinery:block/grapevine_growth_2", "y": 270, "uvlock": true }
     },
     {
       "when": {
-        "west": "true"
+        "west": "true", "age": 7
       },
-      "apply": {
-        "model": "villagerswinery:block/grapevine",
-        "y": 270,
-        "uvlock": true
-      }
+      "apply": { "model": "villagerswinery:block/grapevine_growth_3", "y": 270, "uvlock": true }
     },
     {
-      "when": {
-        "up": "false",
-        "north": "false",
-        "west": "false",
-        "south": "false",
-        "east": "false"
-      },
-      "apply": {
-        "model": "villagerswinery:block/grapevine",
-        "y": 270,
-        "uvlock": true
-      }
-    },
-    {
-      "when": {
-        "south": "true"
-      },
-      "apply": {
-        "model": "villagerswinery:block/grapevine",
-        "y": 180,
-        "uvlock": true
-      }
+      "when": { "south": "true" },
+      "apply": { "model": "villagerswinery:block/grapevine", "y": 180, "uvlock": true }
     },
     {
       "when": {
@@ -86,21 +113,31 @@
         "south": "false",
         "east": "false"
       },
-      "apply": {
-        "model": "villagerswinery:block/grapevine",
-        "y": 180,
-        "uvlock": true
-      }
+      "apply": { "model": "villagerswinery:block/grapevine", "y": 180, "uvlock": true }
+    },
+    {
+      "when": { "OR": [
+        {"south": "true", "age": 3},
+        {"south": "true", "age": 4}
+      ]},
+      "apply": { "model": "villagerswinery:block/grapevine_growth_1", "y": 180, "uvlock": true }
+    },
+    {
+      "when": { "OR": [
+        {"south": "true", "age": 5},
+        {"south": "true", "age": 6}
+      ]},
+      "apply": { "model": "villagerswinery:block/grapevine_growth_2", "y": 180, "uvlock": true }
     },
     {
       "when": {
-        "east": "true"
+        "south": "true", "age": 7
       },
-      "apply": {
-        "model": "villagerswinery:block/grapevine",
-        "y": 90,
-        "uvlock": true
-      }
+      "apply": { "model": "villagerswinery:block/grapevine_growth_3", "y": 180, "uvlock": true }
+    },
+    {
+      "when": { "east": "true"  },
+      "apply": { "model": "villagerswinery:block/grapevine", "y": 90, "uvlock": true }
     },
     {
       "when": {
@@ -110,11 +147,27 @@
         "south": "false",
         "east": "false"
       },
-      "apply": {
-        "model": "villagerswinery:block/grapevine",
-        "y": 90,
-        "uvlock": true
-      }
+      "apply": { "model": "villagerswinery:block/grapevine", "y": 90, "uvlock": true }
+    },
+    {
+      "when": { "OR": [
+        {"east": "true", "age": 3},
+        {"east": "true", "age": 4}
+      ]},
+      "apply": { "model": "villagerswinery:block/grapevine_growth_1", "y": 90, "uvlock": true }
+    },
+    {
+      "when": { "OR": [
+        {"east": "true", "age": 5},
+        {"east": "true", "age": 6}
+      ]},
+      "apply": { "model": "villagerswinery:block/grapevine_growth_2", "y": 90, "uvlock": true }
+    },
+    {
+      "when": {
+        "east": "true", "age": 7
+      },
+      "apply": { "model": "villagerswinery:block/grapevine_growth_3", "y": 90, "uvlock": true }
     }
   ]
 }
