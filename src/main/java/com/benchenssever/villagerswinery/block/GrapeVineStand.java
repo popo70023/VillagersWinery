@@ -29,13 +29,22 @@ public class GrapeVineStand extends VineStand implements IGrowable, ICrop {
     public int getMaxAge() { return 7; }
 
     @Override
+    public float getGrowthChance(Block blockIn, IBlockReader worldIn, BlockPos pos) { return 1.0F; }
+
+    @Override
+    public void randomTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
+        super.randomTick(state, worldIn, pos, random);
+        this.growth(state, worldIn, pos, random);
+    }
+
+    @Override
     protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
         super.fillStateContainer(builder);
         builder.add(AGE);
     }
 
     @Override
-    public boolean canGrow(IBlockReader worldIn, BlockPos pos, BlockState state, boolean isClient) { return this.isMaxAge(state); }
+    public boolean canGrow(IBlockReader worldIn, BlockPos pos, BlockState state, boolean isClient) { return !this.isMaxAge(state); }
 
     @Override
     public boolean canUseBonemeal(World worldIn, Random rand, BlockPos pos, BlockState state) { return true; }

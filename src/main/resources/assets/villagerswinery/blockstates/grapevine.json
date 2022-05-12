@@ -1,18 +1,15 @@
 {
   "multipart": [
     {
-      "when": { "up": "true" },
-      "apply": { "model": "villagerswinery:block/grapevine", "x": 270, "uvlock": true }
+      "when": { "up": "true",  "west": "false", "east": "false"},
+      "apply": { "model": "villagerswinery:block/grapevine", "x": 270}
     },
     {
-      "when": {
-        "up": "false",
-        "north": "false",
-        "west": "false",
-        "south": "false",
-        "east": "false"
-      },
-      "apply": { "model": "villagerswinery:block/grapevine", "x": 270, "uvlock": true }
+      "when": { "OR": [
+        {"up": "true",  "west": "true"},
+        {"up": "true", "east": "true"}
+      ]},
+      "apply": { "model": "villagerswinery:block/grapevine", "y": 90, "x": 270}
     },
     {
       "when": { "OR": [
@@ -36,15 +33,6 @@
     },
     {
       "when": { "north": "true" },
-      "apply": { "model": "villagerswinery:block/grapevine" }
-    },
-    {
-      "when": { "up": "false",
-        "north": "false",
-        "west": "false",
-        "south": "false",
-        "east": "false"
-      },
       "apply": { "model": "villagerswinery:block/grapevine" }
     },
     {
@@ -72,16 +60,6 @@
       "apply": { "model": "villagerswinery:block/grapevine", "y": 270, "uvlock": true }
     },
     {
-      "when": {
-        "up": "false",
-        "north": "false",
-        "west": "false",
-        "south": "false",
-        "east": "false"
-      },
-      "apply": { "model": "villagerswinery:block/grapevine", "y": 270, "uvlock": true }
-    },
-    {
       "when": { "OR": [
         {"west": "true", "age": 3},
         {"west": "true", "age": 4}
@@ -106,16 +84,6 @@
       "apply": { "model": "villagerswinery:block/grapevine", "y": 180, "uvlock": true }
     },
     {
-      "when": {
-        "up": "false",
-        "north": "false",
-        "west": "false",
-        "south": "false",
-        "east": "false"
-      },
-      "apply": { "model": "villagerswinery:block/grapevine", "y": 180, "uvlock": true }
-    },
-    {
       "when": { "OR": [
         {"south": "true", "age": 3},
         {"south": "true", "age": 4}
@@ -137,16 +105,6 @@
     },
     {
       "when": { "east": "true"  },
-      "apply": { "model": "villagerswinery:block/grapevine", "y": 90, "uvlock": true }
-    },
-    {
-      "when": {
-        "up": "false",
-        "north": "false",
-        "west": "false",
-        "south": "false",
-        "east": "false"
-      },
       "apply": { "model": "villagerswinery:block/grapevine", "y": 90, "uvlock": true }
     },
     {

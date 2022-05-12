@@ -30,20 +30,12 @@ public class GrapeVine extends VineBlock implements IGrowable, ICrop {
     public int getMaxAge() { return 7; }
 
     @Override
+    public float getGrowthChance(Block blockIn, IBlockReader worldIn, BlockPos pos) { return 1.0F; }
+
+    @Override
     public void randomTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
         super.randomTick(state, worldIn, pos, random);
-        if (!worldIn.isAreaLoaded(pos, 1))
-            return;
-        if (worldIn.getLightSubtracted(pos, 0) >= 9) {
-            int i = this.getAge(state);
-            if (i < this.getMaxAge()) {
-                float f = 1.0F;
-                if (net.minecraftforge.common.ForgeHooks.onCropsGrowPre(worldIn, pos, state, random.nextInt((int) (25.0F / f) + 1) == 0)) {
-                    worldIn.setBlockState(pos, this.withAge(state, i + 1), 2);
-                    net.minecraftforge.common.ForgeHooks.onCropsGrowPost(worldIn, pos, state);
-                }
-            }
-        }
+        this.growth(state, worldIn, pos, random);
     }
 
     @Override
