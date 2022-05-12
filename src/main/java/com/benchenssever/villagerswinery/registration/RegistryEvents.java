@@ -42,12 +42,14 @@ public class RegistryEvents {
     public static final RegistryObject<Item> emptyWinebowl = ITEMS.register("empty_wine_bowl", () -> new EmptyWinebowl(new Item.Properties().group(RegistryEvents.wineryItemGroup).maxStackSize(16)));
 
     public static final RegistryObject<Item> liquidBarrelItem = ITEMS.register("liquid_barrel", () -> new BlockItem(RegistryEvents.liquidBarrelBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
+    public static final RegistryObject<Item> mixingBowlItem = ITEMS.register("mixing_bowl", () -> new BlockItem(RegistryEvents.mixingBowlBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
     public static final RegistryObject<Item> standItem = ITEMS.register("stand", () -> new BlockNamedItem(RegistryEvents.stand.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
     public static final RegistryObject<Item> grapeVineItem = ITEMS.register("grapevine", () -> new BlockItem(RegistryEvents.grapeVine.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
     public static final RegistryObject<Item> grape = ITEMS.register("grape",() -> new Item(new Item.Properties().group(RegistryEvents.wineryItemGroup).food(new Food.Builder().fastToEat().saturation(1).hunger(3).build())));
 
 
     public static final RegistryObject<Block> liquidBarrelBlock = BLOCKS.register("liquid_barrel", () -> new LiquidBarrel(AbstractBlock.Properties.create(Material.WOOD).hardnessAndResistance(2.5F).sound(SoundType.WOOD).notSolid()));
+    public static final RegistryObject<Block> mixingBowlBlock = BLOCKS.register("mixing_bowl", () -> new MixingBowl(AbstractBlock.Properties.create(Material.WOOD).hardnessAndResistance(2.5F).sound(SoundType.WOOD).notSolid()));
     public static final RegistryObject<Block> stand = BLOCKS.register("stand", () -> new Stand(AbstractBlock.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(2.5F).sound(SoundType.WOOD).notSolid()));
     public static final RegistryObject<Block> vineStand = BLOCKS.register("vinestand", () -> new VineStand(AbstractBlock.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(2.5F).sound(SoundType.VINE).notSolid()));
     public static final RegistryObject<Block> grapeVineStand = BLOCKS.register("grapevinestand", () -> new GrapeVineStand(AbstractBlock.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(2.5F).sound(SoundType.VINE).notSolid()));
