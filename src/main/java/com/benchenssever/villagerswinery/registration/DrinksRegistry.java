@@ -20,7 +20,7 @@ public class DrinksRegistry {
     public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(ForgeRegistries.FLUIDS, VillagersWineryMod.MODID);
     public static final DeferredRegister<Effect> EFFECT = DeferredRegister.create(ForgeRegistries.POTIONS, VillagersWineryMod.MODID);
 
-    public static final Drinks grape_wine = new Drinks.Builder("grape_wine")
+    public static final Drinks grapeWine = new Drinks.Builder("grape_wine")
             .effects(() -> new EffectInstance[]{
                     new EffectInstance(RegistryEvents.hapiness.get(), 3600)
             })
@@ -41,7 +41,18 @@ public class DrinksRegistry {
             .group(RegistryEvents.wineryItemGroup)
             .build();
 
-    public static final Drinks[] drinksCollection = {grape_wine, beer,wort};
+    public static final Drinks appleJuice = new Drinks.Builder("apple_juice")
+            .color(0xFFebd834)
+            .group(RegistryEvents.wineryItemGroup)
+            .build();
+
+
+    public static final Drinks cider = new Drinks.Builder("cider")
+            .color(0xFFfcf89a)
+            .group(RegistryEvents.wineryItemGroup)
+            .build();
+
+    public static final Drinks[] drinksCollection = {grapeWine, beer, wort, appleJuice, cider};
 
     public static void setRegister(IEventBus eventBus) {
         ITEMS.register(eventBus);

@@ -14,6 +14,10 @@
   "drinks.villagerswinery.grape_wine.information": "鐳鍶憑空變出來的葡萄酒",
   "drinks.villagerswinery.wort": "麥芽汁",
   "drinks.villagerswinery.wort.information": "神說，要有麥芽汁，所以世界上第一桶麥芽汁就啵的一聲這麼冒出來了",
+  "drinks.villagerswinery.apple_juice": "蘋果汁",
+  "drinks.villagerswinery.apple_juice.information": "蘋果的精華",
+  "drinks.villagerswinery.cider": "蘋果酒",
+  "drinks.villagerswinery.cider.information": "蘋果的精華的精華",
 
   "_comment": "村民酒莊 物品",
   "block.villagerswinery.liquid_barrel": "儲液木桶",
