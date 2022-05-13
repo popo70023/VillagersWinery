@@ -1,0 +1,7 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "villagerswinery:block/grape_vine",
+	"textures": {
+		"crop": "villagerswinery:block/grape_vine_dead"
+	}
+}
