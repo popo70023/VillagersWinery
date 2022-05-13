@@ -10,8 +10,10 @@ import com.benchenssever.villagerswinery.item.Winebowl;
 import com.benchenssever.villagerswinery.tileentity.LiquidBarrelTileEntity;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.*;
@@ -20,14 +22,14 @@ import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.EffectType;
 import net.minecraft.potion.Potion;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.world.FoliageColors;
+import net.minecraft.world.biome.BiomeColors;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-
-import static net.minecraft.item.Items.BUCKET;
 
 public class RegistryEvents {
 
@@ -80,12 +82,17 @@ public class RegistryEvents {
 
     public static void setRender(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-//            RenderTypeLookup.setRenderLayer(RegistryEvents.fluidBeer.get(), RenderType.getTranslucent());
-//            RenderTypeLookup.setRenderLayer(RegistryEvents.fluidBeerFlowing.get(), RenderType.getTranslucent());
             RenderTypeLookup.setRenderLayer(RegistryEvents.stand.get(), RenderType.getCutout());
             RenderTypeLookup.setRenderLayer(RegistryEvents.vineStand.get(), RenderType.getCutout());
             RenderTypeLookup.setRenderLayer(RegistryEvents.grapeVineStand.get(), RenderType.getCutout());
             RenderTypeLookup.setRenderLayer(RegistryEvents.grapeVine.get(), RenderType.getCutout());
+
+
+            BlockColors blockColors = Minecraft.getInstance().getBlockColors();
+            blockColors.register((state, reader, pos, color) -> {
+                return reader != null && pos != null ? BiomeColors.getFoliageColor(reader, pos) : FoliageColors.getDefault();
+            }, RegistryEvents.vineStand.get());
+
         });
     }
 }

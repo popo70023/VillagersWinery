@@ -7,7 +7,7 @@
     },
     {
       "apply": {
-        "model": "villagerswinery:block/vine"
+        "model": "villagerswinery:block/vine_crop"
       }
     }
   ]
