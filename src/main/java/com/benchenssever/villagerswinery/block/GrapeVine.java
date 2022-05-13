@@ -10,6 +10,7 @@ import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
@@ -57,5 +58,11 @@ public class GrapeVine extends VineBlock implements IGrowable, ICrop {
         int age = this.getAge(state) + MathHelper.nextInt(worldIn.rand, 2, 5);
         if (age > this.getMaxAge()) {age = this.getMaxAge();}
         worldIn.setBlockState(pos, this.withAge(state, age), 2);
+    }
+
+    @Override
+    public boolean isValidPosition(BlockState state, IWorldReader worldIn, BlockPos pos) {
+        BlockState ground = worldIn.getBlockState(pos.down());
+        return super.isValidPosition(state, worldIn, pos) && ICrop.isDirtGround(ground);
     }
 }

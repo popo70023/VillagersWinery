@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"ambientocclusion": false,
 	"textures": {
-		"particle": "villagerswinery:block/grapevine",
-		"vine": "villagerswinery:block/grapevine"
+		"particle": "villagerswinery:block/grape_vine",
+		"vine": "villagerswinery:block/grape_vine"
 	},
 	"elements": [
 		{

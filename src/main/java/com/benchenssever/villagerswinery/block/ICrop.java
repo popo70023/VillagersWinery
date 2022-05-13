@@ -2,6 +2,7 @@ package com.benchenssever.villagerswinery.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
@@ -36,4 +37,8 @@ public interface ICrop {
     }
 
     float getGrowthChance(Block blockIn, IBlockReader worldIn, BlockPos pos);
+
+    static boolean isDirtGround(BlockState state) {
+        return state.matchesBlock(Blocks.GRASS_BLOCK) || state.matchesBlock(Blocks.DIRT) || state.matchesBlock(Blocks.COARSE_DIRT) || state.matchesBlock(Blocks.PODZOL) || state.matchesBlock(Blocks.FARMLAND);
+    }
 }

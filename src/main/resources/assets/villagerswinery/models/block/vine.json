@@ -1,0 +1,6 @@
+{
+  "parent": "villagerswinery:block/grape_crop",
+  "textures": {
+    "crop": "block/vine"
+  }
+}

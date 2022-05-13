@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "villagerswinery:block/grapevine"
+    "layer0": "villagerswinery:block/grape_vine"
   }
 }

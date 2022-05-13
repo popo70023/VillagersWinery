@@ -1,0 +1,14 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "villagerswinery:block/stand"
+      }
+    },
+    {
+      "apply": {
+        "model": "villagerswinery:block/vine"
+      }
+    }
+  ]
+}

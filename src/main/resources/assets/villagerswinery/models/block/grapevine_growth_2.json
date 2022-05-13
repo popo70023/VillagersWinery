@@ -1,6 +1,0 @@
-{
-	"parent": "villagerswinery:block/grapevine_growth",
-	"textures": {
-		"vine": "villagerswinery:block/grapevine_growth_2"
-	}
-}

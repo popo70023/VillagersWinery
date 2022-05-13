@@ -1,6 +1,6 @@
 {
 	"parent": "villagerswinery:block/grape_crop_growth",
 	"textures": {
-		"crop": "villagerswinery:block/grapevine_growth_1"
+		"crop": "villagerswinery:block/grape_vine_growth_1"
 	}
 }
