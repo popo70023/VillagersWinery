@@ -23,10 +23,6 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public class GrapeVineStand extends VineStand implements IGrowable, ICrop {
@@ -34,7 +30,7 @@ public class GrapeVineStand extends VineStand implements IGrowable, ICrop {
 
     public GrapeVineStand(Properties properties) {
         super(properties);
-        this.setDefaultState(this.stateContainer.getBaseState().with(AGE, 0));
+        this.setDefaultState(this.getDefaultState().with(AGE, 0));
     }
 
     @Override
