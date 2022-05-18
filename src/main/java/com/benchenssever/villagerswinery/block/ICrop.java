@@ -3,6 +3,7 @@ package com.benchenssever.villagerswinery.block;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
@@ -20,6 +21,8 @@ public interface ICrop {
     default BlockState withAge(BlockState state, int age) {return state.with(this.getAgeProperty(), age);}
 
     default boolean isMaxAge(BlockState state){return this.getAge(state) >= this.getMaxAge();}
+
+    Item getProduct();
 
     default void growth(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
         if (!worldIn.isAreaLoaded(pos, 1))

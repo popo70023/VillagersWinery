@@ -40,38 +40,38 @@ public class Stand extends BushBlock {
 
     @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
-        if(state.matchesBlock(RegistryEvents.stand.get()) && !(worldIn.getBlockState(pos.down()).getBlock() instanceof Stand)) {
-            ItemStack stack = player.getHeldItem(handIn);
-            if(stack.getItem() == Items.VINE) {
-                if(!worldIn.isRemote()) {
-                    worldIn.setBlockState(pos, RegistryEvents.vineStand.get().getDefaultState(), 2);
-                    if (!player.abilities.isCreativeMode){stack.shrink(1);}
-                }
-                return ActionResultType.SUCCESS;
-            } else if(stack.getItem() == RegistryEvents.grapeVineItem.get()) {
-                if(!worldIn.isRemote()) {
-                    worldIn.setBlockState(pos, RegistryEvents.grapeVineStand.get().getDefaultState(), 2);
-                    if (!player.abilities.isCreativeMode){stack.shrink(1);}
-                }
-                return ActionResultType.SUCCESS;
+        ItemStack stack = player.getHeldItem(handIn);
+        if(stack.getItem() == Items.VINE) {
+            if(!worldIn.isRemote()) {
+                worldIn.setBlockState(pos, RegistryEvents.vineStand.get().getDefaultState(), 2);
+                if (!player.abilities.isCreativeMode){stack.shrink(1);}
             }
+            return ActionResultType.SUCCESS;
+        } else if(stack.getItem() == RegistryEvents.grapeVineItem.get()) {
+            if(!worldIn.isRemote()) {
+                worldIn.setBlockState(pos, RegistryEvents.grapeVineStand.get().getDefaultState(), 2);
+                if (!player.abilities.isCreativeMode){stack.shrink(1);}
+            }
+            return ActionResultType.SUCCESS;
         }
 
-        return super.onBlockActivated(state, worldIn, pos, player, handIn, hit);
+        return ActionResultType.PASS;
     }
 
 
 
     @Override
     protected boolean isValidGround(BlockState state, IBlockReader worldIn, BlockPos pos) {
-        System.out.println(worldIn.getBlockState(pos.up()));
-        return super.isValidGround(state, worldIn, pos)  || state.getBlock() instanceof Stand ||
-            this.chickDistance((World) worldIn, pos.up()) < 8;
+        int theDistance = this.chickDistance((World) worldIn, pos.up());
+        BlockState upState = worldIn.getBlockState(pos.up());
+        if(upState.getBlock() instanceof Stand && theDistance < upState.get(DISTANCE)) {((World) worldIn).setBlockState(pos.up(), upState.with(DISTANCE, theDistance), 3);}
+        return state.matchesBlock(Blocks.AIR) ? theDistance < ((upState.getBlock() instanceof Stand) ? upState.get(DISTANCE) + 1 : DISTANCE.getAllowedValues().size()):
+                super.isValidGround(state, worldIn, pos)  || state.getBlock() instanceof Stand;
     }
 
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         int i = this.chickDistance(context.getWorld(), context.getPos());
-        i = i < 7 ? i + 1 : 7;
+        if(i > DISTANCE.getAllowedValues().size() - 1) i = DISTANCE.getAllowedValues().size() - 1;
         return this.getDefaultState().with(DISTANCE, i);
     }
 
@@ -84,6 +84,7 @@ public class Stand extends BushBlock {
                     distance = checkBlockState.get(DISTANCE);
                 }
             }
+            if(distance != Integer.MAX_VALUE)distance++;
         } else {distance = 0;}
         return distance;
     }

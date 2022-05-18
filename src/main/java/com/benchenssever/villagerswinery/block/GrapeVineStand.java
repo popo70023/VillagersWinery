@@ -7,6 +7,7 @@ import net.minecraft.block.IGrowable;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.state.IntegerProperty;
@@ -40,6 +41,12 @@ public class GrapeVineStand extends VineStand implements IGrowable, ICrop {
     public int getMaxAge() { return 7; }
 
     @Override
+    public Item getProduct() { return RegistryEvents.grape.get(); }
+
+    @Override
+    public Item getVine() { return RegistryEvents.grapeVineItem.get(); }
+
+    @Override
     public float getGrowthChance(Block blockIn, IBlockReader worldIn, BlockPos pos) { return 1.0F; }
 
     @Override
@@ -55,11 +62,11 @@ public class GrapeVineStand extends VineStand implements IGrowable, ICrop {
             if(!worldIn.isRemote()) {
                 worldIn.playSound(null, pos, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.PLAYERS, 1.0F, 1.0F);
                 if(this.isMaxAge(state)) {
-                    worldIn.addEntity(new ItemEntity(worldIn, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, RegistryEvents.grape.get().getDefaultInstance()));
+                    worldIn.addEntity(new ItemEntity(worldIn, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, this.getProduct().getDefaultInstance()));
                     worldIn.setBlockState(pos, state.with(this.getAgeProperty(), 0), 2);
                 } else {
-                    worldIn.addEntity(new ItemEntity(worldIn, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, RegistryEvents.grapeVineItem.get().getDefaultInstance()));
-                    worldIn.setBlockState(pos, RegistryEvents.stand.get().getDefaultState(), 2);
+                    worldIn.addEntity(new ItemEntity(worldIn, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, this.getVine().getDefaultInstance()));
+                    worldIn.setBlockState(pos, this.getStand().getDefaultState(), 2);
                 }
 
                 if (!player.abilities.isCreativeMode) {
@@ -68,7 +75,7 @@ public class GrapeVineStand extends VineStand implements IGrowable, ICrop {
             }
             return ActionResultType.SUCCESS;
         }
-        return super.onBlockActivated(state, worldIn, pos, player, handIn, hit);
+        return ActionResultType.PASS;
     }
 
     @Override
