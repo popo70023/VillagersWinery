@@ -9,6 +9,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -17,11 +18,16 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.IForgeShearable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class VineStand extends Stand implements IForgeShearable {
+    public static final List<VineStand> listVineStand = new ArrayList<>();
+
     public VineStand(Properties properties) {
         super(properties);
+        listVineStand.add(this);
     }
 
     public Item getVine() { return Items.VINE; }
@@ -31,14 +37,12 @@ public class VineStand extends Stand implements IForgeShearable {
     @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
         ItemStack stack = player.getHeldItem(handIn);
-        if(stack.getItem() == Items.SHEARS) {
+        if(ItemTags.getCollection().get(new ResourceLocation("forge", "shears")).contains(stack.getItem())) {
             if(!worldIn.isRemote()) {
                 worldIn.playSound(null, pos, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.PLAYERS, 1.0F, 1.0F);
                 worldIn.addEntity(new ItemEntity(worldIn, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, this.getVine().getDefaultInstance()));
                 worldIn.setBlockState(pos, this.getStand().getDefaultState(), 2);
-                if (!player.abilities.isCreativeMode) {
-                    stack.attemptDamageItem(1, new Random(), (ServerPlayerEntity) player);
-                }
+                if (!player.abilities.isCreativeMode) { stack.attemptDamageItem(1, new Random(), (ServerPlayerEntity) player); }
             }
             return ActionResultType.SUCCESS;
         }
@@ -50,7 +54,7 @@ public class VineStand extends Stand implements IForgeShearable {
         super.randomTick(state, worldIn, pos, random);
         if (worldIn.rand.nextInt(4) == 0 && worldIn.isAreaLoaded(pos, 4)) {
             BlockPos growPos = pos.offset(Direction.getRandomDirection(random));
-            if(worldIn.getBlockState(growPos).getBlock().matchesBlock(RegistryEvents.stand.get())) {
+            if(worldIn.getBlockState(growPos).getBlock().matchesBlock(this.getStand())) {
                 worldIn.setBlockState(growPos, this.getDefaultState(), 2);
             }
         }

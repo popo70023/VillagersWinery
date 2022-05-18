@@ -9,14 +9,11 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.MathHelper;
@@ -26,19 +23,20 @@ import net.minecraft.world.server.ServerWorld;
 
 import java.util.Random;
 
-public class GrapeVineStand extends VineStand implements IGrowable, ICrop {
+public class GrapeVineStand extends VineStand implements IGrowable, ICrop, ISpreadCount {
     public static final IntegerProperty AGE = BlockStateProperties.AGE_0_7;
+    public static final IntegerProperty SPREAD = ISpreadCount.SPREAD;
 
     public GrapeVineStand(Properties properties) {
         super(properties);
-        this.setDefaultState(this.getDefaultState().with(AGE, 0));
+        this.setDefaultState(this.getDefaultState().with(AGE, 0).with(SPREAD, 0));
     }
 
     @Override
     public IntegerProperty getAgeProperty() { return AGE;}
 
     @Override
-    public int getMaxAge() { return 7; }
+    public IntegerProperty getSpreadProperty() { return SPREAD; }
 
     @Override
     public Item getProduct() { return RegistryEvents.grape.get(); }
@@ -51,14 +49,17 @@ public class GrapeVineStand extends VineStand implements IGrowable, ICrop {
 
     @Override
     public void randomTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
-        super.randomTick(state, worldIn, pos, random);
-        this.growth(state, worldIn, pos, random);
+        int spread = this.chickSpread(worldIn, pos);
+        if(spread > this.getMaxSpread()) { spread = this.getMaxSpread();}
+        this.withSpread(state, spread);
+        if(this.getSpread(state) < this.getMaxSpread() - 1) { super.randomTick(state, worldIn, pos, random);}
+        if(this.getSpread(state) > 1 && this.getSpread(state) < this.getMaxSpread()) { this.growth(state, worldIn, pos, random);}
     }
 
     @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
         ItemStack stack = player.getHeldItem(handIn);
-        if(stack.getItem() == Items.SHEARS) {
+        if(ItemTags.getCollection().get(new ResourceLocation("forge", "shears")).contains(stack.getItem())) {
             if(!worldIn.isRemote()) {
                 worldIn.playSound(null, pos, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.PLAYERS, 1.0F, 1.0F);
                 if(this.isMaxAge(state)) {
@@ -69,9 +70,7 @@ public class GrapeVineStand extends VineStand implements IGrowable, ICrop {
                     worldIn.setBlockState(pos, this.getStand().getDefaultState(), 2);
                 }
 
-                if (!player.abilities.isCreativeMode) {
-                    stack.attemptDamageItem(1, new Random(), (ServerPlayerEntity) player);
-                }
+                if (!player.abilities.isCreativeMode) { stack.attemptDamageItem(1, new Random(), (ServerPlayerEntity) player); }
             }
             return ActionResultType.SUCCESS;
         }
@@ -81,7 +80,7 @@ public class GrapeVineStand extends VineStand implements IGrowable, ICrop {
     @Override
     protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
         super.fillStateContainer(builder);
-        builder.add(AGE);
+        builder.add(AGE, SPREAD);
     }
 
     @Override

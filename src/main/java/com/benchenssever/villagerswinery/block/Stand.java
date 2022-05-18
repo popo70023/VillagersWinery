@@ -1,6 +1,5 @@
 package com.benchenssever.villagerswinery.block;
 
-import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -8,7 +7,6 @@ import net.minecraft.block.BushBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
@@ -41,18 +39,14 @@ public class Stand extends BushBlock {
     @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
         ItemStack stack = player.getHeldItem(handIn);
-        if(stack.getItem() == Items.VINE) {
-            if(!worldIn.isRemote()) {
-                worldIn.setBlockState(pos, RegistryEvents.vineStand.get().getDefaultState(), 2);
-                if (!player.abilities.isCreativeMode){stack.shrink(1);}
+        for(VineStand vineStandBlock : VineStand.listVineStand) {
+            if(stack.getItem() == vineStandBlock.getVine()) {
+                if(!worldIn.isRemote()) {
+                    worldIn.setBlockState(pos, vineStandBlock.getDefaultState(), 2);
+                    if (!player.abilities.isCreativeMode){stack.shrink(1);}
+                }
+                return ActionResultType.SUCCESS;
             }
-            return ActionResultType.SUCCESS;
-        } else if(stack.getItem() == RegistryEvents.grapeVineItem.get()) {
-            if(!worldIn.isRemote()) {
-                worldIn.setBlockState(pos, RegistryEvents.grapeVineStand.get().getDefaultState(), 2);
-                if (!player.abilities.isCreativeMode){stack.shrink(1);}
-            }
-            return ActionResultType.SUCCESS;
         }
 
         return ActionResultType.PASS;
@@ -61,7 +55,7 @@ public class Stand extends BushBlock {
 //TODO:支架支撐邏輯還不夠好
     @Override
     protected boolean isValidGround(BlockState state, IBlockReader worldIn, BlockPos pos) {
-        int theDistance = this.chickDistance((World) worldIn, pos.up());
+        int theDistance = this.checkDanglingDistance((World) worldIn, pos.up());
         BlockState upState = worldIn.getBlockState(pos.up());
         if(upState.getBlock() instanceof Stand && theDistance < upState.get(DISTANCE)) {((World) worldIn).setBlockState(pos.up(), upState.with(DISTANCE, theDistance), 3);}
         return state.matchesBlock(Blocks.AIR) ? theDistance < ((upState.getBlock() instanceof Stand) ? upState.get(DISTANCE) + 1 : DISTANCE.getAllowedValues().size()):
@@ -69,14 +63,14 @@ public class Stand extends BushBlock {
     }
 
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        int i = this.chickDistance(context.getWorld(), context.getPos());
+        int i = this.checkDanglingDistance(context.getWorld(), context.getPos());
         if(i > DISTANCE.getAllowedValues().size() - 1) i = DISTANCE.getAllowedValues().size() - 1;
         return this.getDefaultState().with(DISTANCE, i);
     }
 
-    private int chickDistance(World worldIn, BlockPos pos) {
-        int distance = Integer.MAX_VALUE;
+    private int checkDanglingDistance(World worldIn, BlockPos pos) {
         if(worldIn.getBlockState(pos.down()).getBlock() == Blocks.AIR) {
+            int distance = Integer.MAX_VALUE;
             for(Direction direction: HORIZONTAL_DIRECTION) {
                 BlockState checkBlockState = worldIn.getBlockState(pos.offset(direction));
                 if(checkBlockState.getBlock() instanceof Stand && checkBlockState.get(DISTANCE) < distance) {
@@ -84,8 +78,8 @@ public class Stand extends BushBlock {
                 }
             }
             if(distance != Integer.MAX_VALUE)distance++;
-        } else {distance = 0;}
-        return distance;
+            return distance;
+        } else { return 0;}
     }
 
     @Override

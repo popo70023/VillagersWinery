@@ -28,19 +28,20 @@ import net.minecraft.world.server.ServerWorld;
 
 import java.util.Random;
 
-public class GrapeVine extends VineBlock implements IGrowable, ICrop {
+public class GrapeVine extends VineBlock implements IGrowable, ICrop, ISpreadCount {
     public static final IntegerProperty AGE = BlockStateProperties.AGE_0_7;
+    public static final IntegerProperty SPREAD = ISpreadCount.SPREAD;
 
     public GrapeVine(Properties properties) {
         super(properties);
-        this.setDefaultState(this.getDefaultState().with(AGE, 0));
+        this.setDefaultState(this.getDefaultState().with(AGE, 0).with(SPREAD, 0));
     }
 
     @Override
     public IntegerProperty getAgeProperty() { return AGE; }
 
     @Override
-    public int getMaxAge() { return 7; }
+    public IntegerProperty getSpreadProperty() { return SPREAD; }
 
     @Override
     public Item getProduct() { return RegistryEvents.grape.get(); }
@@ -50,8 +51,11 @@ public class GrapeVine extends VineBlock implements IGrowable, ICrop {
 
     @Override
     public void randomTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
-        super.randomTick(state, worldIn, pos, random);
-        this.growth(state, worldIn, pos, random);
+        int spread = this.chickSpread(worldIn, pos);
+        if(spread > this.getMaxSpread()) { spread = this.getMaxSpread();}
+        this.withSpread(state, spread);
+        if(this.getSpread(state) < this.getMaxSpread() - 1) { super.randomTick(state, worldIn, pos, random);}
+        if(this.getSpread(state) > 1 && this.getSpread(state) < this.getMaxSpread()) { this.growth(state, worldIn, pos, random);}
     }
 
     @Override
@@ -74,7 +78,7 @@ public class GrapeVine extends VineBlock implements IGrowable, ICrop {
     @Override
     protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
         super.fillStateContainer(builder);
-        builder.add(AGE);
+        builder.add(AGE, SPREAD);
     }
 
     @Override
