@@ -58,8 +58,7 @@ public class Stand extends BushBlock {
         return ActionResultType.PASS;
     }
 
-
-
+//TODO:支架支撐邏輯還不夠好
     @Override
     protected boolean isValidGround(BlockState state, IBlockReader worldIn, BlockPos pos) {
         int theDistance = this.chickDistance((World) worldIn, pos.up());
