@@ -49,13 +49,15 @@ public class GrapeVine extends VineBlock implements IGrowable, ICrop, ISpreadCou
     @Override
     public float getGrowthChance(Block blockIn, IBlockReader worldIn, BlockPos pos) { return 1.0F; }
 
+    public boolean ticksRandomly(BlockState state) { return !this.isMaxSpread(state); }
+
     @Override
     public void randomTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
         int spread = this.chickSpread(worldIn, pos);
         if(spread > this.getMaxSpread()) { spread = this.getMaxSpread();}
-        this.withSpread(state, spread);
-        if(this.getSpread(state) < this.getMaxSpread() - 1) { super.randomTick(state, worldIn, pos, random);}
-        if(this.getSpread(state) > 1 && this.getSpread(state) < this.getMaxSpread()) { this.growth(state, worldIn, pos, random);}
+        worldIn.setBlockState(pos, this.withSpread(state, spread), 2);
+        if(spread < this.getMaxSpread() - 1) { super.randomTick(state, worldIn, pos, random);}
+        if(spread > 1 && this.getSpread(state) < this.getMaxSpread()) { this.growth(state, worldIn, pos, random);}
     }
 
     @Override

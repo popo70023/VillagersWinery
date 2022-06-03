@@ -6,6 +6,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -18,16 +19,13 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.IForgeShearable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
-public class VineStand extends Stand implements IForgeShearable {
-    public static final List<VineStand> listVineStand = new ArrayList<>();
+public class VineStand extends Stand implements IOnStand, IForgeShearable {
 
     public VineStand(Properties properties) {
         super(properties);
-        listVineStand.add(this);
+        listOnStandBlock.add(this);
     }
 
     public Item getVine() { return Items.VINE; }
@@ -63,5 +61,21 @@ public class VineStand extends Stand implements IForgeShearable {
     @Override
     public ItemStack getItem(IBlockReader worldIn, BlockPos pos, BlockState state) {
         return new ItemStack(this.getVine());
+    }
+
+    @Override
+    public boolean putOnStand(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn) {
+        ItemStack stack = player.getHeldItem(handIn);
+        if(stack.getItem() == this.getVine() && ICrop.isDirtGround(worldIn.getBlockState(pos.down()))) {
+            if(!worldIn.isRemote()) {
+                worldIn.playSound(null, pos, this.getSoundType(this.getDefaultState(), worldIn, pos, player).getPlaceSound(), SoundCategory.PLAYERS, 1.0F, 1.0F);
+                worldIn.setBlockState(pos, this.getDefaultState(), 2);
+                if (!player.abilities.isCreativeMode){stack.shrink(1);}
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }

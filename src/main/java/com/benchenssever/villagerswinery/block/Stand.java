@@ -5,14 +5,13 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.BushBlock;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -20,7 +19,11 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Stand extends BushBlock {
+    public static final List<IOnStand> listOnStandBlock = new ArrayList<>();
 
     private static final VoxelShape STAND_SHAPE = Block.makeCuboidShape(1.0D, 0.0D, 1.0D, 15.0D, 16.0D, 15.0D);
 
@@ -38,15 +41,8 @@ public class Stand extends BushBlock {
 
     @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
-        ItemStack stack = player.getHeldItem(handIn);
-        for(VineStand vineStandBlock : VineStand.listVineStand) {
-            if(stack.getItem() == vineStandBlock.getVine()) {
-                if(!worldIn.isRemote()) {
-                    worldIn.setBlockState(pos, vineStandBlock.getDefaultState(), 2);
-                    if (!player.abilities.isCreativeMode){stack.shrink(1);}
-                }
-                return ActionResultType.SUCCESS;
-            }
+        for(IOnStand onStandBlock : listOnStandBlock) {
+            if(onStandBlock.putOnStand(state, worldIn, pos, player, handIn)) { return ActionResultType.SUCCESS; }
         }
 
         return ActionResultType.PASS;

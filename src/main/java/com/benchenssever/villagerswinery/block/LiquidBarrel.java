@@ -19,6 +19,8 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
+
 public class LiquidBarrel extends HorizontalBlock {
     public static final BooleanProperty VERTICAL = BooleanProperty.create("vertical");
 
@@ -32,6 +34,7 @@ public class LiquidBarrel extends HorizontalBlock {
         return true;
     }
 
+    @Nullable
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
         return new LiquidBarrelTileEntity();
@@ -47,6 +50,8 @@ public class LiquidBarrel extends HorizontalBlock {
         return super.onBlockActivated(state, world, pos, player, hand, hit);
     }
 
+    @Nullable
+    @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         return this.getDefaultState().with(HORIZONTAL_FACING, context.getPlacementHorizontalFacing().getOpposite()).with(VERTICAL, context.getNearestLookingDirection().getOpposite() == Direction.UP);
     }

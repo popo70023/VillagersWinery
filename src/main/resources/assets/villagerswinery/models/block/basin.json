@@ -3,8 +3,8 @@
 	"parent": "block/cube",
 	"texture_size": [64, 64],
 	"textures": {
-		"0": "villagerswinery:block/mixing_bowl",
-		"particle": "villagerswinery:block/mixing_bowl"
+		"0": "villagerswinery:block/basin",
+		"particle": "villagerswinery:block/basin"
 	},
 	"elements": [
 		{

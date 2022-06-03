@@ -18,6 +18,8 @@ public interface ISpreadCount {
 
     default BlockState withSpread(BlockState state, int spread) {return state.with(this.getSpreadProperty(), spread);}
 
+    default boolean isMaxSpread(BlockState state){return this.getSpread(state) >= this.getMaxSpread();}
+
     default int chickSpread(World worldIn, BlockPos pos) {
         if(!ICrop.isDirtGround(worldIn.getBlockState(pos.down()))) {
             int spread = Integer.MAX_VALUE;
@@ -29,6 +31,7 @@ public interface ISpreadCount {
             }
             if(spread != Integer.MAX_VALUE) { spread++;}
             return spread;
-        } else { return 0;}
+        }
+        return 0;
     }
 }

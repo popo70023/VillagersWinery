@@ -21,7 +21,7 @@
 
   "_comment": "村民酒莊 物品",
   "block.villagerswinery.liquid_barrel": "儲液木桶",
-  "block.villagerswinery.mixing_bowl": "攪拌盆",
+  "block.villagerswinery.basin": "工作盆",
   "item.villagerswinery.bucket": "桶裝%s",
   "item.villagerswinery.grape": "葡萄",
   "block.villagerswinery.grape_vine": "葡萄藤蔓",
