@@ -7,7 +7,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalBlock;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
@@ -18,6 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 
@@ -45,7 +48,11 @@ public class LiquidBarrel extends HorizontalBlock {
         if(state.get(VERTICAL)? hit.getFace() == Direction.UP : hit.getFace() == state.get(HORIZONTAL_FACING)) {
             if (FluidTransferUtil.interactWithTank(world, pos, player, hand, hit)) {
                 return ActionResultType.SUCCESS;
+            } else if (!world.isRemote && hand == Hand.MAIN_HAND) {
+                TileEntity tileentity = world.getTileEntity(pos);
+                NetworkHooks.openGui((ServerPlayerEntity) player, (LiquidBarrelTileEntity)tileentity, (packerBuffer) -> packerBuffer.writeBlockPos(tileentity.getPos()));
             }
+            return ActionResultType.SUCCESS;
         }
         return super.onBlockActivated(state, world, pos, player, hand, hit);
     }

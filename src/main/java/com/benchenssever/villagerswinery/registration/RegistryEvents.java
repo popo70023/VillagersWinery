@@ -3,6 +3,8 @@ package com.benchenssever.villagerswinery.registration;
 import com.benchenssever.villagerswinery.VillagersWineryMod;
 import com.benchenssever.villagerswinery.Wine.WineEffect;
 import com.benchenssever.villagerswinery.block.*;
+import com.benchenssever.villagerswinery.client.gui.LiquidBarrelScreen;
+import com.benchenssever.villagerswinery.fluid.LiquidBarrelContainer;
 import com.benchenssever.villagerswinery.item.EmptyWinebowl;
 import com.benchenssever.villagerswinery.item.Winebowl;
 import com.benchenssever.villagerswinery.fluid.crafting.WinemakingRecipe;
@@ -11,20 +13,27 @@ import com.benchenssever.villagerswinery.tileentity.LiquidBarrelTileEntity;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.entity.merchant.villager.VillagerProfession;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.*;
 import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectType;
 import net.minecraft.potion.Potion;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.IntArray;
 import net.minecraft.world.FoliageColors;
 import net.minecraft.world.biome.BiomeColors;
+import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.registries.DeferredRegister;
@@ -38,6 +47,7 @@ public class RegistryEvents {
     public static final DeferredRegister<Effect> EFFECT = DeferredRegister.create(ForgeRegistries.POTIONS, VillagersWineryMod.MODID);
     public static final DeferredRegister<Potion> POTION = DeferredRegister.create(ForgeRegistries.POTION_TYPES, VillagersWineryMod.MODID);
     public static final DeferredRegister<TileEntityType<?>> TILE_ENTITIES  = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, VillagersWineryMod.MODID);
+    public static final DeferredRegister<ContainerType<?>> CONTAINERS  = DeferredRegister.create(ForgeRegistries.CONTAINERS, VillagersWineryMod.MODID);
     public static final DeferredRegister<IRecipeSerializer<?>> RECIPE_SERIALIZERS  = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, VillagersWineryMod.MODID);
     public static final DeferredRegister<VillagerProfession> PROFESSIONS  = DeferredRegister.create(ForgeRegistries.PROFESSIONS, VillagersWineryMod.MODID);
 
@@ -65,6 +75,7 @@ public class RegistryEvents {
 
     public static final RegistryObject<TileEntityType<LiquidBarrelTileEntity>> liquidBarrelTileEntity = TILE_ENTITIES.register("liquid_barrel_tileentity", () -> TileEntityType.Builder.create(LiquidBarrelTileEntity::new, RegistryEvents.liquidBarrelBlock.get()).build(null));
     public static final RegistryObject<TileEntityType<BasinTileEntity>> basinTileEntity = TILE_ENTITIES.register("basin_tileentity", () -> TileEntityType.Builder.create(BasinTileEntity::new, RegistryEvents.basinBlock.get()).build(null));
+    public static final RegistryObject<ContainerType<LiquidBarrelContainer>> liquidBarrelContainer = CONTAINERS.register("liquid_barrel_container", () -> IForgeContainerType.create(LiquidBarrelContainer::new));
 
     public static final RegistryObject<IRecipeSerializer<WinemakingRecipe>> winemakingRecipe = RECIPE_SERIALIZERS.register("winemaking_recipe", () -> new WinemakingRecipe.Serializer(WinemakingRecipe::new, 1600));
 
@@ -97,6 +108,7 @@ public class RegistryEvents {
             BlockColors blockColors = Minecraft.getInstance().getBlockColors();
             blockColors.register((state, reader, pos, color) -> reader != null && pos != null ? BiomeColors.getFoliageColor(reader, pos) : FoliageColors.getDefault(), RegistryEvents.vineStand.get());
 
+            ScreenManager.registerFactory(RegistryEvents.liquidBarrelContainer.get(), LiquidBarrelScreen::new);
         });
     }
 }
