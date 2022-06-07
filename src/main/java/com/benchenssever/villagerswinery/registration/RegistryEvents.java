@@ -93,6 +93,7 @@ public class RegistryEvents {
         EFFECT.register(eventBus);
         POTION.register(eventBus);
         TILE_ENTITIES.register(eventBus);
+        CONTAINERS.register(eventBus);
         RECIPE_SERIALIZERS.register(eventBus);
         PROFESSIONS.register(eventBus);
     }

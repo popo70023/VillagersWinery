@@ -28,6 +28,6 @@ public class DrinkableFluidBucket extends BucketItem {
 
     @Override
     public ITextComponent getDisplayName(ItemStack stack) {
-        return new TranslationTextComponent("item."+VillagersWineryMod.MODID+".bucket",new TranslationTextComponent("drinks."+VillagersWineryMod.MODID+"."+drinks.id));
+        return new TranslationTextComponent("item."+VillagersWineryMod.MODID+".bucket", new TranslationTextComponent(this.getFluid().getAttributes().getTranslationKey()));
     }
 }

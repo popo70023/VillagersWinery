@@ -6,12 +6,15 @@ import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalBlock;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
+import net.minecraft.tileentity.AbstractFurnaceTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
@@ -20,6 +23,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
@@ -46,15 +50,24 @@ public class LiquidBarrel extends HorizontalBlock {
     @Override
     public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
         if(state.get(VERTICAL)? hit.getFace() == Direction.UP : hit.getFace() == state.get(HORIZONTAL_FACING)) {
-            if (FluidTransferUtil.interactWithTank(world, pos, player, hand, hit)) {
-                return ActionResultType.SUCCESS;
-            } else if (!world.isRemote && hand == Hand.MAIN_HAND) {
-                TileEntity tileentity = world.getTileEntity(pos);
-                NetworkHooks.openGui((ServerPlayerEntity) player, (LiquidBarrelTileEntity)tileentity, (packerBuffer) -> packerBuffer.writeBlockPos(tileentity.getPos()));
+            if (!FluidTransferUtil.interactWithTank(world, pos, player, hand, hit) && !world.isRemote && hand == Hand.MAIN_HAND) {
+                LiquidBarrelTileEntity tileentity = (LiquidBarrelTileEntity)world.getTileEntity(pos);
+                if(tileentity != null)
+                    NetworkHooks.openGui((ServerPlayerEntity) player, tileentity, (packerBuffer) -> tileentity.getTank().getFluid().writeToPacket(packerBuffer));
             }
             return ActionResultType.SUCCESS;
         }
         return super.onBlockActivated(state, world, pos, player, hand, hit);
+    }
+
+    @Override
+    public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        if (stack.hasDisplayName()) {
+            TileEntity tileentity = worldIn.getTileEntity(pos);
+            if (tileentity instanceof LiquidBarrelTileEntity) {
+                ((LiquidBarrelTileEntity)tileentity).setCustomName(stack.getDisplayName());
+            }
+        }
     }
 
     @Nullable
