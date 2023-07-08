@@ -1,8 +1,8 @@
 package com.benchenssever.villagerswinery.fluid.crafting;
 
+import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import com.google.gson.JsonObject;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.network.PacketBuffer;
@@ -15,7 +15,7 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nullable;
 
-public class WinemakingRecipe implements IRecipeWithFluid<IFluidInventory, IInventory> {
+public class WinemakingRecipe implements IRecipeWithFluid<IInventory> {
 
     protected final IRecipeType<?> type = IRecipeType.register("winemaking");
     protected final ResourceLocation id;
@@ -31,18 +31,8 @@ public class WinemakingRecipe implements IRecipeWithFluid<IFluidInventory, IInve
     }
 
     @Override
-    public boolean matches(IInventory inv, IFluidInventory invF, World worldIn) {
-        return ingredient.test(invF.getStackInSlot(0));
-    }
-
-    @Override
-    public boolean matches(IInventory inv, World worldIn) {
-        return false;
-    }
-
-    @Override
-    public boolean canFit(int width, int height) {
-        return true;
+    public boolean matches(FluidStack[] fs, IInventory inv, World worldIn) {
+        return this.ingredient.test(fs[0]);
     }
 
     public NonNullList<FluidIngredient> getFluidIngredients() {
@@ -52,18 +42,11 @@ public class WinemakingRecipe implements IRecipeWithFluid<IFluidInventory, IInve
     }
 
     @Override
-    public ItemStack getCraftingResult(IInventory inv) {
-        return null;
-    }
-
-    @Override
-    public FluidStack getCraftingResult(IFluidInventory invF) {
-        return this.result.copy();
-    }
-
-    @Override
-    public ItemStack getRecipeOutput() {
-        return null;
+    public FluidStack getRecipeFluidOutput(FluidStack[] fs) {
+        FluidStack output = new FluidStack(this.result, 0);
+        double amount = fs[0].getAmount() / ingredient.amountRequired;
+        output.setAmount((int) (this.result.getAmount() * amount));
+        return output;
     }
 
     @Override
@@ -78,7 +61,7 @@ public class WinemakingRecipe implements IRecipeWithFluid<IFluidInventory, IInve
 
     @Override
     public IRecipeSerializer<?> getSerializer() {
-        return null;
+        return RegistryEvents.winemakingRecipe.get();
     }
 
     @Override

@@ -11,10 +11,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
-import net.minecraft.tileentity.AbstractFurnaceTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
@@ -23,7 +21,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
@@ -49,7 +46,7 @@ public class LiquidBarrel extends HorizontalBlock {
 
     @Override
     public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
-        if(state.get(VERTICAL)? hit.getFace() == Direction.UP : hit.getFace() == state.get(HORIZONTAL_FACING)) {
+        if(hit.getFace() == getLiquidBarrelDirection(state)) {
             if (!FluidTransferUtil.interactWithTank(world, pos, player, hand, hit) && !world.isRemote && hand == Hand.MAIN_HAND) {
                 LiquidBarrelTileEntity tileentity = (LiquidBarrelTileEntity)world.getTileEntity(pos);
                 if(tileentity != null)
@@ -68,6 +65,10 @@ public class LiquidBarrel extends HorizontalBlock {
                 ((LiquidBarrelTileEntity)tileentity).setCustomName(stack.getDisplayName());
             }
         }
+    }
+
+    public static Direction getLiquidBarrelDirection(BlockState state) {
+        return state.get(VERTICAL)? Direction.UP : state.get(HORIZONTAL_FACING);
     }
 
     @Nullable

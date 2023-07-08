@@ -66,10 +66,7 @@ public class LiquidBarrelContainer extends Container {
         topRow += 58;
         addSlotRange(inventory, 0, leftCol, topRow, 9, 18);
     }
-
     public IIntArray getLiquidBarrelData() { return this.liquidBarrelData; }
-
-    public FluidSlot getFluidSlot(int index) {return inventoryFluidSlot.get(index);}
 
     public static class FluidSlot {
         public final FluidStack fluidStack;

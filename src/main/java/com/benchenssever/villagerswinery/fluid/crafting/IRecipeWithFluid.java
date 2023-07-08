@@ -1,32 +1,30 @@
 package com.benchenssever.villagerswinery.fluid.crafting;
 
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 
-public interface IRecipeWithFluid<F extends IFluidInventory,C extends IInventory> extends IRecipe<C> {
+public interface IRecipeWithFluid<C extends IInventory> extends IRecipe<C> {
 
-    boolean matches(C inv, F invF, World worldIn);
+    boolean matches(FluidStack[] fs, IInventory inv, World worldIn);
+    @Override
+    default boolean matches(IInventory inv, World worldIn) { return false; }
 
-    FluidStack getCraftingResult(F invF);
+    FluidStack getRecipeFluidOutput(FluidStack[] fs);
+
     FluidStack getRecipeFluidOutput();
 
-    default NonNullList<FluidStack> getRemainingFluids(F invF) {
-        NonNullList<FluidStack> nonnulllist = NonNullList.withSize(invF.getSizeInventory(), FluidStack.EMPTY);
+    @Override
+    default boolean canFit(int width, int height) { return true; }
 
-        for(int i = 0; i < nonnulllist.size(); ++i) {
-            FluidStack fluid = invF.getStackInSlot(i);
-            if (!fluid.isEmpty()) {
-                nonnulllist.set(i, fluid);
-            }
-        }
+    @Override
+    default ItemStack getCraftingResult(IInventory inv) { return null; }
 
-        return nonnulllist;
-    }
+    @Override
+    default ItemStack getRecipeOutput() { return null; }
 
-    default NonNullList<FluidIngredient> getFluidIngredients() {
-        return NonNullList.create();
-    }
+    default NonNullList<FluidIngredient> getFluidIngredients() { return NonNullList.create(); }
 }

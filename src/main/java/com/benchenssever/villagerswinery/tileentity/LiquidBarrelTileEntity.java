@@ -75,6 +75,7 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
         this.winemakingTime = nbt.getInt("WinemakingTime");
         this.winemakingTimeTotal = nbt.getInt("WinemakingTimeTotal");
         this.winemakingStatus = nbt.getInt("WinemakingStatus");
+        if (nbt.contains("CustomName", 8)) { this.customName = ITextComponent.Serializer.getComponentFromJson(nbt.getString("CustomName")); }
     }
 
     @Override
@@ -84,6 +85,7 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
         compound.putInt("WinemakingTime", this.winemakingTime);
         compound.putInt("WinemakingTimeTotal", this.winemakingTimeTotal);
         compound.putInt("WinemakingStatus", this.winemakingStatus);
+        if (this.customName != null) { compound.putString("CustomName", ITextComponent.Serializer.toJson(this.customName)); }
         return compound;
     }
 
@@ -122,13 +124,11 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
 
     public void setCustomName(ITextComponent customName) { this.customName = customName; }
 
+    public FluidTank getTank() { return tank; }
+
     @Nullable
     @Override
     public Container createMenu(int sycID, PlayerInventory inventory, PlayerEntity player) {
         return new LiquidBarrelContainer(sycID, inventory, this.tank.getFluid(), this.liquidBarrelData);
-    }
-
-    public FluidTank getTank() {
-        return tank;
     }
 }
