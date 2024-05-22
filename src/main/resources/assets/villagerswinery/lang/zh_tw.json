@@ -3,7 +3,8 @@
   "itemGroup.villagerswinery": "村民酒莊",
 
   "//": "村民酒莊 物品",
-  "item.villagerswinery.empty_wine_bowl": "空酒杯",
+  "item.villagerswinery.empty_winebowl": "空酒杯",
+  "item.villagerswinery.winebowl": "裝了 %s 的酒杯",
   "item.villagerswinery.stand": "支架",
 
   "//": "村民酒莊 液體",
@@ -27,5 +28,7 @@
 
   "//": "村民酒莊 效果",
   "effect.villagerswinery.drunk": "酒醉",
-  "effect.villagerswinery.hapiness": "開心"
+  "effect.villagerswinery.get_merchant_xp": "交易經驗",
+
+  "potion.villagerswinery.get_merchant_xp": "交易經驗"
 }

@@ -16,7 +16,7 @@ public interface ICrop {
 
     default int getAge(BlockState state){return state.get(this.getAgeProperty());}
 
-    default int getMaxAge() { return this.getAgeProperty().getAllowedValues().size() - 1;};
+    default int getMaxAge() { return this.getAgeProperty().getAllowedValues().size() - 1;}
 
     default BlockState withAge(BlockState state, int age) {return state.with(this.getAgeProperty(), age);}
 

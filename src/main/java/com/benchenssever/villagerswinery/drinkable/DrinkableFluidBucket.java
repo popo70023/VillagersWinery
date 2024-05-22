@@ -9,6 +9,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Supplier;
@@ -22,12 +23,12 @@ public class DrinkableFluidBucket extends BucketItem {
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+    public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn) {
         tooltip.add(new TranslationTextComponent("item."+VillagersWineryMod.MODID+"."+drinks.id+".information"));
     }
 
     @Override
-    public ITextComponent getDisplayName(ItemStack stack) {
+    public ITextComponent getDisplayName(@Nonnull ItemStack stack) {
         return new TranslationTextComponent("item."+VillagersWineryMod.MODID+".bucket", new TranslationTextComponent(this.getFluid().getAttributes().getTranslationKey()));
     }
 }

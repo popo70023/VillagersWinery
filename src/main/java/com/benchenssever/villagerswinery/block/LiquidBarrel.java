@@ -23,6 +23,7 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class LiquidBarrel extends HorizontalBlock {
@@ -44,8 +45,9 @@ public class LiquidBarrel extends HorizontalBlock {
         return new LiquidBarrelTileEntity();
     }
 
+    @Nonnull
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
+    public ActionResultType onBlockActivated(@Nonnull BlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand hand, BlockRayTraceResult hit) {
         if(hit.getFace() == getLiquidBarrelDirection(state)) {
             if (!FluidTransferUtil.interactWithTank(world, pos, player, hand, hit) && !world.isRemote && hand == Hand.MAIN_HAND) {
                 LiquidBarrelTileEntity tileentity = (LiquidBarrelTileEntity)world.getTileEntity(pos);
@@ -58,7 +60,7 @@ public class LiquidBarrel extends HorizontalBlock {
     }
 
     @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+    public void onBlockPlacedBy(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         if (stack.hasDisplayName()) {
             TileEntity tileentity = worldIn.getTileEntity(pos);
             if (tileentity instanceof LiquidBarrelTileEntity) {
@@ -78,7 +80,7 @@ public class LiquidBarrel extends HorizontalBlock {
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+    protected void fillStateContainer(@Nonnull StateContainer.Builder<Block, BlockState> builder) {
         super.fillStateContainer(builder);
         builder.add(HORIZONTAL_FACING, VERTICAL);
     }

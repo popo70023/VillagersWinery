@@ -7,11 +7,10 @@ import net.minecraft.block.material.Material;
 import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Potion;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvents;
 import net.minecraftforge.fluids.FluidAttributes;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 import net.minecraftforge.fml.RegistryObject;
 
@@ -46,7 +45,7 @@ public class Drinks {
     private RegistryObject<FlowingFluid> fluid;
     private RegistryObject<FlowingFluid> flowingFluid;
 
-    public final Supplier<EffectInstance[]> effects;
+    public final RegistryObject<Potion> potion;
     public final String id;
     public final int color;
 
@@ -54,7 +53,7 @@ public class Drinks {
     public Drinks(Builder builder) {
         this.id = builder.id;
         this.color = builder.color;
-        this.effects = builder.effects;
+        this.potion = builder.potion;
 
 
         bucket = DrinksRegistry.ITEMS.register(
@@ -94,10 +93,6 @@ public class Drinks {
 
     }
 
-    EffectInstance[] getEffects(FluidStack fluidStack) {
-        return this.effects.get();
-    }
-
     public FlowingFluid getFluid(){
         return fluid.get();
     }
@@ -118,7 +113,7 @@ public class Drinks {
     public static class Builder {
         private final String id;
         private int color = 0xFFFFFFFF;
-        private Supplier<EffectInstance[]> effects;
+        private RegistryObject<Potion> potion;
 
         ItemGroup group;
 
@@ -131,8 +126,8 @@ public class Drinks {
             return this;
         }
 
-        public final Builder effects(Supplier<EffectInstance[]> effects) {
-            this.effects = effects;
+        public final Builder effects(RegistryObject<Potion> potion) {
+            this.potion = potion;
             return this;
         }
 

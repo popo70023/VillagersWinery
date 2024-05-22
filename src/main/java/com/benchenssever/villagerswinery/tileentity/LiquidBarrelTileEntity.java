@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileEntity, INamedContainerProvider, INameable {
     private ITextComponent customName;
     public static final int DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME * 8;
-    private final FluidTank tank = new FluidTank(DEFAULT_CAPACITY, (F)->F.getFluid().getAttributes().getTemperature() < 500);
+    private final FluidTank tank = new FluidTank(DEFAULT_CAPACITY, (e)->e.getFluid().getAttributes().getTemperature() < 500);
     private int winemakingTime;
     private int winemakingTimeTotal;
     private int winemakingStatus;
@@ -69,7 +69,7 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
     public LiquidBarrelTileEntity() { super(RegistryEvents.liquidBarrelTileEntity.get()); }
 
     @Override
-    public void read(BlockState state, CompoundNBT nbt) {
+    public void read(@Nonnull BlockState state, @Nonnull CompoundNBT nbt) {
         super.read(state, nbt);
         tank.readFromNBT(nbt);
         this.winemakingTime = nbt.getInt("WinemakingTime");
@@ -78,8 +78,9 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
         if (nbt.contains("CustomName", 8)) { this.customName = ITextComponent.Serializer.getComponentFromJson(nbt.getString("CustomName")); }
     }
 
+    @Nonnull
     @Override
-    public CompoundNBT write(CompoundNBT compound) {
+    public CompoundNBT write(@Nonnull CompoundNBT compound) {
         compound = super.write(compound);
         tank.writeToNBT(compound);
         compound.putInt("WinemakingTime", this.winemakingTime);
@@ -112,9 +113,11 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
         return super.getCapability(cap, side);
     }
 
+    @Nonnull
     @Override
     public ITextComponent getName() { return this.customName != null ? this.customName : this.getBlockState().getBlock().getTranslatedName(); }
 
+    @Nonnull
     @Override
     public ITextComponent getDisplayName() { return this.getName(); }
 
@@ -128,7 +131,7 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
 
     @Nullable
     @Override
-    public Container createMenu(int sycID, PlayerInventory inventory, PlayerEntity player) {
+    public Container createMenu(int sycID, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player) {
         return new LiquidBarrelContainer(sycID, inventory, this.tank.getFluid(), this.liquidBarrelData);
     }
 }

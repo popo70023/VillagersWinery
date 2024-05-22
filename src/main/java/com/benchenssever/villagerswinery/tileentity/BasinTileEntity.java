@@ -23,8 +23,8 @@ import javax.annotation.Nullable;
 public class BasinTileEntity extends TileEntity implements ITickableTileEntity {
 
     public static final int DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME;
-    public final ItemStackHandler inputInventory = new ItemStackHandler(2);;
-    private final ItemStackHandler outputInventory = new ItemStackHandler(2);;
+    public final ItemStackHandler inputInventory = new ItemStackHandler(2);
+    private final ItemStackHandler outputInventory = new ItemStackHandler(2);
     public final FluidTank inputFluidTank = new FluidTank(DEFAULT_CAPACITY, (F)->F.getFluid().getAttributes().getTemperature() < 500);
     private final FluidTank outputFluidTank = new FluidTank(DEFAULT_CAPACITY, (F)->F.getFluid().getAttributes().getTemperature() < 500);
     private final LazyOptional<IItemHandlerModifiable> itemCapability = LazyOptional.of(() -> new CombinedInvWrapper(this.inputInventory, this.outputInventory));
@@ -36,8 +36,9 @@ public class BasinTileEntity extends TileEntity implements ITickableTileEntity {
 
     }
 
+    @Nonnull
     @Override
-    public CompoundNBT write(CompoundNBT compound) {
+    public CompoundNBT write(@Nonnull CompoundNBT compound) {
         return super.write(compound);
     }
 

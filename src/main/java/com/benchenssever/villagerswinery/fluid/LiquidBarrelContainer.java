@@ -12,6 +12,7 @@ import net.minecraft.util.IIntArray;
 import net.minecraft.util.IntArray;
 import net.minecraftforge.fluids.FluidStack;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class LiquidBarrelContainer extends Container {
@@ -41,7 +42,7 @@ public class LiquidBarrelContainer extends Container {
     }
 
     @Override
-    public boolean canInteractWith(PlayerEntity playerIn) { return true; }
+    public boolean canInteractWith(@Nonnull PlayerEntity playerIn) { return true; }
 
     private int addSlotRange(IInventory inventory, int index, int x, int y, int amount, int dx) {
         for (int i = 0; i < amount; i++) {

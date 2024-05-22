@@ -1,6 +1,5 @@
 package com.benchenssever.villagerswinery.drinkable;
 
-import net.minecraft.block.AirBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FlowingFluidBlock;
@@ -12,6 +11,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 public class DrinkableFluidBlock extends FlowingFluidBlock {
@@ -22,15 +22,15 @@ public class DrinkableFluidBlock extends FlowingFluidBlock {
     }
 
     @Override
-    public void onEntityCollision(BlockState state, World worldIn, BlockPos pos, Entity entityIn) {
-        if (worldIn.isRemote || !(entityIn instanceof LivingEntity)) {
+    public void onEntityCollision(@Nonnull BlockState state, World worldIn, @Nonnull BlockPos pos, @Nonnull Entity entityIn) {
+        if (worldIn.isRemote || !(drinks.potion != null && entityIn instanceof LivingEntity)) {
             return;
         }
         BlockPos sourceDrinkPos = backtraceSource(state, worldIn, pos);
         if(sourceDrinkPos == null) return;
         LivingEntity entityLiving = (LivingEntity)entityIn;
 
-        for (EffectInstance effectInstance : drinks.effects.get()) {
+        for (EffectInstance effectInstance : drinks.potion.get().getEffects()) {
             if (effectInstance.getPotion().isInstant()) {
                 effectInstance.getPotion().affectEntity(entityLiving, entityLiving, entityLiving, effectInstance.getAmplifier(), 1.0D);
             } else {

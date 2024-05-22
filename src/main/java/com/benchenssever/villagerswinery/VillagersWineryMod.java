@@ -1,17 +1,11 @@
 package com.benchenssever.villagerswinery;
 
-import com.benchenssever.villagerswinery.model.WineBowlBackedModel;
 import com.benchenssever.villagerswinery.registration.DrinksRegistry;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
@@ -19,8 +13,6 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Map;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(VillagersWineryMod.MODID)
@@ -43,8 +35,6 @@ public class VillagersWineryMod
         eventBus.addListener(this::enqueueIMC);
         // Register the processIMC method for modloading
         eventBus.addListener(this::processIMC);
-        // Register the doClientStuff method for modloading
-        eventBus.addListener(this::doClientStuff);
 
         RegistryEvents.setRegister(eventBus);
         DrinksRegistry.setRegister(eventBus);
@@ -55,12 +45,6 @@ public class VillagersWineryMod
 
     private void setup(final FMLCommonSetupEvent event) {
         // some preinit code
-    }
-
-    private void doClientStuff(final FMLClientSetupEvent event) {
-        // do something that can only be done on the client
-        RegistryEvents.setRender(event);
-        DrinksRegistry.setRender(event);
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event) {
@@ -75,21 +59,5 @@ public class VillagersWineryMod
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
         // do something when the server starts
-    }
-
-    //TODO: move to client side only
-    @SubscribeEvent
-    public static void onModelBaked(ModelBakeEvent event) {
-        Map<ResourceLocation, IBakedModel> modelRegistry = event.getModelRegistry();
-        ModelResourceLocation location = new ModelResourceLocation(RegistryEvents.winebowl.get().getRegistryName(), "inventory");
-        IBakedModel existingModel = modelRegistry.get(location);
-        if (existingModel == null) {
-            throw new RuntimeException("Did not find WineBowl in registry");
-        } else if (existingModel instanceof WineBowlBackedModel) {
-            throw new RuntimeException("Tried to WineBowl twice");
-        } else {
-            WineBowlBackedModel backedModel = new WineBowlBackedModel(existingModel);
-            event.getModelRegistry().put(location, backedModel);
-        }
     }
 }

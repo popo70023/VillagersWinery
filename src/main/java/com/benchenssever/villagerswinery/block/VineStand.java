@@ -3,13 +3,10 @@ package com.benchenssever.villagerswinery.block;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.BlockItem;
+import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
@@ -18,37 +15,64 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.IForgeShearable;
+import net.minecraftforge.fml.RegistryObject;
 
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class VineStand extends Stand implements IOnStand, IForgeShearable {
+    private final RegistryObject<Block> modvine;
+    private final Item vine;
 
-    public VineStand(Properties properties) {
+    public VineStand(Properties properties, Item vine) {
         super(properties);
+        this.vine = vine;
+        this.modvine = null;
         listOnStandBlock.add(this);
     }
 
-    public Item getVine() { return Items.VINE; }
+    public VineStand(Properties properties, RegistryObject<Block> vine) {
+        super(properties);
+        this.vine = null;
+        this.modvine = vine;
+        listOnStandBlock.add(this);
+    }
+
+    public Item getVineItem() { return this.vine!=null ? this.vine: this.modvine.get().asItem(); }
 
     public Block getStand() { return RegistryEvents.stand.get(); }
 
+    @Nonnull
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
+    public List<ItemStack> onSheared(PlayerEntity player, @Nonnull ItemStack item, World world, BlockPos pos, int fortune) {
+        List<ItemStack> drops = new ArrayList<>();
+        drops.add(new ItemStack(this.getVineItem()));
+        return drops;
+    }
+
+    @Nonnull
+    @Override
+    public ActionResultType onBlockActivated(@Nonnull BlockState state, @Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand handIn, @Nonnull BlockRayTraceResult hit) {
         ItemStack stack = player.getHeldItem(handIn);
-        if(ItemTags.getCollection().get(new ResourceLocation("forge", "shears")).contains(stack.getItem())) {
+        if(ItemTags.getCollection().get(new ResourceLocation("forge", "shears")).contains(stack.getItem()) && this.isShearable(stack, worldIn, pos)) {
+            worldIn.playSound(player, pos, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.PLAYERS, 1.0F, 1.0F);
             if(!worldIn.isRemote()) {
-                worldIn.playSound(null, pos, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.PLAYERS, 1.0F, 1.0F);
-                worldIn.addEntity(new ItemEntity(worldIn, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, this.getVine().getDefaultInstance()));
+                List<ItemStack> drops = onSheared(player, stack, worldIn, pos, 0);
+                for (ItemStack drop : drops) {
+                    InventoryHelper.spawnItemStack(worldIn, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, drop);
+                }
                 worldIn.setBlockState(pos, this.getStand().getDefaultState(), 2);
-                if (!player.abilities.isCreativeMode) { stack.attemptDamageItem(1, new Random(), (ServerPlayerEntity) player); }
+                if (!player.abilities.isCreativeMode) { stack.damageItem(1, player, (p) -> p.sendBreakAnimation(handIn)); }
             }
             return ActionResultType.SUCCESS;
         }
-        return ActionResultType.PASS;
+        return super.onBlockActivated(state, worldIn, pos, player, handIn, hit);
     }
 
     @Override
-    public void randomTick(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
+    public void randomTick(@Nonnull BlockState state, @Nonnull ServerWorld worldIn, @Nonnull BlockPos pos, @Nonnull Random random) {
         super.randomTick(state, worldIn, pos, random);
         if (worldIn.rand.nextInt(4) == 0 && worldIn.isAreaLoaded(pos, 4)) {
             BlockPos growPos = pos.offset(Direction.getRandomDirection(random));
@@ -58,17 +82,20 @@ public class VineStand extends Stand implements IOnStand, IForgeShearable {
         }
     }
 
+    @Nonnull
     @Override
-    public ItemStack getItem(IBlockReader worldIn, BlockPos pos, BlockState state) {
-        return new ItemStack(this.getVine());
+    public ItemStack getItem(@Nonnull IBlockReader worldIn, @Nonnull BlockPos pos, @Nonnull BlockState state) {
+        return new ItemStack(this.getVineItem());
     }
 
     @Override
-    public boolean putOnStand(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn) {
-        ItemStack stack = player.getHeldItem(handIn);
-        if(stack.getItem() == this.getVine() && ICrop.isDirtGround(worldIn.getBlockState(pos.down()))) {
+    public Item itemOnStand() { return this.getVineItem(); }
+
+    @Override
+    public boolean putOnStand(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, ItemStack stack) {
+        if(ICrop.isDirtGround(worldIn.getBlockState(pos.down()))) {
+            worldIn.playSound(player, pos, this.getSoundType(this.getDefaultState(), worldIn, pos, player).getPlaceSound(), SoundCategory.PLAYERS, 1.0F, 1.0F);
             if(!worldIn.isRemote()) {
-                worldIn.playSound(null, pos, this.getSoundType(this.getDefaultState(), worldIn, pos, player).getPlaceSound(), SoundCategory.PLAYERS, 1.0F, 1.0F);
                 worldIn.setBlockState(pos, this.getDefaultState(), 2);
                 if (!player.abilities.isCreativeMode){stack.shrink(1);}
             }
