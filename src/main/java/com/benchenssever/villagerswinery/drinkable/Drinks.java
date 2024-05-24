@@ -4,9 +4,11 @@ import com.benchenssever.villagerswinery.registration.DrinksRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvents;
@@ -14,6 +16,7 @@ import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 import net.minecraftforge.fml.RegistryObject;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import static net.minecraft.item.Items.BUCKET;
@@ -140,6 +143,32 @@ public class Drinks {
             return new Drinks(this);
         }
 
+    }
+
+    public static boolean addDrunkEffectsToEntity(LivingEntity source, LivingEntity entityLivingBaseIn, List<EffectInstance> effects, boolean execute) {
+        EffectInstance drunkEffect = entityLivingBaseIn.getActivePotionEffect(DrinksRegistry.drunk.get());
+        if(drunkEffect == null || drunkEffect.getDuration() < 3600) {
+            if(execute) {
+                int time = 0;
+                if(drunkEffect != null) {
+                    time = drunkEffect.getDuration();
+                }
+
+                for (EffectInstance effectInstance : effects) {
+                    if (effectInstance.getPotion().isInstant()) {
+                        effectInstance.getPotion().affectEntity(source, null, entityLivingBaseIn, effectInstance.getAmplifier(), 1.0D);
+                    } else {
+                        if(effectInstance.getPotion() == DrinksRegistry.drunk.get()) {
+                            entityLivingBaseIn.addPotionEffect(new EffectInstance(effectInstance.getPotion(), time + effectInstance.getDuration()));
+                        } else {
+                            entityLivingBaseIn.addPotionEffect(new EffectInstance(effectInstance));
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }
 

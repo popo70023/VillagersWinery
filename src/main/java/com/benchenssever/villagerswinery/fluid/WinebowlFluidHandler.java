@@ -1,7 +1,7 @@
-package com.benchenssever.villagerswinery.drinkable;
+package com.benchenssever.villagerswinery.fluid;
 
+import com.benchenssever.villagerswinery.drinkable.Drinks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
 
@@ -24,9 +24,8 @@ public class WinebowlFluidHandler extends FluidHandlerItemStack {
         fluid.getFluid().getAttributes();
         for (Drinks drinks : drinksCollection) {
             if(fluid.getFluid().isEquivalentTo(drinks.getFluid())) {
-                ResourceLocation resourcelocation = drinks.potion.get().getRegistryName();
-                if (resourcelocation != null) {
-                    this.container.getOrCreateTag().putString("Potion", resourcelocation.toString());
+                if (drinks.potion != null) {
+                    this.container.getOrCreateTag().putString("Potion", drinks.potion.get().getRegistryName().toString());
                 }
                 return;
             }

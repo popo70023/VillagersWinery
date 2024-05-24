@@ -10,6 +10,17 @@
             {
               "function": "minecraft:copy_name",
               "source": "block_entity"
+            },
+            {
+              "function": "minecraft:copy_nbt",
+              "source": "block_entity",
+              "ops": [
+                {
+                  "op": "replace",
+                  "source": "Fluid",
+                  "target": "Fluid"
+                }
+              ]
             }
           ],
           "name": "villagerswinery:liquid_barrel"

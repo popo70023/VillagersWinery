@@ -1,5 +1,6 @@
 package com.benchenssever.villagerswinery.client.gui;
 
+import com.benchenssever.villagerswinery.fluid.FluidTransferUtil;
 import com.benchenssever.villagerswinery.fluid.LiquidBarrelContainer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -8,7 +9,6 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
@@ -57,7 +57,7 @@ public class LiquidBarrelScreen extends ContainerScreen<LiquidBarrelContainer> {
     @Override
     protected void renderHoveredTooltip(@Nonnull MatrixStack matrixStack, int x, int y) {
         if (this.minecraft.player.inventory.getItemStack().isEmpty() && this.hoveredFluidSlot != null) {
-            ITextComponent itextcomponent = new TranslationTextComponent(this.hoveredFluidSlot.fluidStack.getTranslationKey());
+            ITextComponent itextcomponent = FluidTransferUtil.addFluidTooltip(this.hoveredFluidSlot.fluidStack);
             this.renderTooltip(matrixStack, itextcomponent, x, y);
         }
         super.renderHoveredTooltip(matrixStack, x, y);

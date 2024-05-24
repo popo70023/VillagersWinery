@@ -1,39 +1,31 @@
 package com.benchenssever.villagerswinery.fluid;
 
 import com.benchenssever.villagerswinery.VillagersWineryMod;
-import net.minecraft.block.FlowingFluidBlock;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.BucketItem;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.ForgeFlowingFluid;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
-
-import java.util.function.Supplier;
+import net.minecraftforge.registries.ForgeRegistries;
 
 //TODO: 要重構
 public class FluidTransferUtil {
-
-    public static final ResourceLocation STILL_WATER_TEXTURE = new ResourceLocation("block/water_still");
-    public static final ResourceLocation FLOWING_WATER_TEXTURE = new ResourceLocation("block/water_flow");
-
-    public static ForgeFlowingFluid.Properties waterProperties(Supplier<FlowingFluid> still, Supplier<FlowingFluid> flowing, int color, Supplier<Item> bucket, Supplier<FlowingFluidBlock> block) {
-        return new ForgeFlowingFluid.Properties(still, flowing, FluidAttributes.builder(STILL_WATER_TEXTURE, FLOWING_WATER_TEXTURE).color(color).density(4000).viscosity(4000).sound(SoundEvents.ITEM_BUCKET_FILL, SoundEvents.ITEM_BUCKET_EMPTY)).bucket(bucket).block(block).slopeFindDistance(3).explosionResistance(100F);
-    }
 
     public static FluidStack tryTransfer(IFluidHandler input, IFluidHandler output, int maxFill) {
         // first, figure out how much we can drain
@@ -129,5 +121,18 @@ public class FluidTransferUtil {
     public static boolean interactWithTank(World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
         return interactWithFluidItem(world, pos, player, hand, hit)
                 || interactWithBucket(world, pos, player, hand, hit.getFace(), hit.getFace());
+    }
+
+    public static TranslationTextComponent addFluidTooltip(FluidStack fluidStack) {
+        return new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".fluid.information",
+                new TranslationTextComponent(fluidStack.getTranslationKey()),
+                new StringTextComponent(Integer.toString(fluidStack.getAmount())));
+    }
+
+    public static FluidStack getFluidStackFromJson(JsonObject json) {
+        String fluidName = JSONUtils.getString(json, "fluid");
+        Fluid fluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(fluidName));
+        if (fluid == null) throw new JsonSyntaxException("Unknown fluid '" + fluidName + "'");
+        return new FluidStack(fluid, JSONUtils.getInt(json, "amount", 1000));
     }
 }

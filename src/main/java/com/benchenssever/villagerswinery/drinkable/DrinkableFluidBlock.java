@@ -6,7 +6,6 @@ import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.fluid.FlowingFluid;
-import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -30,14 +29,9 @@ public class DrinkableFluidBlock extends FlowingFluidBlock {
         if(sourceDrinkPos == null) return;
         LivingEntity entityLiving = (LivingEntity)entityIn;
 
-        for (EffectInstance effectInstance : drinks.potion.get().getEffects()) {
-            if (effectInstance.getPotion().isInstant()) {
-                effectInstance.getPotion().affectEntity(entityLiving, entityLiving, entityLiving, effectInstance.getAmplifier(), 1.0D);
-            } else {
-                entityLiving.addPotionEffect(new EffectInstance(effectInstance));
-            }
+        if(Drinks.addDrunkEffectsToEntity(entityLiving, entityLiving, drinks.potion.get().getEffects(), true)) {
+            worldIn.setBlockState(sourceDrinkPos,  Blocks.AIR.getDefaultState());
         }
-        worldIn.setBlockState(sourceDrinkPos,  Blocks.AIR.getDefaultState());
     }
 
     final private static Direction[] searchOrder  = {Direction.UP,Direction.NORTH,Direction.EAST,Direction.WEST,Direction.SOUTH};
