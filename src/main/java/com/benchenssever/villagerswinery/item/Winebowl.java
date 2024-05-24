@@ -2,7 +2,7 @@ package com.benchenssever.villagerswinery.item;
 
 import com.benchenssever.villagerswinery.VillagersWineryMod;
 import com.benchenssever.villagerswinery.drinkable.Drinks;
-import com.benchenssever.villagerswinery.drinkable.WinebowlFluidHandler;
+import com.benchenssever.villagerswinery.fluid.WinebowlFluidHandler;
 import com.benchenssever.villagerswinery.registration.DrinksRegistry;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.client.util.ITooltipFlag;
@@ -15,12 +15,12 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.UseAction;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.potion.Potions;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.*;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
@@ -60,20 +60,7 @@ public class Winebowl extends Item {
         }
 
         if (!worldIn.isRemote) {
-            for(EffectInstance effectinstance : PotionUtils.getEffectsFromStack(stack)) {
-                if(effectinstance.getPotion() == DrinksRegistry.drunk.get()) continue;
-                if (effectinstance.getPotion().isInstant()) {
-                    effectinstance.getPotion().affectEntity(playerentity, playerentity, entityLiving, effectinstance.getAmplifier(), 1.0D);
-                } else {
-                    entityLiving.addPotionEffect(new EffectInstance(effectinstance));
-                }
-            }
-            EffectInstance drunk = entityLiving.getActivePotionEffect(DrinksRegistry.drunk.get());
-            int time = 0;
-            if(drunk != null) {
-                time = drunk.getDuration();
-            }
-            entityLiving.addPotionEffect(new EffectInstance(DrinksRegistry.drunk.get(), time + 3600));
+            Drinks.addDrunkEffectsToEntity(entityLiving, entityLiving, PotionUtils.getEffectsFromStack(stack), true);
         }
 
         if (playerentity != null) {
@@ -103,10 +90,11 @@ public class Winebowl extends Item {
     public ActionResult<ItemStack> onItemRightClick(@Nonnull World worldIn, PlayerEntity playerIn, @Nonnull Hand handIn) {
         ItemStack stack = playerIn.getHeldItem(handIn);
         WinebowlFluidHandler winebowl = new WinebowlFluidHandler(stack, DEFAULT_CAPACITY);
-        EffectInstance drunk = playerIn.getActivePotionEffect(DrinksRegistry.drunk.get());
 
-        if(!PotionUtils.getEffectsFromStack(stack).isEmpty() && winebowl.getFluid().getAmount() >= DEFAULT_CAPACITY && (drunk == null || drunk.getDuration() < 3600)) {
-            return DrinkHelper.startDrinking(worldIn, playerIn, handIn);
+        if(!PotionUtils.getEffectsFromStack(stack).isEmpty() && winebowl.getFluid().getAmount() >= DEFAULT_CAPACITY) {
+            if (Drinks.addDrunkEffectsToEntity(playerIn, playerIn, PotionUtils.getEffectsFromStack(stack), false)) {
+                return DrinkHelper.startDrinking(worldIn, playerIn, handIn);
+            }
         }
         return ActionResult.resultFail(playerIn.getHeldItem(handIn));
     }
@@ -117,7 +105,6 @@ public class Winebowl extends Item {
         FluidStack fluidStack = new WinebowlFluidHandler(stack, DEFAULT_CAPACITY).getFluid();
         if(!fluidStack.isEmpty()) {
             return new TranslationTextComponent("item."+ VillagersWineryMod.MODID+".winebowl", new TranslationTextComponent(fluidStack.getTranslationKey()));
-
         } else {
             return  new TranslationTextComponent("item."+ VillagersWineryMod.MODID+".empty_winebowl");
         }
@@ -127,6 +114,8 @@ public class Winebowl extends Item {
     @Override
     @OnlyIn(Dist.CLIENT)
     public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn) {
+        FluidStack fluidStack = new WinebowlFluidHandler(stack, DEFAULT_CAPACITY).getFluid();
+        tooltip.add(new TranslationTextComponent("item."+ VillagersWineryMod.MODID+".winebowl.information", new StringTextComponent(Integer.toString(fluidStack.getAmount()))));
         PotionUtils.addPotionTooltip(stack, tooltip, 1.0F);
     }
 
@@ -149,34 +138,18 @@ public class Winebowl extends Item {
 
     @Nonnull
     @Override
-    public net.minecraft.util.ActionResultType itemInteractionForEntity(@Nonnull ItemStack stack, @Nonnull PlayerEntity playerIn, LivingEntity entity, @Nonnull Hand hand) {
+    public ActionResultType itemInteractionForEntity(@Nonnull ItemStack stack, @Nonnull PlayerEntity playerIn, LivingEntity entity, @Nonnull Hand hand) {
         if (entity.world.isRemote) return ActionResultType.PASS;
         if (entity instanceof VillagerEntity) {
-            EffectInstance drunkEffect = entity.getActivePotionEffect(DrinksRegistry.drunk.get());
             WinebowlFluidHandler winebowl = new WinebowlFluidHandler(stack, DEFAULT_CAPACITY);
-
-            if(!PotionUtils.getEffectsFromStack(stack).isEmpty() && winebowl.getFluid().getAmount() >= DEFAULT_CAPACITY && (drunkEffect == null || drunkEffect.getDuration() < 3600)) {
-                int time = 0;
-                if(drunkEffect != null) {
-                    time = drunkEffect.getDuration();
-                }
-                entity.addPotionEffect(new EffectInstance(DrinksRegistry.drunk.get(), time + 3600));
-
-                for(EffectInstance effectinstance : PotionUtils.getEffectsFromStack(stack)) {
-                    if(effectinstance.getPotion() == DrinksRegistry.drunk.get()) continue;
-                    if (effectinstance.getPotion().isInstant()) {
-                        effectinstance.getPotion().affectEntity(playerIn, playerIn, entity, effectinstance.getAmplifier(), 1.0D);
-                    } else {
-                        entity.addPotionEffect(new EffectInstance(effectinstance));
+            if(!PotionUtils.getEffectsFromStack(stack).isEmpty() && winebowl.getFluid().getAmount() >= DEFAULT_CAPACITY) {
+                if(Drinks.addDrunkEffectsToEntity(playerIn, entity, PotionUtils.getEffectsFromStack(stack), true)) {
+                    playerIn.addStat(Stats.ITEM_USED.get(this));
+                    if (!playerIn.abilities.isCreativeMode) {
+                        winebowl.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
                     }
+                    return ActionResultType.SUCCESS;
                 }
-
-                playerIn.addStat(Stats.ITEM_USED.get(this));
-                if (!playerIn.abilities.isCreativeMode) {
-                    winebowl.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
-                }
-
-                return ActionResultType.SUCCESS;
             }
         }
         return ActionResultType.PASS;

@@ -4,7 +4,8 @@
 
   "//": "村民酒莊 物品",
   "item.villagerswinery.empty_winebowl": "空酒杯",
-  "item.villagerswinery.winebowl": "裝了 %s 的酒杯",
+  "item.villagerswinery.winebowl": "裝有%s的酒杯",
+  "item.villagerswinery.winebowl.information": "%s mb",
   "item.villagerswinery.stand": "支架",
 
   "//": "村民酒莊 液體",
@@ -18,6 +19,7 @@
   "item.villagerswinery.apple_juice.information": "蘋果的精華",
   "fluid.villagerswinery.fluid_cider": "蘋果酒",
   "item.villagerswinery.cider.information": "蘋果的精華的精華",
+  "item.villagerswinery.fluid.information": "%s %smb",
 
   "//": "村民酒莊 物品",
   "block.villagerswinery.liquid_barrel": "儲液木桶",

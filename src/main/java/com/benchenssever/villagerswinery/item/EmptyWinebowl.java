@@ -1,6 +1,6 @@
 package com.benchenssever.villagerswinery.item;
 
-import com.benchenssever.villagerswinery.drinkable.WinebowlFluidHandler;
+import com.benchenssever.villagerswinery.fluid.WinebowlFluidHandler;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
