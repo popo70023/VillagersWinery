@@ -5,8 +5,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
 
-import javax.annotation.Nonnull;
-
 import static com.benchenssever.villagerswinery.registration.DrinksRegistry.drinksCollection;
 
 public class WinebowlFluidHandler extends FluidHandlerItemStack {
@@ -14,7 +12,7 @@ public class WinebowlFluidHandler extends FluidHandlerItemStack {
      * @param container The container itemStack, data is stored on it directly as NBT.
      * @param capacity  The maximum capacity of this fluid tank.
      */
-    public WinebowlFluidHandler(@Nonnull ItemStack container, int capacity) {
+    public WinebowlFluidHandler(ItemStack container, int capacity) {
         super(container, capacity);
     }
 
@@ -23,7 +21,7 @@ public class WinebowlFluidHandler extends FluidHandlerItemStack {
         super.setFluid(fluid);
         fluid.getFluid().getAttributes();
         for (Drinks drinks : drinksCollection) {
-            if(fluid.getFluid().isEquivalentTo(drinks.getFluid())) {
+            if (fluid.getFluid().isEquivalentTo(drinks.getFluid())) {
                 if (drinks.potion != null) {
                     this.container.getOrCreateTag().putString("Potion", drinks.potion.get().getRegistryName().toString());
                 }
@@ -40,7 +38,7 @@ public class WinebowlFluidHandler extends FluidHandlerItemStack {
     }
 
     @Override
-    public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {
+    public boolean isFluidValid(int tank, FluidStack stack) {
         return stack.getFluid().getAttributes().getTemperature() < 500;
     }
 

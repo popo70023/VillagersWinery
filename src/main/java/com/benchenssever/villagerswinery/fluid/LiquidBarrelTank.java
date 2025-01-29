@@ -19,8 +19,7 @@ public class LiquidBarrelTank extends FluidTank {
 
     @Override
     public FluidTank readFromNBT(CompoundNBT nbt) {
-        if (nbt != null && nbt.contains(FLUID_NBT_KEY))
-        {
+        if (nbt != null && nbt.contains(FLUID_NBT_KEY)) {
             FluidStack fluid = FluidStack.loadFluidStackFromNBT(nbt.getCompound(FLUID_NBT_KEY));
             setFluid(fluid);
         }

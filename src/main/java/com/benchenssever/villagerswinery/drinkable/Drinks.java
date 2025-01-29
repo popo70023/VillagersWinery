@@ -26,32 +26,13 @@ public class Drinks {
 
     public static final ResourceLocation STILL_WATER_TEXTURE = new ResourceLocation("block/water_still");
     public static final ResourceLocation FLOWING_WATER_TEXTURE = new ResourceLocation("block/water_flow");
-
-    private static ForgeFlowingFluid.Properties drinkProperties(Supplier<FlowingFluid> still, Supplier<FlowingFluid> flowing, int color, Supplier<Item> bucket, Supplier<FlowingFluidBlock> block) {
-        return new ForgeFlowingFluid.Properties(
-                still,
-                flowing,
-                FluidAttributes
-                        .builder(STILL_WATER_TEXTURE, FLOWING_WATER_TEXTURE)
-                        .color(color)
-                        .density(4000)
-                        .viscosity(4000)
-                        .sound(SoundEvents.ITEM_BUCKET_FILL, SoundEvents.ITEM_BUCKET_EMPTY))
-                .bucket(bucket)
-                .block(block)
-                .slopeFindDistance(3)
-                .explosionResistance(100F);
-    }
-
-    private RegistryObject<Item> bucket;
-    private RegistryObject<FlowingFluidBlock> fluidBlock;
-    private RegistryObject<FlowingFluid> fluid;
-    private RegistryObject<FlowingFluid> flowingFluid;
-
     public final RegistryObject<Potion> potion;
     public final String id;
     public final int color;
-
+    private final RegistryObject<Item> bucket;
+    private final RegistryObject<FlowingFluidBlock> fluidBlock;
+    private RegistryObject<FlowingFluid> fluid;
+    private RegistryObject<FlowingFluid> flowingFluid;
     //TODO: 添加factories模式更換支持，來更換可用的初始化class類別，參考FluidAttributes.Builder
     public Drinks(Builder builder) {
         this.id = builder.id;
@@ -96,29 +77,69 @@ public class Drinks {
 
     }
 
-    public FlowingFluid getFluid(){
+    private static ForgeFlowingFluid.Properties drinkProperties(Supplier<FlowingFluid> still, Supplier<FlowingFluid> flowing, int color, Supplier<Item> bucket, Supplier<FlowingFluidBlock> block) {
+        return new ForgeFlowingFluid.Properties(
+                still,
+                flowing,
+                FluidAttributes
+                        .builder(STILL_WATER_TEXTURE, FLOWING_WATER_TEXTURE)
+                        .color(color)
+                        .density(4000)
+                        .viscosity(4000)
+                        .sound(SoundEvents.ITEM_BUCKET_FILL, SoundEvents.ITEM_BUCKET_EMPTY))
+                .bucket(bucket)
+                .block(block)
+                .slopeFindDistance(3)
+                .explosionResistance(100F);
+    }
+
+    public static boolean addDrunkEffectsToEntity(LivingEntity source, LivingEntity entityLivingBaseIn, List<EffectInstance> effects, boolean execute) {
+        EffectInstance drunkEffect = entityLivingBaseIn.getActivePotionEffect(DrinksRegistry.drunk.get());
+        if (drunkEffect == null || drunkEffect.getDuration() < 3600) {
+            if (execute) {
+                int time = 0;
+                if (drunkEffect != null) {
+                    time = drunkEffect.getDuration();
+                }
+
+                for (EffectInstance effectInstance : effects) {
+                    if (effectInstance.getPotion().isInstant()) {
+                        effectInstance.getPotion().affectEntity(source, null, entityLivingBaseIn, effectInstance.getAmplifier(), 1.0D);
+                    } else {
+                        if (effectInstance.getPotion() == DrinksRegistry.drunk.get()) {
+                            entityLivingBaseIn.addPotionEffect(new EffectInstance(effectInstance.getPotion(), time + effectInstance.getDuration()));
+                        } else {
+                            entityLivingBaseIn.addPotionEffect(new EffectInstance(effectInstance));
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public FlowingFluid getFluid() {
         return fluid.get();
     }
 
-    public FlowingFluid getFlowingFluid(){
+    public FlowingFluid getFlowingFluid() {
         return flowingFluid.get();
     }
 
-    public Item getBucket(){
+    public Item getBucket() {
         return bucket.get();
     }
 
-    public FlowingFluidBlock getFluidBlock(){
+    public FlowingFluidBlock getFluidBlock() {
         return fluidBlock.get();
     }
 
-
     public static class Builder {
         private final String id;
+        ItemGroup group;
         private int color = 0xFFFFFFFF;
         private RegistryObject<Potion> potion;
-
-        ItemGroup group;
 
         public Builder(String id) {
             this.id = id;
@@ -143,32 +164,6 @@ public class Drinks {
             return new Drinks(this);
         }
 
-    }
-
-    public static boolean addDrunkEffectsToEntity(LivingEntity source, LivingEntity entityLivingBaseIn, List<EffectInstance> effects, boolean execute) {
-        EffectInstance drunkEffect = entityLivingBaseIn.getActivePotionEffect(DrinksRegistry.drunk.get());
-        if(drunkEffect == null || drunkEffect.getDuration() < 3600) {
-            if(execute) {
-                int time = 0;
-                if(drunkEffect != null) {
-                    time = drunkEffect.getDuration();
-                }
-
-                for (EffectInstance effectInstance : effects) {
-                    if (effectInstance.getPotion().isInstant()) {
-                        effectInstance.getPotion().affectEntity(source, null, entityLivingBaseIn, effectInstance.getAmplifier(), 1.0D);
-                    } else {
-                        if(effectInstance.getPotion() == DrinksRegistry.drunk.get()) {
-                            entityLivingBaseIn.addPotionEffect(new EffectInstance(effectInstance.getPotion(), time + effectInstance.getDuration()));
-                        } else {
-                            entityLivingBaseIn.addPotionEffect(new EffectInstance(effectInstance));
-                        }
-                    }
-                }
-            }
-            return true;
-        }
-        return false;
     }
 }
 

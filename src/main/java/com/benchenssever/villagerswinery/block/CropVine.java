@@ -21,8 +21,8 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.RegistryObject;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -38,40 +38,44 @@ public class CropVine extends VineBlock implements IGrowable, ICrop {
     }
 
     @Override
-    public IntegerProperty getAgeProperty() { return AGE; }
+    public IntegerProperty getAgeProperty() {
+        return AGE;
+    }
 
     @Override
-    public Item getProduct() { return this.product.get(); }
+    public Item getProduct() {
+        return this.product.get();
+    }
 
     @Override
-    public boolean isShearable(@Nonnull ItemStack item, World world, BlockPos pos) {
+    public boolean isShearable(@NotNull ItemStack item, World world, BlockPos pos) {
         return this.isMaxAge(world.getBlockState(pos));
     }
 
-    @Nonnull
     @Override
-    public List<ItemStack> onSheared(PlayerEntity player, @Nonnull ItemStack item, World world, BlockPos pos, int fortune) {
+    public @NotNull List<ItemStack> onSheared(PlayerEntity player, @NotNull ItemStack item, World world, BlockPos pos, int fortune) {
         List<ItemStack> drops = new ArrayList<>();
-        if(this.isMaxAge(world.getBlockState(pos))) drops.add(new ItemStack( this.getProduct()));
+        if (this.isMaxAge(world.getBlockState(pos))) drops.add(new ItemStack(this.getProduct()));
         return drops;
     }
 
     @Override
-    public float getGrowthChance(Block blockIn, IBlockReader worldIn, BlockPos pos) { return 1.0F; }
+    public float getGrowthChance(Block blockIn, IBlockReader worldIn, BlockPos pos) {
+        return 1.0F;
+    }
 
     @Override
-    public void randomTick(@Nonnull BlockState state, @Nonnull ServerWorld worldIn, @Nonnull BlockPos pos, @Nonnull Random random) {
+    public void randomTick(@NotNull BlockState state, @NotNull ServerWorld worldIn, @NotNull BlockPos pos, @NotNull Random random) {
         super.randomTick(state, worldIn, pos, random);
         this.growth(state, worldIn, pos, random);
     }
 
-    @Nonnull
     @Override
-    public ActionResultType onBlockActivated(@Nonnull BlockState state, @Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand handIn, @Nonnull BlockRayTraceResult hit) {
+    public @NotNull ActionResultType onBlockActivated(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos, PlayerEntity player, @NotNull Hand handIn, @NotNull BlockRayTraceResult hit) {
         ItemStack stack = player.getHeldItem(handIn);
-        if(ItemTags.getCollection().get(new ResourceLocation("forge", "shears")).contains(stack.getItem()) && this.isShearable(stack, worldIn, pos)) {
+        if (ItemTags.getCollection().get(new ResourceLocation("forge", "shears")).contains(stack.getItem()) && this.isShearable(stack, worldIn, pos)) {
             worldIn.playSound(player, pos, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.PLAYERS, 1.0F, 1.0F);
-            if(!worldIn.isRemote()) {
+            if (!worldIn.isRemote()) {
                 List<ItemStack> drops = onSheared(player, stack, worldIn, pos, 0);
                 for (ItemStack drop : drops) {
                     InventoryHelper.spawnItemStack(worldIn, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, drop);
@@ -87,23 +91,27 @@ public class CropVine extends VineBlock implements IGrowable, ICrop {
     }
 
     @Override
-    protected void fillStateContainer(@Nonnull StateContainer.Builder<Block, BlockState> builder) {
+    protected void fillStateContainer(StateContainer.@NotNull Builder<Block, BlockState> builder) {
         super.fillStateContainer(builder);
         builder.add(AGE);
     }
 
     @Override
-    public boolean canGrow(@Nonnull IBlockReader worldIn, @Nonnull BlockPos pos, @Nonnull BlockState state, boolean isClient) { return !this.isMaxAge(state); }
+    public boolean canGrow(@NotNull IBlockReader worldIn, @NotNull BlockPos pos, @NotNull BlockState state, boolean isClient) {
+        return !this.isMaxAge(state);
+    }
 
     @Override
-    public boolean canUseBonemeal(@Nonnull World worldIn, @Nonnull Random rand, @Nonnull BlockPos pos, @Nonnull BlockState state) {
+    public boolean canUseBonemeal(@NotNull World worldIn, @NotNull Random rand, @NotNull BlockPos pos, @NotNull BlockState state) {
         return true;
     }
 
     @Override
-    public void grow(@Nonnull ServerWorld worldIn, @Nonnull Random rand, @Nonnull BlockPos pos, @Nonnull BlockState state) {
+    public void grow(ServerWorld worldIn, @NotNull Random rand, @NotNull BlockPos pos, @NotNull BlockState state) {
         int age = this.getAge(state) + MathHelper.nextInt(worldIn.rand, 2, 5);
-        if (age > this.getMaxAge()) {age = this.getMaxAge();}
+        if (age > this.getMaxAge()) {
+            age = this.getMaxAge();
+        }
         worldIn.setBlockState(pos, this.withAge(state, age), 2);
     }
 }

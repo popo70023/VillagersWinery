@@ -30,33 +30,30 @@ import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.RegistryObject;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class Winebowl extends Item {
-    public final RegistryObject<Item> emptyBowl;
     public static final int DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME / 4;
+    public final RegistryObject<Item> emptyBowl;
 
     public Winebowl(Properties properties, RegistryObject<Item> emptyBowl) {
         super(properties);
         this.emptyBowl = emptyBowl;
     }
 
-    @Nonnull
     @Override
-    public ItemStack getDefaultInstance() {
+    public @NotNull ItemStack getDefaultInstance() {
         return PotionUtils.addPotionToItemStack(super.getDefaultInstance(), Potions.WATER);
     }
 
-    @Nonnull
     @Override
-    public ItemStack onItemUseFinish(@Nonnull ItemStack stack, @Nonnull World worldIn, @Nonnull LivingEntity entityLiving) {
-        PlayerEntity playerentity = entityLiving instanceof PlayerEntity ? (PlayerEntity)entityLiving : null;
+    public @NotNull ItemStack onItemUseFinish(@NotNull ItemStack stack, @NotNull World worldIn, @NotNull LivingEntity entityLiving) {
+        PlayerEntity playerentity = entityLiving instanceof PlayerEntity ? (PlayerEntity) entityLiving : null;
         WinebowlFluidHandler winebowl = new WinebowlFluidHandler(stack, DEFAULT_CAPACITY);
         if (playerentity instanceof ServerPlayerEntity) {
-            CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayerEntity)playerentity, stack);
+            CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayerEntity) playerentity, stack);
         }
 
         if (!worldIn.isRemote) {
@@ -75,23 +72,21 @@ public class Winebowl extends Item {
 
 
     @Override
-    public int getUseDuration(@Nonnull ItemStack stack) {
+    public int getUseDuration(@NotNull ItemStack stack) {
         return 32;
     }
 
-    @Nonnull
     @Override
-    public UseAction getUseAction(@Nonnull ItemStack stack) {
+    public @NotNull UseAction getUseAction(@NotNull ItemStack stack) {
         return UseAction.DRINK;
     }
 
-    @Nonnull
     @Override
-    public ActionResult<ItemStack> onItemRightClick(@Nonnull World worldIn, PlayerEntity playerIn, @Nonnull Hand handIn) {
+    public @NotNull ActionResult<ItemStack> onItemRightClick(@NotNull World worldIn, PlayerEntity playerIn, @NotNull Hand handIn) {
         ItemStack stack = playerIn.getHeldItem(handIn);
         WinebowlFluidHandler winebowl = new WinebowlFluidHandler(stack, DEFAULT_CAPACITY);
 
-        if(!PotionUtils.getEffectsFromStack(stack).isEmpty() && winebowl.getFluid().getAmount() >= DEFAULT_CAPACITY) {
+        if (!PotionUtils.getEffectsFromStack(stack).isEmpty() && winebowl.getFluid().getAmount() >= DEFAULT_CAPACITY) {
             if (Drinks.addDrunkEffectsToEntity(playerIn, playerIn, PotionUtils.getEffectsFromStack(stack), false)) {
                 return DrinkHelper.startDrinking(worldIn, playerIn, handIn);
             }
@@ -99,35 +94,34 @@ public class Winebowl extends Item {
         return ActionResult.resultFail(playerIn.getHeldItem(handIn));
     }
 
-    @Nonnull
     @Override
-    public ITextComponent getDisplayName(@Nonnull ItemStack stack) {
+    public @NotNull ITextComponent getDisplayName(@NotNull ItemStack stack) {
         FluidStack fluidStack = new WinebowlFluidHandler(stack, DEFAULT_CAPACITY).getFluid();
-        if(!fluidStack.isEmpty()) {
-            return new TranslationTextComponent("item."+ VillagersWineryMod.MODID+".winebowl", new TranslationTextComponent(fluidStack.getTranslationKey()));
+        if (!fluidStack.isEmpty()) {
+            return new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".winebowl", new TranslationTextComponent(fluidStack.getTranslationKey()));
         } else {
-            return  new TranslationTextComponent("item."+ VillagersWineryMod.MODID+".empty_winebowl");
+            return new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".empty_winebowl");
         }
     }
 
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn) {
+    public void addInformation(@NotNull ItemStack stack, World worldIn, List<ITextComponent> tooltip, @NotNull ITooltipFlag flagIn) {
         FluidStack fluidStack = new WinebowlFluidHandler(stack, DEFAULT_CAPACITY).getFluid();
-        tooltip.add(new TranslationTextComponent("item."+ VillagersWineryMod.MODID+".winebowl.information", new StringTextComponent(Integer.toString(fluidStack.getAmount()))));
+        tooltip.add(new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".winebowl.information", new StringTextComponent(Integer.toString(fluidStack.getAmount()))));
         PotionUtils.addPotionTooltip(stack, tooltip, 1.0F);
     }
 
 
     @Override
-    public void fillItemGroup(@Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> items) {
+    public void fillItemGroup(@NotNull ItemGroup group, @NotNull NonNullList<ItemStack> items) {
         if (this.isInGroup(group)) {
-            for(Drinks drinks : DrinksRegistry.drinksCollection) {
-                if(drinks.potion == null) continue;
+            for (Drinks drinks : DrinksRegistry.drinksCollection) {
+                if (drinks.potion == null) continue;
                 ItemStack stack = new ItemStack(this);
                 WinebowlFluidHandler fluidStack = new WinebowlFluidHandler(stack, DEFAULT_CAPACITY);
-                if(fluidStack.fill(new FluidStack(drinks.getFluid(), DEFAULT_CAPACITY), IFluidHandler.FluidAction.EXECUTE) == DEFAULT_CAPACITY) {
+                if (fluidStack.fill(new FluidStack(drinks.getFluid(), DEFAULT_CAPACITY), IFluidHandler.FluidAction.EXECUTE) == DEFAULT_CAPACITY) {
                     items.add(stack);
                 }
             }
@@ -136,14 +130,13 @@ public class Winebowl extends Item {
         }
     }
 
-    @Nonnull
     @Override
-    public ActionResultType itemInteractionForEntity(@Nonnull ItemStack stack, @Nonnull PlayerEntity playerIn, LivingEntity entity, @Nonnull Hand hand) {
+    public @NotNull ActionResultType itemInteractionForEntity(@NotNull ItemStack stack, @NotNull PlayerEntity playerIn, LivingEntity entity, @NotNull Hand hand) {
         if (entity.world.isRemote) return ActionResultType.PASS;
         if (entity instanceof VillagerEntity) {
             WinebowlFluidHandler winebowl = new WinebowlFluidHandler(stack, DEFAULT_CAPACITY);
-            if(!PotionUtils.getEffectsFromStack(stack).isEmpty() && winebowl.getFluid().getAmount() >= DEFAULT_CAPACITY) {
-                if(Drinks.addDrunkEffectsToEntity(playerIn, entity, PotionUtils.getEffectsFromStack(stack), true)) {
+            if (!PotionUtils.getEffectsFromStack(stack).isEmpty() && winebowl.getFluid().getAmount() >= DEFAULT_CAPACITY) {
+                if (Drinks.addDrunkEffectsToEntity(playerIn, entity, PotionUtils.getEffectsFromStack(stack), true)) {
                     playerIn.addStat(Stats.ITEM_USED.get(this));
                     if (!playerIn.abilities.isCreativeMode) {
                         winebowl.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
@@ -155,9 +148,8 @@ public class Winebowl extends Item {
         return ActionResultType.PASS;
     }
 
-    @Nullable
     @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
+    public ICapabilityProvider initCapabilities(ItemStack stack, CompoundNBT nbt) {
         return new WinebowlFluidHandler(stack, DEFAULT_CAPACITY);
     }
 }

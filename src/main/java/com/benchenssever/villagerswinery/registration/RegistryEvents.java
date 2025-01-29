@@ -4,6 +4,8 @@ import com.benchenssever.villagerswinery.block.*;
 import com.benchenssever.villagerswinery.client.gui.LiquidBarrelScreen;
 import com.benchenssever.villagerswinery.fluid.LiquidBarrelContainer;
 import com.benchenssever.villagerswinery.item.LiquidBarrelIItem;
+import com.benchenssever.villagerswinery.recipe.BasinRecipe;
+import com.benchenssever.villagerswinery.recipe.BasinRecipeSerializers;
 import com.benchenssever.villagerswinery.recipe.WineRecipeSerializers;
 import com.benchenssever.villagerswinery.recipe.WineRecipe;
 import com.benchenssever.villagerswinery.tileentity.BasinTileEntity;
@@ -60,8 +62,10 @@ public class RegistryEvents {
     public static final RegistryObject<ContainerType<LiquidBarrelContainer>> liquidBarrelContainer = CONTAINERS.register("liquid_barrel_container", () -> IForgeContainerType.create(LiquidBarrelContainer::new));
 
     public static final RegistryObject<IRecipeSerializer<WineRecipe>> wineRecipeSerializer = RECIPE_SERIALIZERS.register("winerecipe", () -> new WineRecipeSerializers<>(WineRecipe::new));
+    public static final RegistryObject<IRecipeSerializer<BasinRecipe>> basinRecipeSerializer = RECIPE_SERIALIZERS.register("basinrecipe", () -> new BasinRecipeSerializers<>(BasinRecipe::new));
 
     public static final IRecipeType<WineRecipe> wineRecipe = IRecipeType.register("winerecipe");
+    public static final IRecipeType<BasinRecipe> basinRecipe = IRecipeType.register("basinrecipe");
 
     public static final ItemGroup wineryItemGroup = new ItemGroup("villagerswinery") {
         @Nonnull

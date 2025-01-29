@@ -10,14 +10,11 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fluids.FluidStack;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 public class LiquidBarrelScreen extends ContainerScreen<LiquidBarrelContainer> {
     private final ResourceLocation LIQUID_BARREL_RESOURCE = new ResourceLocation("minecraft", "textures/gui/container/furnace.png");
 
-    @Nullable
     protected LiquidBarrelContainer.FluidSlot hoveredFluidSlot;
 
     public LiquidBarrelScreen(LiquidBarrelContainer screenContainer, PlayerInventory inv, ITextComponent titleIn) {
@@ -25,24 +22,34 @@ public class LiquidBarrelScreen extends ContainerScreen<LiquidBarrelContainer> {
     }
 
     @Override
-    public void render(@Nonnull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         TextureManager tm = this.getMinecraft().getTextureManager();
         renderBackground(matrixStack);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         this.hoveredFluidSlot = null;
-        for(LiquidBarrelContainer.FluidSlot slot : this.container.inventoryFluidSlot) {
-            FluidStack fluidStack = slot.fluidStack;
-            if(!fluidStack.isEmpty()) {
+        for (LiquidBarrelContainer.FluidSlot fluidslot : this.container.inventoryFluidSlots) {
+            FluidStack fluidStack = fluidslot.getFluidStack();
+            int fluidslotx1 = this.guiLeft + fluidslot.xPos;
+            int fluidslotx2 = this.guiLeft + fluidslot.xPos + fluidslot.xSize;
+            int fluidsloty1 = this.guiTop + fluidslot.yPos;
+            int fluidsloty2 = this.guiTop + fluidslot.yPos + fluidslot.ySize;
+            if (!fluidStack.isEmpty()) {
                 ResourceLocation fluidResource = fluidStack.getFluid().getAttributes().getStillTexture();
                 tm.bindTexture(new ResourceLocation(fluidResource.getNamespace(), "textures/" + fluidResource.getPath() + ".png"));
-                int fluidAmount = this.getProgressionScaled(fluidStack.getAmount(), 8000, slot.ySize);
+                int fluidAmount = this.getProgressionScaled(fluidStack.getAmount(), 8000, fluidslot.ySize);
                 int color = fluidStack.getFluid().getAttributes().getColor();
                 RenderSystem.color4f((color >> 16 & 0xFF) / 255f, (color >> 8 & 0xFF) / 255f, (color & 0xFF) / 255f, (color >> 24 & 0xFF) / 255f);
-                blit(matrixStack, this.guiLeft + slot.xPos, this.guiTop + slot.yPos + slot.ySize - fluidAmount, 0, 512 - fluidAmount, slot.xSize, fluidAmount, 16, 512);
+                blit(matrixStack, fluidslotx1, fluidsloty2 - fluidAmount, 0, 512 - fluidAmount, fluidslot.xSize, fluidAmount, 16, 512);
             }
 
-            if(this.isFluidSlotSelected(slot, mouseX, mouseY)) {
-                this.hoveredFluidSlot = slot;
+            if (this.isFluidSlotSelected(fluidslot, mouseX, mouseY) && fluidslot.isEnabled()) {
+                this.hoveredFluidSlot = fluidslot;
+                RenderSystem.disableDepthTest();
+                RenderSystem.colorMask(true, true, true, false);
+                int slotColor = this.getSlotColor(fluidslot.slotNumber);
+                this.fillGradient(matrixStack, fluidslotx1, fluidsloty1, fluidslotx2, fluidsloty2, slotColor, slotColor);
+                RenderSystem.colorMask(true, true, true, true);
+                RenderSystem.enableDepthTest();
             }
         }
         RenderSystem.color4f(1, 1, 1, 1);
@@ -55,21 +62,21 @@ public class LiquidBarrelScreen extends ContainerScreen<LiquidBarrelContainer> {
     }
 
     @Override
-    protected void renderHoveredTooltip(@Nonnull MatrixStack matrixStack, int x, int y) {
+    protected void renderHoveredTooltip(@NotNull MatrixStack matrixStack, int x, int y) {
         if (this.minecraft.player.inventory.getItemStack().isEmpty() && this.hoveredFluidSlot != null) {
-            ITextComponent itextcomponent = FluidTransferUtil.addFluidTooltip(this.hoveredFluidSlot.fluidStack);
+            ITextComponent itextcomponent = FluidTransferUtil.addFluidTooltip(this.hoveredFluidSlot.getFluidStack());
             this.renderTooltip(matrixStack, itextcomponent, x, y);
         }
         super.renderHoveredTooltip(matrixStack, x, y);
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(@Nonnull MatrixStack matrixStack, int x, int y) {
+    protected void drawGuiContainerForegroundLayer(@NotNull MatrixStack matrixStack, int x, int y) {
         super.drawGuiContainerForegroundLayer(matrixStack, x, y);
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(@Nonnull MatrixStack matrixStack, float partialTicks, int x, int y) {
+    protected void drawGuiContainerBackgroundLayer(@NotNull MatrixStack matrixStack, float partialTicks, int x, int y) {
         TextureManager tm = this.getMinecraft().getTextureManager();
 
         tm.bindTexture(LIQUID_BARREL_RESOURCE);

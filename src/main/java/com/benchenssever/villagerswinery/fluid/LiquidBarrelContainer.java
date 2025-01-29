@@ -11,38 +11,33 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.IIntArray;
 import net.minecraft.util.IntArray;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.templates.FluidTank;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class LiquidBarrelContainer extends Container {
 
+    public final List<FluidSlot> inventoryFluidSlots = Lists.newArrayList();
     private final IIntArray liquidBarrelData;
-    public final List<FluidSlot> inventoryFluidSlot = Lists.newArrayList();
-    private final PlayerInventory playerinventory;
 
     public LiquidBarrelContainer(int id, PlayerInventory playerinventory, PacketBuffer data) {
-        this(id, playerinventory, FluidStack.readFromPacket(data), new IntArray(3));
+        this(id, playerinventory, new FluidInventory(new FluidTank(8000)), new IntArray(3));
     }
 
-    public LiquidBarrelContainer(int id, PlayerInventory playerinventory, FluidStack fluidStack, IIntArray liquidBarrelData) {
+    public LiquidBarrelContainer(int id, PlayerInventory playerinventory, FluidInventory fluidinventory, IIntArray liquidBarrelData) {
         super(RegistryEvents.liquidBarrelContainer.get(), id);
 
-        this.addFluidSlot(new FluidSlot(fluidStack, 0, 20, 20, 16, 40));
         this.liquidBarrelData = liquidBarrelData;
         trackIntArray(liquidBarrelData);
-        this.playerinventory = playerinventory;
         layoutPlayerInventorySlots(playerinventory, 8, 84);
+        this.addFluidSlot(new FluidSlot(fluidinventory, 0, 20, 20, 16, 40));
     }
 
     protected FluidSlot addFluidSlot(FluidSlot slotIn) {
-        slotIn.slotNumber = this.inventoryFluidSlot.size();
-        this.inventoryFluidSlot.add(slotIn);
+        slotIn.slotNumber = this.inventoryFluidSlots.size();
+        this.inventoryFluidSlots.add(slotIn);
         return slotIn;
     }
-
-    @Override
-    public boolean canInteractWith(@Nonnull PlayerEntity playerIn) { return true; }
 
     private int addSlotRange(IInventory inventory, int index, int x, int y, int amount, int dx) {
         for (int i = 0; i < amount; i++) {
@@ -67,23 +62,38 @@ public class LiquidBarrelContainer extends Container {
         topRow += 58;
         addSlotRange(inventory, 0, leftCol, topRow, 9, 18);
     }
-    public IIntArray getLiquidBarrelData() { return this.liquidBarrelData; }
 
-    public static class FluidSlot {
-        public final FluidStack fluidStack;
-        public int slotNumber;
-        public final int xPos;
-        public final int yPos;
+    public IIntArray getLiquidBarrelData() {
+        return this.liquidBarrelData;
+    }
+
+    @Override
+    public boolean canInteractWith(PlayerEntity playerIn) {
+        return true;
+    }
+
+    public static class FluidSlot extends Slot {
         public final int xSize;
         public final int ySize;
 
-        public FluidSlot(FluidStack fluidStack, int index, int xPosition, int yPosition, int xSize, int ySize) {
-            this.fluidStack = fluidStack;
-            this.slotNumber = index;
-            this.xPos = xPosition;
-            this.yPos = yPosition;
+        public FluidSlot(FluidInventory fluidInventoryIn, int index, int xPosition, int yPosition, int xSize, int ySize) {
+            super(fluidInventoryIn, index, xPosition, yPosition);
             this.xSize = xSize;
             this.ySize = ySize;
+        }
+
+        public FluidStack getFluidStack() {
+            if (inventory instanceof FluidInventory) {
+                return ((FluidInventory) inventory).getFluidStackInSlot(getSlotIndex());
+            }
+            return FluidStack.EMPTY;
+        }
+
+        public void putFluidStack(FluidStack stack) {
+            if (inventory instanceof FluidInventory) {
+                ((FluidInventory) inventory).setInventoryFluidSlotContents(getSlotIndex(), stack);
+                this.onSlotChanged();
+            }
         }
     }
 }

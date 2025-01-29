@@ -6,9 +6,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectType;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import static com.benchenssever.villagerswinery.VillagersWineryMod.LOGGER;
 
@@ -26,14 +24,15 @@ public class WineEffect extends Effect {
     }
 
     @Override
-    public void performEffect(@Nonnull LivingEntity entityLivingBaseIn, int amplifier) {}
+    public void performEffect(@NotNull LivingEntity entityLivingBaseIn, int amplifier) {
+    }
 
     @Override
-    public void affectEntity(@Nullable Entity source, @Nullable Entity indirectSource, @Nonnull LivingEntity entityLivingBaseIn, int amplifier, double health) {
-        if(entityLivingBaseIn instanceof VillagerEntity) {
-            VillagerEntity Villager = (VillagerEntity)entityLivingBaseIn;
+    public void affectEntity(Entity source, Entity indirectSource, @NotNull LivingEntity entityLivingBaseIn, int amplifier, double health) {
+        if (entityLivingBaseIn instanceof VillagerEntity) {
+            VillagerEntity Villager = (VillagerEntity) entityLivingBaseIn;
 
-            if(this == DrinksRegistry.getIMerchantXp.get()) {
+            if (this == DrinksRegistry.getIMerchantXp.get()) {
                 Villager.setXP(Villager.getXp() + 1 + amplifier);
                 LOGGER.debug("Villager have {}", Villager.getXp());
             }

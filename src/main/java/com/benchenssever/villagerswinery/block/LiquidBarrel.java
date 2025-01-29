@@ -22,9 +22,7 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 public class LiquidBarrel extends HorizontalBlock {
     public static final BooleanProperty VERTICAL = BooleanProperty.create("vertical");
@@ -34,25 +32,27 @@ public class LiquidBarrel extends HorizontalBlock {
         this.setDefaultState(this.stateContainer.getBaseState().with(HORIZONTAL_FACING, Direction.NORTH).with(VERTICAL, false));
     }
 
+    public static Direction getLiquidBarrelDirection(BlockState state) {
+        return state.get(VERTICAL) ? Direction.UP : state.get(HORIZONTAL_FACING);
+    }
+
     @Override
     public boolean hasTileEntity(BlockState state) {
         return true;
     }
 
-    @Nullable
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
         return new LiquidBarrelTileEntity();
     }
 
-    @Nonnull
     @Override
-    public ActionResultType onBlockActivated(@Nonnull BlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand hand, BlockRayTraceResult hit) {
-        if(hit.getFace() == getLiquidBarrelDirection(state)) {
+    public @NotNull ActionResultType onBlockActivated(@NotNull BlockState state, @NotNull World world, @NotNull BlockPos pos, @NotNull PlayerEntity player, @NotNull Hand hand, BlockRayTraceResult hit) {
+        if (hit.getFace() == getLiquidBarrelDirection(state)) {
             if (!FluidTransferUtil.interactWithTank(world, pos, player, hand, hit) && !world.isRemote && hand == Hand.MAIN_HAND) {
-                LiquidBarrelTileEntity tileentity = (LiquidBarrelTileEntity)world.getTileEntity(pos);
-                if(tileentity != null)
-                    NetworkHooks.openGui((ServerPlayerEntity) player, tileentity, (packerBuffer) -> tileentity.getTank().getFluid().writeToPacket(packerBuffer));
+                LiquidBarrelTileEntity tileentity = (LiquidBarrelTileEntity) world.getTileEntity(pos);
+                if (tileentity != null)
+                    NetworkHooks.openGui((ServerPlayerEntity) player, tileentity, (packerBuffer) -> packerBuffer.writeBlockPos(tileentity.getPos()));
             }
             return ActionResultType.SUCCESS;
         }
@@ -60,27 +60,22 @@ public class LiquidBarrel extends HorizontalBlock {
     }
 
     @Override
-    public void onBlockPlacedBy(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+    public void onBlockPlacedBy(@NotNull World worldIn, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity placer, ItemStack stack) {
         if (stack.hasDisplayName()) {
             TileEntity tileentity = worldIn.getTileEntity(pos);
             if (tileentity instanceof LiquidBarrelTileEntity) {
-                ((LiquidBarrelTileEntity)tileentity).setCustomName(stack.getDisplayName());
+                ((LiquidBarrelTileEntity) tileentity).setCustomName(stack.getDisplayName());
             }
         }
     }
 
-    public static Direction getLiquidBarrelDirection(BlockState state) {
-        return state.get(VERTICAL)? Direction.UP : state.get(HORIZONTAL_FACING);
-    }
-
-    @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         return this.getDefaultState().with(HORIZONTAL_FACING, context.getPlacementHorizontalFacing().getOpposite()).with(VERTICAL, context.getNearestLookingDirection().getOpposite() == Direction.UP);
     }
 
     @Override
-    protected void fillStateContainer(@Nonnull StateContainer.Builder<Block, BlockState> builder) {
+    protected void fillStateContainer(StateContainer.@NotNull Builder<Block, BlockState> builder) {
         super.fillStateContainer(builder);
         builder.add(HORIZONTAL_FACING, VERTICAL);
     }

@@ -9,37 +9,38 @@ import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 public class DrinkableFluidBlock extends FlowingFluidBlock {
+    final private static Direction[] searchOrder = {Direction.UP, Direction.NORTH, Direction.EAST, Direction.WEST, Direction.SOUTH};
     public final Drinks drinks;
-    public DrinkableFluidBlock(Supplier<? extends FlowingFluid> supplier, Properties properties,Drinks drinks) {
+
+    public DrinkableFluidBlock(Supplier<? extends FlowingFluid> supplier, Properties properties, Drinks drinks) {
         super(supplier, properties);
         this.drinks = drinks;
     }
 
     @Override
-    public void onEntityCollision(@Nonnull BlockState state, World worldIn, @Nonnull BlockPos pos, @Nonnull Entity entityIn) {
+    public void onEntityCollision(@NotNull BlockState state, World worldIn, @NotNull BlockPos pos, @NotNull Entity entityIn) {
         if (worldIn.isRemote || !(drinks.potion != null && entityIn instanceof LivingEntity)) {
             return;
         }
         BlockPos sourceDrinkPos = backtraceSource(state, worldIn, pos);
-        if(sourceDrinkPos == null) return;
-        LivingEntity entityLiving = (LivingEntity)entityIn;
+        if (sourceDrinkPos == null) return;
+        LivingEntity entityLiving = (LivingEntity) entityIn;
 
-        if(Drinks.addDrunkEffectsToEntity(entityLiving, entityLiving, drinks.potion.get().getEffects(), true)) {
-            worldIn.setBlockState(sourceDrinkPos,  Blocks.AIR.getDefaultState());
+        if (Drinks.addDrunkEffectsToEntity(entityLiving, entityLiving, drinks.potion.get().getEffects(), true)) {
+            worldIn.setBlockState(sourceDrinkPos, Blocks.AIR.getDefaultState());
         }
     }
 
-    final private static Direction[] searchOrder  = {Direction.UP,Direction.NORTH,Direction.EAST,Direction.WEST,Direction.SOUTH};
-    private BlockPos backtraceSource(BlockState current, World worldIn, BlockPos pos){
-        if(current.getFluidState().isSource()){
+    private BlockPos backtraceSource(BlockState current, World worldIn, BlockPos pos) {
+        if (current.getFluidState().isSource()) {
             return pos;
         }
-        while(true){
+        while (true) {
             BlockPos lastPos = pos;
             for (Direction direction : searchOrder) {
                 BlockPos offset = pos.offset(direction);
@@ -48,21 +49,21 @@ public class DrinkableFluidBlock extends FlowingFluidBlock {
                     if (nextBlockState.getFluidState().isSource()) {
                         return offset;
                     }
-                    if(direction ==Direction.UP){
+                    if (direction == Direction.UP) {
                         current = nextBlockState;
                         pos = offset;
                         break;
                     }
-                    if (nextBlockState.getFluidState().getLevel()>current.getFluidState().getLevel()) {
+                    if (nextBlockState.getFluidState().getLevel() > current.getFluidState().getLevel()) {
                         current = nextBlockState;
                         pos = offset;
                         break;
                     }
                 }
             }
-            if(lastPos.equals(pos)){
+            if (lastPos.equals(pos)) {
                 return null;
-            }else{
+            } else {
                 lastPos = pos;
             }
         }

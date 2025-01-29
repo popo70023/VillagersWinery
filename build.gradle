@@ -137,6 +137,7 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
+    implementation 'org.jetbrains:annotations:24.0.1'
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..

@@ -17,8 +17,7 @@ import org.apache.logging.log4j.Logger;
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(VillagersWineryMod.MODID)
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-public class VillagersWineryMod
-{
+public class VillagersWineryMod {
     public static final String MODID = "villagerswinery";
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger(MODID);

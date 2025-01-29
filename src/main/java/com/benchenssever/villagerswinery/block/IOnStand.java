@@ -10,5 +10,6 @@ import net.minecraft.world.World;
 
 public interface IOnStand {
     Item itemOnStand();
+
     boolean putOnStand(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, ItemStack stack);
 }

@@ -5,15 +5,16 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.BushBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,29 +27,31 @@ public class Stand extends BushBlock {
         super(properties);
     }
 
-    @Nonnull
     @Override
-    public VoxelShape getShape(@Nonnull BlockState state, @Nonnull IBlockReader worldIn, @Nonnull BlockPos pos, @Nonnull ISelectionContext context) { return STAND_SHAPE; }
+    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull IBlockReader worldIn, @NotNull BlockPos pos, @NotNull ISelectionContext context) {
+        return STAND_SHAPE;
+    }
 
-    @Nonnull
     @Override
-    public ActionResultType onBlockActivated(@Nonnull BlockState state, @Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand handIn, @Nonnull BlockRayTraceResult hit) {
+    public @NotNull ActionResultType onBlockActivated(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos, PlayerEntity player, @NotNull Hand handIn, @NotNull BlockRayTraceResult hit) {
         ItemStack stack = player.getHeldItem(handIn);
         IOnStand theStandBlock = null;
-        for(IOnStand onStandBlock : listOnStandBlock) {
-            if(onStandBlock.itemOnStand() == stack.getItem()) {
+        for (IOnStand onStandBlock : listOnStandBlock) {
+            if (onStandBlock.itemOnStand() == stack.getItem()) {
                 theStandBlock = onStandBlock;
                 break;
             }
         }
 
-        if(theStandBlock != null && theStandBlock.putOnStand(state, worldIn, pos, player, handIn, stack)) { return ActionResultType.SUCCESS; }
+        if (theStandBlock != null && theStandBlock.putOnStand(state, worldIn, pos, player, handIn, stack)) {
+            return ActionResultType.SUCCESS;
+        }
 
         return ActionResultType.PASS;
     }
 
     @Override
-    protected boolean isValidGround(@Nonnull BlockState state, @Nonnull IBlockReader worldIn, @Nonnull BlockPos pos) {
-        return super.isValidGround(state, worldIn, pos)  || state.getBlock() instanceof Stand;
+    protected boolean isValidGround(@NotNull BlockState state, @NotNull IBlockReader worldIn, @NotNull BlockPos pos) {
+        return super.isValidGround(state, worldIn, pos) || state.getBlock() instanceof Stand;
     }
 }

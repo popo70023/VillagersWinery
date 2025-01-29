@@ -123,6 +123,15 @@ public class FluidTransferUtil {
                 || interactWithBucket(world, pos, player, hand, hit.getFace(), hit.getFace());
     }
 
+    public static boolean isInteractableWithFluidStack(ItemStack held) {
+        if (held.getItem() instanceof BucketItem) {
+            BucketItem bucket = (BucketItem) held.getItem();
+            Fluid fluid = bucket.getFluid();
+            return fluid != Fluids.EMPTY;
+        } else
+            return !held.isEmpty() && held.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).isPresent();
+    }
+
     public static TranslationTextComponent addFluidTooltip(FluidStack fluidStack) {
         return new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".fluid.information",
                 new TranslationTextComponent(fluidStack.getTranslationKey()),

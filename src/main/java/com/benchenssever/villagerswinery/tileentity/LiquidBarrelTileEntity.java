@@ -1,5 +1,6 @@
 package com.benchenssever.villagerswinery.tileentity;
 
+import com.benchenssever.villagerswinery.fluid.FluidInventory;
 import com.benchenssever.villagerswinery.fluid.LiquidBarrelContainer;
 import com.benchenssever.villagerswinery.fluid.LiquidBarrelTank;
 import com.benchenssever.villagerswinery.recipe.WineRecipe;
@@ -30,13 +31,14 @@ import net.minecraftforge.fluids.capability.templates.FluidTank;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static com.benchenssever.villagerswinery.VillagersWineryMod.LOGGER;
 import static com.benchenssever.villagerswinery.registration.RegistryEvents.wineRecipe;
 
 public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileEntity, INamedContainerProvider, INameable {
     private ITextComponent customName;
     public static final int DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME * 8;
     private final FluidTank tank = new LiquidBarrelTank(DEFAULT_CAPACITY, (e)->e.getFluid().getAttributes().getTemperature() < 500);
+    private final LazyOptional<IFluidHandler> holder = LazyOptional.of(() -> tank);
+    private final FluidInventory fluidinventory = new FluidInventory(tank);
     private WineRecipe winemakingRecipe;
     private Fluid winemakingFluid = Fluids.EMPTY;
     private int winemakingTime;
@@ -75,7 +77,6 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
             return 3;
         }
     };
-    private final LazyOptional<IFluidHandler> holder = LazyOptional.of(() -> tank);
 
     public LiquidBarrelTileEntity() { super(RegistryEvents.liquidBarrelTileEntity.get()); }
 
@@ -104,32 +105,27 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
     @Override
     public void tick() {
         if (!world.isRemote) {
-//            if (this.winemakingStatus > 0) {
-                if(this.tank.getFluid().isEmpty() || !this.winemakingFluid.isEquivalentTo(this.tank.getFluid().getFluid())) {
+            if(!this.winemakingFluid.isEquivalentTo(this.getTank().getFluid().getFluid())) {
+                this.winemakingStatus = 0;
+                this.winemakingTime = 0;
+                this.winemakingTimeTotal = 0;
+                this.winemakingFluid = this.getTank().getFluid().getFluid();
+                this.winemakingRecipe = this.getTank().getFluid().isEmpty() ? null : this.getRecipe();
+            }
+
+            if(this.winemakingRecipe != null) {
+                this.winemakingTimeTotal = this.getRecipeSpendTime();
+                this.winemakingTime++;
+                if (this.winemakingTime >= this.winemakingTimeTotal) {
+                    Fluid output = this.getRecipeOutput().getFluid();
+                    int ratio = this.getRecipeOutput().getAmount() / this.getRecipeInput().getAmount();
+                    this.tank.setFluid(new FluidStack(output, this.getTank().getFluidAmount() * ratio));
                     this.winemakingRecipe = null;
                     this.winemakingStatus = 0;
                     this.winemakingTime = 0;
                     this.winemakingTimeTotal = 0;
                 }
-
-                if(!this.winemakingFluid.isEquivalentTo(this.tank.getFluid().getFluid())) {
-                    this.winemakingRecipe = this.getRecipe();
-                    LOGGER.debug(this.getRecipe());
-                }
-
-                if(this.winemakingRecipe != null) {
-                    this.winemakingTimeTotal = winemakingRecipe.getSpendTime();
-                    this.winemakingTime++;
-                    if (this.winemakingTime >= this.winemakingTimeTotal) {
-                        Fluid output = this.getRecipeOutput().getFluid();
-                        this.tank.setFluid(new FluidStack(output, this.tank.getFluidAmount()));
-                        this.winemakingRecipe = null;
-                        this.winemakingStatus = 0;
-                        this.winemakingTime = 0;
-                        this.winemakingTimeTotal = 0;
-                    }
-                }
-//            }
+            }
         }
     }
 
@@ -147,6 +143,10 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
 
     private FluidStack getRecipeOutput() {
         return this.winemakingRecipe != null ? this.winemakingRecipe.getFluidRecipeOutput() : FluidStack.EMPTY;
+    }
+
+    private int getRecipeSpendTime() {
+        return this.winemakingRecipe != null ? this.winemakingRecipe.getSpendTime() : 0;
     }
 
     @Nonnull
@@ -175,6 +175,6 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
     @Nullable
     @Override
     public Container createMenu(int sycID, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player) {
-        return new LiquidBarrelContainer(sycID, inventory, this.tank.getFluid(), this.liquidBarrelData);
+        return new LiquidBarrelContainer(sycID, inventory, fluidinventory, this.liquidBarrelData);
     }
 }
