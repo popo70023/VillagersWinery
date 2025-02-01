@@ -9,6 +9,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
@@ -34,7 +35,7 @@ public class ClientEventHandler {
         } else if (existingModel instanceof WineBowlBackedModel) {
             throw new RuntimeException("Tried to WineBowl twice");
         } else {
-            WineBowlBackedModel backedModel = new WineBowlBackedModel(existingModel);
+            WineBowlBackedModel backedModel = new WineBowlBackedModel(existingModel, FluidStack.EMPTY);
             event.getModelRegistry().put(location, backedModel);
         }
     }

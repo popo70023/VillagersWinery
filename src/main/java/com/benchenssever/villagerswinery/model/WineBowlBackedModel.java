@@ -1,7 +1,7 @@
 package com.benchenssever.villagerswinery.model;
 
-import com.benchenssever.villagerswinery.registration.DrinksRegistry;
-import com.benchenssever.villagerswinery.registration.RegistryEvents;
+import com.benchenssever.villagerswinery.fluid.WinebowlFluidHandler;
+import com.benchenssever.villagerswinery.item.Winebowl;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.RenderType;
@@ -21,36 +21,34 @@ import net.minecraftforge.client.model.SimpleModelTransform;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
 public class WineBowlBackedModel implements IBakedModel {
-    private IBakedModel existingModel;
+    private final IBakedModel existingModel;
     private FluidStack fluidStack;
-    private final BakedQuad fluidQuad;
     private List<BakedQuad> cachedQuads = null;
     protected final Map<Direction, List<BakedQuad>> faceQuads = new EnumMap<Direction, List<BakedQuad>>(Direction.class);
 
-    public WineBowlBackedModel(IBakedModel existingModel) {
+    public WineBowlBackedModel(IBakedModel existingModel, FluidStack fluid) {
         this.existingModel = existingModel;
-        this.fluidStack = new FluidStack(DrinksRegistry.beer.getFluid(), 1000);
-        this.fluidQuad = getLiquidQuad(fluidStack);
+        this.fluidStack = fluid;
         Random rand = new Random();
         for (Direction side : Direction.values()) {
             faceQuads.put(side,new ArrayList<>(existingModel.getQuads(null,side,rand)));
         }
         cachedQuads = new ArrayList<>(existingModel.getQuads(null,null,rand));
-        cachedQuads.add(fluidQuad);
+        if(!fluidStack.isEmpty()) cachedQuads.add(getLiquidQuad(fluidStack));
 
     }
 
-    BakedQuad getLiquidQuad(FluidStack fluidStack){
+    public static BakedQuad getLiquidQuad(FluidStack fluidStack){
         FluidAttributes attributes = fluidStack.getFluid().getAttributes();
         int color = attributes.getColor(fluidStack);
         int luminosity = attributes.getLuminosity(fluidStack); //TODO: luminosity?
+        float liquidLevel = (fluidStack.getAmount() / 250.0f) * 7;
         RenderMaterial fluidMaterial = ModelLoaderRegistry.blockMaterial(attributes.getStillTexture(fluidStack));
 
 
@@ -71,7 +69,7 @@ public class WineBowlBackedModel implements IBakedModel {
         final BlockPartRotation DEFAULT_ROTATION = null;   // rotate based on the face direction
         final boolean APPLY_SHADING = true;
         final ResourceLocation DUMMY_RL = new ResourceLocation("dummy_name");  // used for error message only
-        BakedQuad bakedQuad = faceBakery.bakeQuad(new Vector3f(6, 7, 6), new Vector3f(10, 7, 10), blockPartFace, sprite, Direction.UP, NO_TRANSFORMATION, DEFAULT_ROTATION,
+        BakedQuad bakedQuad = faceBakery.bakeQuad(new Vector3f(6, liquidLevel, 6), new Vector3f(10, liquidLevel, 10), blockPartFace, sprite, Direction.UP, NO_TRANSFORMATION, DEFAULT_ROTATION,
                 APPLY_SHADING, DUMMY_RL);
 
         int alpha = color >> 24 & 0xFF;
@@ -87,9 +85,8 @@ public class WineBowlBackedModel implements IBakedModel {
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, Random rand) {
+    public @NotNull List<BakedQuad> getQuads(BlockState state, Direction side, @NotNull Random rand) {
         return side == null ? this.cachedQuads : this.faceQuads.get(side);
-
     }
 
 
@@ -114,18 +111,31 @@ public class WineBowlBackedModel implements IBakedModel {
     }
 
     @Override
-    public TextureAtlasSprite getParticleTexture() {
+    public @NotNull TextureAtlasSprite getParticleTexture() {
         return existingModel.getParticleTexture();
     }
 
     @Override
-    public ItemCameraTransforms getItemCameraTransforms() {
+    public @NotNull ItemCameraTransforms getItemCameraTransforms() {
         return existingModel.getItemCameraTransforms();
     }
 
     @Override
-    public ItemOverrideList getOverrides() {
-        return existingModel.getOverrides();
+    public @NotNull ItemOverrideList getOverrides() {
+
+        return new ItemOverrideList() {
+            private WineBowlBackedModel cachedModel;
+
+            @Override
+            public IBakedModel getOverrideModel(@NotNull IBakedModel model, @NotNull ItemStack stack, ClientWorld world, LivingEntity livingEntity) {
+                WinebowlFluidHandler winebowl = new WinebowlFluidHandler(stack, Winebowl.DEFAULT_CAPACITY);
+                FluidStack fluidStack = winebowl.getFluid();
+                if(cachedModel == null || !cachedModel.fluidStack.equals(fluidStack)) {
+                    cachedModel = new WineBowlBackedModel(model, fluidStack);
+                }
+                return cachedModel;
+            }
+        };
     }
 
     @Override
@@ -133,9 +143,8 @@ public class WineBowlBackedModel implements IBakedModel {
         return this;
     }
 
-    @Nonnull
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
+    public @NotNull List<BakedQuad> getQuads(BlockState state, Direction side, @NotNull Random rand, @NotNull IModelData extraData) {
         return getQuads(state, side, rand);
     }
 
@@ -144,14 +153,13 @@ public class WineBowlBackedModel implements IBakedModel {
         return existingModel.isAmbientOcclusion(state);
     }
 
-    @Nonnull
     @Override
-    public IModelData getModelData(@Nonnull IBlockDisplayReader world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull IModelData tileData) {
+    public @NotNull IModelData getModelData(@NotNull IBlockDisplayReader world, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull IModelData tileData) {
         return existingModel.getModelData(world, pos, state, tileData);
     }
 
     @Override
-    public TextureAtlasSprite getParticleTexture(@Nonnull IModelData data) {
+    public TextureAtlasSprite getParticleTexture(@NotNull IModelData data) {
         return existingModel.getParticleTexture(data);
     }
 
