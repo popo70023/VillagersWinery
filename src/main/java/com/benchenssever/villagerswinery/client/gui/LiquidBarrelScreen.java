@@ -27,31 +27,32 @@ public class LiquidBarrelScreen extends ContainerScreen<LiquidBarrelContainer> {
         renderBackground(matrixStack);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         this.hoveredFluidSlot = null;
-        for (LiquidBarrelContainer.FluidSlot fluidslot : this.container.inventoryFluidSlots) {
-            FluidStack fluidStack = fluidslot.getFluidStack();
-            int fluidslotx1 = this.guiLeft + fluidslot.xPos;
-            int fluidslotx2 = this.guiLeft + fluidslot.xPos + fluidslot.xSize;
-            int fluidsloty1 = this.guiTop + fluidslot.yPos;
-            int fluidsloty2 = this.guiTop + fluidslot.yPos + fluidslot.ySize;
-            if (!fluidStack.isEmpty()) {
-                ResourceLocation fluidResource = fluidStack.getFluid().getAttributes().getStillTexture();
-                tm.bindTexture(new ResourceLocation(fluidResource.getNamespace(), "textures/" + fluidResource.getPath() + ".png"));
-                int fluidAmount = this.getProgressionScaled(fluidStack.getAmount(), 8000, fluidslot.ySize);
-                int color = fluidStack.getFluid().getAttributes().getColor();
-                RenderSystem.color4f((color >> 16 & 0xFF) / 255f, (color >> 8 & 0xFF) / 255f, (color & 0xFF) / 255f, (color >> 24 & 0xFF) / 255f);
-                blit(matrixStack, fluidslotx1, fluidsloty2 - fluidAmount, 0, 512 - fluidAmount, fluidslot.xSize, fluidAmount, 16, 512);
-            }
 
-            if (this.isFluidSlotSelected(fluidslot, mouseX, mouseY) && fluidslot.isEnabled()) {
-                this.hoveredFluidSlot = fluidslot;
-                RenderSystem.disableDepthTest();
-                RenderSystem.colorMask(true, true, true, false);
-                int slotColor = this.getSlotColor(fluidslot.slotNumber);
-                this.fillGradient(matrixStack, fluidslotx1, fluidsloty1, fluidslotx2, fluidsloty2, slotColor, slotColor);
-                RenderSystem.colorMask(true, true, true, true);
-                RenderSystem.enableDepthTest();
-            }
+        FluidStack fluidStack = this.container.fluidStack;
+        LiquidBarrelContainer.FluidSlot fluidslot = this.container.fluidSlot;
+        int fluidslotx1 = this.guiLeft + fluidslot.xPos;
+        int fluidslotx2 = this.guiLeft + fluidslot.xPos + fluidslot.xSize;
+        int fluidsloty1 = this.guiTop + fluidslot.yPos;
+        int fluidsloty2 = this.guiTop + fluidslot.yPos + fluidslot.ySize;
+        if (!fluidStack.isEmpty()) {
+            ResourceLocation fluidResource = fluidStack.getFluid().getAttributes().getStillTexture();
+            tm.bindTexture(new ResourceLocation(fluidResource.getNamespace(), "textures/" + fluidResource.getPath() + ".png"));
+            int fluidAmount = this.getProgressionScaled(fluidStack.getAmount(), 8000, fluidslot.ySize);
+            int color = fluidStack.getFluid().getAttributes().getColor();
+            RenderSystem.color4f((color >> 16 & 0xFF) / 255f, (color >> 8 & 0xFF) / 255f, (color & 0xFF) / 255f, (color >> 24 & 0xFF) / 255f);
+            blit(matrixStack, fluidslotx1, fluidsloty2 - fluidAmount, 0, 512 - fluidAmount, fluidslot.xSize, fluidAmount, 16, 512);
         }
+
+        if (this.isFluidSlotSelected(fluidslot, mouseX, mouseY)) {
+            this.hoveredFluidSlot = fluidslot;
+            RenderSystem.disableDepthTest();
+            RenderSystem.colorMask(true, true, true, false);
+            int slotColor = this.getSlotColor(0);
+            this.fillGradient(matrixStack, fluidslotx1, fluidsloty1, fluidslotx2, fluidsloty2, slotColor, slotColor);
+            RenderSystem.colorMask(true, true, true, true);
+            RenderSystem.enableDepthTest();
+        }
+
         RenderSystem.color4f(1, 1, 1, 1);
         tm.bindTexture(LIQUID_BARREL_RESOURCE);
         renderHoveredTooltip(matrixStack, mouseX, mouseY);
@@ -64,7 +65,7 @@ public class LiquidBarrelScreen extends ContainerScreen<LiquidBarrelContainer> {
     @Override
     protected void renderHoveredTooltip(@NotNull MatrixStack matrixStack, int x, int y) {
         if (this.minecraft.player.inventory.getItemStack().isEmpty() && this.hoveredFluidSlot != null) {
-            ITextComponent itextcomponent = FluidTransferUtil.addFluidTooltip(this.hoveredFluidSlot.getFluidStack());
+            ITextComponent itextcomponent = FluidTransferUtil.addFluidTooltip(this.container.fluidStack);
             this.renderTooltip(matrixStack, itextcomponent, x, y);
         }
         super.renderHoveredTooltip(matrixStack, x, y);
@@ -88,5 +89,11 @@ public class LiquidBarrelScreen extends ContainerScreen<LiquidBarrelContainer> {
 
     public int getProgressionScaled(int existing, int max, int scale) {
         return max != 0 && existing != 0 ? existing * scale / max : 0;
+    }
+
+    public void updateFluid(FluidStack fluidStack, String worldAndPos) {
+        if(this.container.worldAndPos.equals(worldAndPos)) {
+            this.container.fluidStack = fluidStack;
+        }
     }
 }

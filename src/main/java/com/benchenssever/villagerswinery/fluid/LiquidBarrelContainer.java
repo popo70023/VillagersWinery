@@ -1,7 +1,6 @@
 package com.benchenssever.villagerswinery.fluid;
 
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
-import com.google.common.collect.Lists;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
@@ -11,32 +10,26 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.IIntArray;
 import net.minecraft.util.IntArray;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.templates.FluidTank;
-
-import java.util.List;
 
 public class LiquidBarrelContainer extends Container {
-
-    public final List<FluidSlot> inventoryFluidSlots = Lists.newArrayList();
+    public FluidStack fluidStack;
+    public FluidSlot fluidSlot;
+    public String worldAndPos;
     private final IIntArray liquidBarrelData;
 
     public LiquidBarrelContainer(int id, PlayerInventory playerinventory, PacketBuffer data) {
-        this(id, playerinventory, new FluidInventory(new FluidTank(8000)), new IntArray(3));
+        this(id, playerinventory, FluidStack.readFromPacket(data), data.readString(32767), new IntArray(3));
     }
 
-    public LiquidBarrelContainer(int id, PlayerInventory playerinventory, FluidInventory fluidinventory, IIntArray liquidBarrelData) {
+    public LiquidBarrelContainer(int id, PlayerInventory playerinventory, FluidStack fluidStack, String worldAndPos, IIntArray liquidBarrelData) {
         super(RegistryEvents.liquidBarrelContainer.get(), id);
 
+        this.worldAndPos = worldAndPos;
+        this.fluidStack = fluidStack;
         this.liquidBarrelData = liquidBarrelData;
         trackIntArray(liquidBarrelData);
+        this.fluidSlot = new FluidSlot(20, 20, 16, 40);
         layoutPlayerInventorySlots(playerinventory, 8, 84);
-        this.addFluidSlot(new FluidSlot(fluidinventory, 0, 20, 20, 16, 40));
-    }
-
-    protected FluidSlot addFluidSlot(FluidSlot slotIn) {
-        slotIn.slotNumber = this.inventoryFluidSlots.size();
-        this.inventoryFluidSlots.add(slotIn);
-        return slotIn;
     }
 
     private int addSlotRange(IInventory inventory, int index, int x, int y, int amount, int dx) {
@@ -72,28 +65,17 @@ public class LiquidBarrelContainer extends Container {
         return true;
     }
 
-    public static class FluidSlot extends Slot {
+    public static class FluidSlot {
+        public final int xPos;
+        public final int yPos;
         public final int xSize;
         public final int ySize;
 
-        public FluidSlot(FluidInventory fluidInventoryIn, int index, int xPosition, int yPosition, int xSize, int ySize) {
-            super(fluidInventoryIn, index, xPosition, yPosition);
+        public FluidSlot(int xPos, int yPos, int xSize, int ySize) {
+            this.xPos = xPos;
+            this.yPos = yPos;
             this.xSize = xSize;
             this.ySize = ySize;
-        }
-
-        public FluidStack getFluidStack() {
-            if (inventory instanceof FluidInventory) {
-                return ((FluidInventory) inventory).getFluidStackInSlot(getSlotIndex());
-            }
-            return FluidStack.EMPTY;
-        }
-
-        public void putFluidStack(FluidStack stack) {
-            if (inventory instanceof FluidInventory) {
-                ((FluidInventory) inventory).setInventoryFluidSlotContents(getSlotIndex(), stack);
-                this.onSlotChanged();
-            }
         }
     }
 }

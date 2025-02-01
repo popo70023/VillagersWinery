@@ -14,9 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
@@ -49,10 +47,17 @@ public class LiquidBarrel extends HorizontalBlock {
     @Override
     public @NotNull ActionResultType onBlockActivated(@NotNull BlockState state, @NotNull World world, @NotNull BlockPos pos, @NotNull PlayerEntity player, @NotNull Hand hand, BlockRayTraceResult hit) {
         if (hit.getFace() == getLiquidBarrelDirection(state)) {
-            if (!FluidTransferUtil.interactWithTank(world, pos, player, hand, hit) && !world.isRemote && hand == Hand.MAIN_HAND) {
-                LiquidBarrelTileEntity tileentity = (LiquidBarrelTileEntity) world.getTileEntity(pos);
-                if (tileentity != null)
-                    NetworkHooks.openGui((ServerPlayerEntity) player, tileentity, (packerBuffer) -> packerBuffer.writeBlockPos(tileentity.getPos()));
+            if (!FluidTransferUtil.interactWithTank(world, pos, player, hand, hit) && hand == Hand.MAIN_HAND) {
+                world.playSound(player, pos, SoundEvents.BLOCK_BARREL_OPEN, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                if (!world.isRemote) {
+                    LiquidBarrelTileEntity tileentity = (LiquidBarrelTileEntity) world.getTileEntity(pos);
+                    if (tileentity != null) {
+                        NetworkHooks.openGui((ServerPlayerEntity) player, tileentity, (packerBuffer) -> {
+                            tileentity.getTank().getFluid().writeToPacket(packerBuffer);
+                            packerBuffer.writeString(tileentity.getWorldAndPos());
+                        });
+                    }
+                }
             }
             return ActionResultType.SUCCESS;
         }

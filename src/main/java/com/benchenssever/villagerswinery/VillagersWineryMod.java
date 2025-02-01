@@ -1,5 +1,6 @@
 package com.benchenssever.villagerswinery;
 
+import com.benchenssever.villagerswinery.network.NetworkHandler;
 import com.benchenssever.villagerswinery.registration.DrinksRegistry;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import net.minecraftforge.common.MinecraftForge;
@@ -43,7 +44,7 @@ public class VillagersWineryMod {
     }
 
     private void setup(final FMLCommonSetupEvent event) {
-        // some preinit code
+        NetworkHandler.register();
     }
 
     private void enqueueIMC(final InterModEnqueueEvent event) {

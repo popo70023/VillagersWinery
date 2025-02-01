@@ -9,10 +9,8 @@ import java.util.function.Predicate;
 import static net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack.FLUID_NBT_KEY;
 
 public class LiquidBarrelTank extends FluidTank {
-    public LiquidBarrelTank(int capacity) {
-        super(capacity);
-    }
 
+    private boolean changed = false;
     public LiquidBarrelTank(int capacity, Predicate<FluidStack> validator) {
         super(capacity, validator);
     }
@@ -31,5 +29,25 @@ public class LiquidBarrelTank extends FluidTank {
         CompoundNBT fluidTag = new CompoundNBT();
         fluid.writeToNBT(fluidTag);
         return (CompoundNBT) nbt.put(FLUID_NBT_KEY, fluidTag);
+    }
+
+    @Override
+    protected void onContentsChanged() {
+        super.onContentsChanged();
+        changed = true;
+    }
+
+    public boolean isChanged() {
+        return changed;
+    }
+
+    public void setChanged() {
+        this.changed = false;
+    }
+
+    @Override
+    public void setFluid(FluidStack stack) {
+        super.setFluid(stack);
+        onContentsChanged();
     }
 }
