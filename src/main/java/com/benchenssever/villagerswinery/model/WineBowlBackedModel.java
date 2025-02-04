@@ -27,28 +27,28 @@ import java.util.*;
 import java.util.function.Function;
 
 public class WineBowlBackedModel implements IBakedModel {
-    private final IBakedModel existingModel;
-    private FluidStack fluidStack;
-    private List<BakedQuad> cachedQuads = null;
     protected final Map<Direction, List<BakedQuad>> faceQuads = new EnumMap<Direction, List<BakedQuad>>(Direction.class);
+    private final IBakedModel existingModel;
+    private final FluidStack fluidStack;
+    private List<BakedQuad> cachedQuads = null;
 
     public WineBowlBackedModel(IBakedModel existingModel, FluidStack fluid) {
         this.existingModel = existingModel;
         this.fluidStack = fluid;
         Random rand = new Random();
         for (Direction side : Direction.values()) {
-            faceQuads.put(side,new ArrayList<>(existingModel.getQuads(null,side,rand)));
+            faceQuads.put(side, new ArrayList<>(existingModel.getQuads(null, side, rand)));
         }
-        cachedQuads = new ArrayList<>(existingModel.getQuads(null,null,rand));
-        if(!fluidStack.isEmpty()) cachedQuads.add(getLiquidQuad(fluidStack));
+        cachedQuads = new ArrayList<>(existingModel.getQuads(null, null, rand));
+        if (!fluidStack.isEmpty()) cachedQuads.add(getLiquidQuad(fluidStack));
 
     }
 
-    public static BakedQuad getLiquidQuad(FluidStack fluidStack){
+    public static BakedQuad getLiquidQuad(FluidStack fluidStack) {
         FluidAttributes attributes = fluidStack.getFluid().getAttributes();
         int color = attributes.getColor(fluidStack);
         int luminosity = attributes.getLuminosity(fluidStack); //TODO: luminosity?
-        float liquidLevel = (fluidStack.getAmount() / 250.0f) * 7;
+        float liquidLevel = 1 + ((float) fluidStack.getAmount() / Winebowl.DEFAULT_CAPACITY) * 6;
         RenderMaterial fluidMaterial = ModelLoaderRegistry.blockMaterial(attributes.getStillTexture(fluidStack));
 
 
@@ -130,7 +130,7 @@ public class WineBowlBackedModel implements IBakedModel {
             public IBakedModel getOverrideModel(@NotNull IBakedModel model, @NotNull ItemStack stack, ClientWorld world, LivingEntity livingEntity) {
                 WinebowlFluidHandler winebowl = new WinebowlFluidHandler(stack, Winebowl.DEFAULT_CAPACITY);
                 FluidStack fluidStack = winebowl.getFluid();
-                if(cachedModel == null || !cachedModel.fluidStack.equals(fluidStack)) {
+                if (cachedModel == null || !cachedModel.fluidStack.equals(fluidStack)) {
                     cachedModel = new WineBowlBackedModel(model, fluidStack);
                 }
                 return cachedModel;
@@ -172,16 +172,5 @@ public class WineBowlBackedModel implements IBakedModel {
     public List<Pair<IBakedModel, RenderType>> getLayerModels(ItemStack itemStack, boolean fabulous) {
         return existingModel.getLayerModels(itemStack, fabulous);
     }
-
-//    class WineBowlItemOverrideList extends ItemOverrideList{
-//
-//        @Nullable
-//        @Override
-//        public IBakedModel getOverrideModel(IBakedModel model, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity livingEntity) {
-//
-//
-//            return super.getOverrideModel(model, stack, world, livingEntity);
-//        }
-//    }
 }
 

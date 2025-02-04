@@ -11,6 +11,7 @@ import static net.minecraftforge.fluids.capability.templates.FluidHandlerItemSta
 public class LiquidBarrelTank extends FluidTank {
 
     private boolean changed = false;
+
     public LiquidBarrelTank(int capacity, Predicate<FluidStack> validator) {
         super(capacity, validator);
     }
@@ -41,7 +42,7 @@ public class LiquidBarrelTank extends FluidTank {
         return changed;
     }
 
-    public void setChanged() {
+    public void resetChanged() {
         this.changed = false;
     }
 

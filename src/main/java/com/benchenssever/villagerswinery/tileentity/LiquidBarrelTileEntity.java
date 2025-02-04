@@ -33,10 +33,10 @@ import org.jetbrains.annotations.NotNull;
 import static com.benchenssever.villagerswinery.registration.RegistryEvents.wineRecipe;
 
 public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileEntity, INamedContainerProvider, INameable {
-    private ITextComponent customName;
     public static final int DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME * 8;
-    private final LiquidBarrelTank tank = new LiquidBarrelTank(DEFAULT_CAPACITY, (e)->e.getFluid().getAttributes().getTemperature() < 500);
+    private final LiquidBarrelTank tank = new LiquidBarrelTank(DEFAULT_CAPACITY, (e) -> e.getFluid().getAttributes().getTemperature() < 500);
     private final LazyOptional<IFluidHandler> holder = LazyOptional.of(() -> tank);
+    private ITextComponent customName;
     private WineRecipe winemakingRecipe;
     private int winemakingTime;
     private int winemakingTimeTotal;
@@ -44,7 +44,7 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
 
     protected final IIntArray liquidBarrelData = new IIntArray() {
         public int get(int index) {
-            switch(index) {
+            switch (index) {
                 case 0:
                     return LiquidBarrelTileEntity.this.winemakingTime;
                 case 1:
@@ -57,7 +57,7 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
         }
 
         public void set(int index, int value) {
-            switch(index) {
+            switch (index) {
                 case 0:
                     LiquidBarrelTileEntity.this.winemakingTime = value;
                     break;
@@ -75,7 +75,9 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
         }
     };
 
-    public LiquidBarrelTileEntity() { super(RegistryEvents.liquidBarrelTileEntity.get()); }
+    public LiquidBarrelTileEntity() {
+        super(RegistryEvents.liquidBarrelTileEntity.get());
+    }
 
     @Override
     public void read(@NotNull BlockState state, @NotNull CompoundNBT nbt) {
@@ -84,7 +86,9 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
         this.winemakingTime = nbt.getInt("WinemakingTime");
         this.winemakingTimeTotal = nbt.getInt("WinemakingTimeTotal");
         this.winemakingStatus = nbt.getInt("WinemakingStatus");
-        if (nbt.contains("CustomName", 8)) { this.customName = ITextComponent.Serializer.getComponentFromJson(nbt.getString("CustomName")); }
+        if (nbt.contains("CustomName", 8)) {
+            this.customName = ITextComponent.Serializer.getComponentFromJson(nbt.getString("CustomName"));
+        }
     }
 
     @Override
@@ -94,15 +98,17 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
         compound.putInt("WinemakingTime", this.winemakingTime);
         compound.putInt("WinemakingTimeTotal", this.winemakingTimeTotal);
         compound.putInt("WinemakingStatus", this.winemakingStatus);
-        if (this.customName != null) { compound.putString("CustomName", ITextComponent.Serializer.toJson(this.customName)); }
+        if (this.customName != null) {
+            compound.putString("CustomName", ITextComponent.Serializer.toJson(this.customName));
+        }
         return compound;
     }
 
     @Override
     public void tick() {
         if (!world.isRemote) {
-            if(tank.isChanged()) {
-                tank.setChanged();
+            if (tank.isChanged()) {
+                tank.resetChanged();
                 syncToClient();
                 this.winemakingStatus = 0;
                 this.winemakingTime = 0;
@@ -110,7 +116,7 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
                 this.winemakingRecipe = this.getTank().getFluid().isEmpty() ? null : this.getRecipe();
             }
 
-            if(this.winemakingRecipe != null) {
+            if (this.winemakingRecipe != null) {
                 this.winemakingTimeTotal = this.getRecipeSpendTime();
                 this.winemakingTime++;
                 if (this.winemakingTime >= this.winemakingTimeTotal) {
@@ -148,22 +154,34 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
 
     @Override
     public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction side) {
-        if(cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) { return holder.cast(); }
+        if (cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
+            return holder.cast();
+        }
         return super.getCapability(cap, side);
     }
 
     @Override
-    public @NotNull ITextComponent getName() { return this.customName != null ? this.customName : this.getBlockState().getBlock().getTranslatedName(); }
+    public @NotNull ITextComponent getName() {
+        return this.customName != null ? this.customName : this.getBlockState().getBlock().getTranslatedName();
+    }
 
     @Override
-    public @NotNull ITextComponent getDisplayName() { return this.getName(); }
+    public @NotNull ITextComponent getDisplayName() {
+        return this.getName();
+    }
 
     @Override
-    public ITextComponent getCustomName() { return this.customName; }
+    public ITextComponent getCustomName() {
+        return this.customName;
+    }
 
-    public void setCustomName(ITextComponent customName) { this.customName = customName; }
+    public void setCustomName(ITextComponent customName) {
+        this.customName = customName;
+    }
 
-    public FluidTank getTank() { return tank; }
+    public FluidTank getTank() {
+        return tank;
+    }
 
     @Override
     public Container createMenu(int sycID, @NotNull PlayerInventory inventory, @NotNull PlayerEntity player) {
@@ -171,15 +189,14 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
     }
 
     public void syncToClient() {
-        if (!this.world.isRemote) {
-            NetworkHandler.INSTANCE.send(
-                    PacketDistributor.TRACKING_CHUNK.with(() -> this.world.getChunkAt(this.pos)),
-                    new SyncLiquidBarrelPacket(this.tank.getFluid(), this.getWorldAndPos())
-            );
-        }
+        if (world == null || world.isRemote) return;
+        NetworkHandler.INSTANCE.send(
+                PacketDistributor.TRACKING_CHUNK.with(() -> this.world.getChunkAt(this.pos)),
+                new SyncLiquidBarrelPacket(this.tank.getFluid(), this.getWorldAndPos())
+        );
     }
 
     public String getWorldAndPos() {
-        return this.world.getDimensionKey().getLocation().toString() + ":" + this.pos.toString();
+        return this.world.getDimensionKey().getLocation() + ":" + this.pos.toString();
     }
 }
