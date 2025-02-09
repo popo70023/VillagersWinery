@@ -9,6 +9,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
@@ -21,8 +22,8 @@ import java.util.List;
 import static com.benchenssever.villagerswinery.tileentity.LiquidBarrelTileEntity.DEFAULT_CAPACITY;
 import static net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack.FLUID_NBT_KEY;
 
-public class LiquidBarrelIItem extends BlockItem {
-    public LiquidBarrelIItem(Block blockIn, Properties builder) {
+public class LiquidBarrelItem extends BlockItem {
+    public LiquidBarrelItem(Block blockIn, Properties builder) {
         super(blockIn, builder);
     }
 
@@ -32,6 +33,9 @@ public class LiquidBarrelIItem extends BlockItem {
         FluidStack fluidStack = new WinebowlFluidHandler(stack, DEFAULT_CAPACITY).getFluid();
         if (!fluidStack.isEmpty()) {
             tooltip.add(FluidTransferUtil.addFluidTooltip(fluidStack));
+        }
+        if (stack.getOrCreateTag().contains("Potion")) {
+            PotionUtils.addPotionTooltip(stack, tooltip, 1.0F);
         }
     }
 

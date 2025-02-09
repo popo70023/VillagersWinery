@@ -1,36 +1,33 @@
 package com.benchenssever.villagerswinery.model;
 
+import com.benchenssever.villagerswinery.fluid.FluidTransferUtil;
 import com.benchenssever.villagerswinery.fluid.WinebowlFluidHandler;
 import com.benchenssever.villagerswinery.item.Winebowl;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.*;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockDisplayReader;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.client.model.SimpleModelTransform;
 import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.function.Function;
 
 public class WineBowlBackedModel implements IBakedModel {
     protected final Map<Direction, List<BakedQuad>> faceQuads = new EnumMap<Direction, List<BakedQuad>>(Direction.class);
     private final IBakedModel existingModel;
     private final FluidStack fluidStack;
-    private List<BakedQuad> cachedQuads = null;
+    private final List<BakedQuad> cachedQuads;
 
     public WineBowlBackedModel(IBakedModel existingModel, FluidStack fluid) {
         this.existingModel = existingModel;
@@ -40,48 +37,9 @@ public class WineBowlBackedModel implements IBakedModel {
             faceQuads.put(side, new ArrayList<>(existingModel.getQuads(null, side, rand)));
         }
         cachedQuads = new ArrayList<>(existingModel.getQuads(null, null, rand));
-        if (!fluidStack.isEmpty()) cachedQuads.add(getLiquidQuad(fluidStack));
-
-    }
-
-    public static BakedQuad getLiquidQuad(FluidStack fluidStack) {
-        FluidAttributes attributes = fluidStack.getFluid().getAttributes();
-        int color = attributes.getColor(fluidStack);
-        int luminosity = attributes.getLuminosity(fluidStack); //TODO: luminosity?
-        float liquidLevel = 1 + ((float) fluidStack.getAmount() / Winebowl.DEFAULT_CAPACITY) * 6;
-        RenderMaterial fluidMaterial = ModelLoaderRegistry.blockMaterial(attributes.getStillTexture(fluidStack));
-
-
-        Function<RenderMaterial, TextureAtlasSprite> spriteGetter = ModelLoader.defaultTextureGetter();
-        TextureAtlasSprite sprite = spriteGetter.apply(fluidMaterial);
-        FaceBakery faceBakery = new FaceBakery();
-
-        final int ROTATION_NONE = 0;
-        BlockFaceUV blockFaceUV = new BlockFaceUV(new float[]{0, 0, 4, 4}, ROTATION_NONE);
-
-        final Direction NO_FACE_CULLING = null;
-        final int TINT_INDEX_NONE = -1;  // used for tintable blocks such as grass, which make a call to BlockColors to change their rendering colour.  -1 for not tintable.
-        final String DUMMY_TEXTURE_NAME = "";  // texture name is only needed for loading from json files; not needed here
-
-        BlockPartFace blockPartFace = new BlockPartFace(NO_FACE_CULLING, TINT_INDEX_NONE, DUMMY_TEXTURE_NAME, blockFaceUV);
-
-        final IModelTransform NO_TRANSFORMATION = SimpleModelTransform.IDENTITY;
-        final BlockPartRotation DEFAULT_ROTATION = null;   // rotate based on the face direction
-        final boolean APPLY_SHADING = true;
-        final ResourceLocation DUMMY_RL = new ResourceLocation("dummy_name");  // used for error message only
-        BakedQuad bakedQuad = faceBakery.bakeQuad(new Vector3f(6, liquidLevel, 6), new Vector3f(10, liquidLevel, 10), blockPartFace, sprite, Direction.UP, NO_TRANSFORMATION, DEFAULT_ROTATION,
-                APPLY_SHADING, DUMMY_RL);
-
-        int alpha = color >> 24 & 0xFF;
-//        int alpha = 127;
-        int red = color >> 16 & 0xFF;
-        int green = color >> 8 & 0xFF;
-        int blue = color & 0xFF;
-
-        for (int i = 0; i < 4; ++i) {
-            bakedQuad.getVertexData()[i * 8 + 3] = alpha << 24 | blue << 16 | green << 8 | red;
+        if (!fluidStack.isEmpty()) {
+            cachedQuads.add(FluidTransferUtil.getLiquidQuad(fluidStack, Winebowl.DEFAULT_CAPACITY, 6, 10, 6, 10, 1, 6));
         }
-        return bakedQuad;
     }
 
     @Override

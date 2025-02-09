@@ -83,7 +83,7 @@ public class LiquidBarrelScreen extends ContainerScreen<LiquidBarrelContainer> {
         tm.bindTexture(LIQUID_BARREL_RESOURCE);
         blit(matrixStack, this.guiLeft, this.guiTop, 0, 0, xSize, ySize);
 
-        int winemakingTime = this.getProgressionScaled(this.container.getLiquidBarrelData().get(0), 1600, 24);
+        int winemakingTime = this.getProgressionScaled(this.container.getLiquidBarrelData().get(0), this.container.getLiquidBarrelData().get(1), 24);
         blit(matrixStack, this.guiLeft + 79, this.guiTop + 34, 176, 14, winemakingTime, 16);
     }
 
@@ -92,7 +92,7 @@ public class LiquidBarrelScreen extends ContainerScreen<LiquidBarrelContainer> {
     }
 
     public void updateFluid(FluidStack fluidStack, String worldAndPos) {
-        if(this.container.worldAndPos.equals(worldAndPos)) {
+        if (this.container.worldAndPos.equals(worldAndPos)) {
             this.container.fluidStack = fluidStack;
         }
     }

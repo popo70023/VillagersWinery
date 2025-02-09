@@ -109,8 +109,12 @@ public class Winebowl extends Item {
     @OnlyIn(Dist.CLIENT)
     public void addInformation(@NotNull ItemStack stack, World worldIn, List<ITextComponent> tooltip, @NotNull ITooltipFlag flagIn) {
         FluidStack fluidStack = new WinebowlFluidHandler(stack, DEFAULT_CAPACITY).getFluid();
-        tooltip.add(new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".winebowl.information", new StringTextComponent(Integer.toString(fluidStack.getAmount()))));
-        PotionUtils.addPotionTooltip(stack, tooltip, 1.0F);
+        if (!fluidStack.isEmpty()) {
+            tooltip.add(new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".winebowl.information", new StringTextComponent(Integer.toString(fluidStack.getAmount()))));
+        }
+        if (stack.getOrCreateTag().contains("Potion")) {
+            PotionUtils.addPotionTooltip(stack, tooltip, 1.0F);
+        }
     }
 
 

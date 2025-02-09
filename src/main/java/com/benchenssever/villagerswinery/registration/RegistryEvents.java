@@ -3,7 +3,7 @@ package com.benchenssever.villagerswinery.registration;
 import com.benchenssever.villagerswinery.block.*;
 import com.benchenssever.villagerswinery.client.gui.LiquidBarrelScreen;
 import com.benchenssever.villagerswinery.fluid.LiquidBarrelContainer;
-import com.benchenssever.villagerswinery.item.LiquidBarrelIItem;
+import com.benchenssever.villagerswinery.item.LiquidBarrelItem;
 import com.benchenssever.villagerswinery.recipe.BasinRecipe;
 import com.benchenssever.villagerswinery.recipe.BasinRecipeSerializers;
 import com.benchenssever.villagerswinery.recipe.WineRecipeSerializers;
@@ -30,8 +30,7 @@ import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 import static com.benchenssever.villagerswinery.VillagersWineryMod.MODID;
 
@@ -43,7 +42,7 @@ public class RegistryEvents {
     public static final DeferredRegister<ContainerType<?>> CONTAINERS  = DeferredRegister.create(ForgeRegistries.CONTAINERS, MODID);
     public static final DeferredRegister<IRecipeSerializer<?>> RECIPE_SERIALIZERS  = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
 
-    public static final RegistryObject<Item> liquidBarrelItem = ITEMS.register("liquid_barrel", () -> new LiquidBarrelIItem(RegistryEvents.liquidBarrelBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup).maxStackSize(1)));
+    public static final RegistryObject<Item> liquidBarrelItem = ITEMS.register("liquid_barrel", () -> new LiquidBarrelItem(RegistryEvents.liquidBarrelBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup).maxStackSize(1)));
     public static final RegistryObject<Item> basinItem = ITEMS.register("basin", () -> new BlockItem(RegistryEvents.basinBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
     public static final RegistryObject<Item> standItem = ITEMS.register("stand", () -> new BlockNamedItem(RegistryEvents.stand.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
     public static final RegistryObject<Item> grapeVineItem = ITEMS.register("grape_vine", () -> new BlockItem(RegistryEvents.grapeVine.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
@@ -68,9 +67,8 @@ public class RegistryEvents {
     public static final IRecipeType<BasinRecipe> basinRecipe = IRecipeType.register("basinrecipe");
 
     public static final ItemGroup wineryItemGroup = new ItemGroup("villagerswinery") {
-        @Nonnull
         @Override
-        public ItemStack createIcon() {
+        public @NotNull ItemStack createIcon() {
             return new ItemStack(DrinksRegistry.emptyWinebowl.get());
         }
     };

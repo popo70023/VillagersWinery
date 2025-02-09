@@ -4,13 +4,19 @@ import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelDataMap;
+import net.minecraftforge.client.model.data.ModelProperty;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidAttributes;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
@@ -24,26 +30,21 @@ import javax.annotation.Nullable;
 
 public class BasinTileEntity extends TileEntity implements ITickableTileEntity {
 
+    public static final ModelProperty<FluidStack> FLUID_STACK_MODEL_PROPERTY = new ModelProperty<>();
     public static final int DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME;
     public final ItemStackHandler inputInventory = new ItemStackHandler(1) {
-        private boolean changed = false;
-
         @Override
         protected void onContentsChanged(int slot) {
-            super.onContentsChanged(slot);
-            changed = true;
-        }
-
-        public boolean isChanged() {
-            return changed;
-        }
-
-        public void resetChanged() {
-            this.changed = false;
+            markDirtyAndUpdate();
         }
     };
     private final LazyOptional<IItemHandlerModifiable> itemHolder = LazyOptional.of(() -> inputInventory);
-    private final FluidTank outputFluidTank = new FluidTank(DEFAULT_CAPACITY, (F) -> F.getFluid().getAttributes().getTemperature() < 500);
+    private final FluidTank outputFluidTank = new FluidTank(DEFAULT_CAPACITY, (F) -> F.getFluid().getAttributes().getTemperature() < 500) {
+        @Override
+        protected void onContentsChanged() {
+            markDirtyAndUpdate();
+        }
+    };
     private final LazyOptional<IFluidHandler> fluidHolder = LazyOptional.of(() -> outputFluidTank);
 
     public BasinTileEntity() {
@@ -93,9 +94,8 @@ public class BasinTileEntity extends TileEntity implements ITickableTileEntity {
         }
     }
 
-    @Nonnull
     @Override
-    public CompoundNBT write(@Nonnull CompoundNBT compound) {
+    public @NotNull CompoundNBT write(@Nonnull CompoundNBT compound) {
         compound = super.write(compound);
 
         CompoundNBT inputItemNBT = inputInventory.serializeNBT();
@@ -107,9 +107,43 @@ public class BasinTileEntity extends TileEntity implements ITickableTileEntity {
         return compound;
     }
 
-    @Nonnull
     @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+    public @NotNull IModelData getModelData() {
+        return new ModelDataMap.Builder()
+                .withInitial(FLUID_STACK_MODEL_PROPERTY, outputFluidTank.getFluid())
+                .build();
+    }
+
+    @Override
+    public SUpdateTileEntityPacket getUpdatePacket() {
+        return new SUpdateTileEntityPacket(pos, 1, getUpdateTag());
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
+        handleUpdateTag(world.getBlockState(pkt.getPos()), pkt.getNbtCompound());
+    }
+
+    @Override
+    public @NotNull CompoundNBT getUpdateTag() {
+        CompoundNBT compound = super.getUpdateTag();
+        return write(compound);
+    }
+
+    public FluidStack getFluid() {
+        return outputFluidTank.getFluid();
+    }
+
+    private void markDirtyAndUpdate() {
+        markDirty();
+        if (world != null) {
+            world.notifyBlockUpdate(pos, getBlockState(), getBlockState(), Constants.BlockFlags.RERENDER_MAIN_THREAD);
+        }
+    }
+
+
+    @Override
+    public <T> @NotNull LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
         if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return itemHolder.cast();
         }
@@ -117,5 +151,12 @@ public class BasinTileEntity extends TileEntity implements ITickableTileEntity {
             return fluidHolder.cast();
         }
         return super.getCapability(cap, side);
+    }
+
+    @Override
+    public void remove() {
+        super.remove();
+        itemHolder.invalidate();
+        fluidHolder.invalidate();
     }
 }

@@ -24,8 +24,9 @@ public class WinebowlFluidHandler extends FluidHandlerItemStack {
             if (fluid.getFluid().isEquivalentTo(drinks.getFluid())) {
                 if (drinks.potion != null) {
                     this.container.getOrCreateTag().putString("Potion", drinks.potion.get().getRegistryName().toString());
+                    return;
                 }
-                return;
+                break;
             }
         }
         this.container.removeChildTag("Potion");

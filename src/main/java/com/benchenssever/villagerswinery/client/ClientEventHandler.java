@@ -1,5 +1,6 @@
 package com.benchenssever.villagerswinery.client;
 
+import com.benchenssever.villagerswinery.model.BasinBackedModel;
 import com.benchenssever.villagerswinery.model.WineBowlBackedModel;
 import com.benchenssever.villagerswinery.registration.DrinksRegistry;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
@@ -28,15 +29,33 @@ public class ClientEventHandler {
     @SubscribeEvent
     public static void onModelBaked(ModelBakeEvent event) {
         Map<ResourceLocation, IBakedModel> modelRegistry = event.getModelRegistry();
-        ModelResourceLocation location = new ModelResourceLocation(DrinksRegistry.winebowl.get().getRegistryName(), "inventory");
-        IBakedModel existingModel = modelRegistry.get(location);
-        if (existingModel == null) {
+        registerWineBowlModel(modelRegistry, event);
+        registerbasinModel(modelRegistry, event);
+    }
+
+    private static void registerWineBowlModel(Map<ResourceLocation, IBakedModel> modelRegistry, ModelBakeEvent event) {
+        ModelResourceLocation winebowllocation = new ModelResourceLocation(DrinksRegistry.winebowl.get().getRegistryName(), "inventory");
+        IBakedModel winebowlexistingModel = modelRegistry.get(winebowllocation);
+        if (winebowlexistingModel == null) {
             throw new RuntimeException("Did not find WineBowl in registry");
-        } else if (existingModel instanceof WineBowlBackedModel) {
+        } else if (winebowlexistingModel instanceof WineBowlBackedModel) {
             throw new RuntimeException("Tried to WineBowl twice");
         } else {
-            WineBowlBackedModel backedModel = new WineBowlBackedModel(existingModel, FluidStack.EMPTY);
-            event.getModelRegistry().put(location, backedModel);
+            WineBowlBackedModel backedModel = new WineBowlBackedModel(winebowlexistingModel, FluidStack.EMPTY);
+            event.getModelRegistry().put(winebowllocation, backedModel);
+        }
+    }
+
+    private static void registerbasinModel(Map<ResourceLocation, IBakedModel> modelRegistry, ModelBakeEvent event) {
+        ModelResourceLocation basinlocation = new ModelResourceLocation(RegistryEvents.basinBlock.get().getRegistryName(), "");
+        IBakedModel basinexistingModel = modelRegistry.get(basinlocation);
+        if (basinexistingModel == null) {
+            throw new RuntimeException("Did not find BasinBlock in registry");
+        } else if (basinexistingModel instanceof BasinBackedModel) {
+            throw new RuntimeException("Tried to BasinBlock twice");
+        } else {
+            BasinBackedModel backedModel = new BasinBackedModel(basinexistingModel);
+            event.getModelRegistry().put(basinlocation, backedModel);
         }
     }
 }
