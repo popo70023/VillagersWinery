@@ -1,6 +1,5 @@
 package com.benchenssever.villagerswinery.client;
 
-import com.benchenssever.villagerswinery.model.BasinBackedModel;
 import com.benchenssever.villagerswinery.model.WineBowlBackedModel;
 import com.benchenssever.villagerswinery.registration.DrinksRegistry;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
@@ -30,7 +29,6 @@ public class ClientEventHandler {
     public static void onModelBaked(ModelBakeEvent event) {
         Map<ResourceLocation, IBakedModel> modelRegistry = event.getModelRegistry();
         registerWineBowlModel(modelRegistry, event);
-        registerbasinModel(modelRegistry, event);
     }
 
     private static void registerWineBowlModel(Map<ResourceLocation, IBakedModel> modelRegistry, ModelBakeEvent event) {
@@ -43,19 +41,6 @@ public class ClientEventHandler {
         } else {
             WineBowlBackedModel backedModel = new WineBowlBackedModel(winebowlexistingModel, FluidStack.EMPTY);
             event.getModelRegistry().put(winebowllocation, backedModel);
-        }
-    }
-
-    private static void registerbasinModel(Map<ResourceLocation, IBakedModel> modelRegistry, ModelBakeEvent event) {
-        ModelResourceLocation basinlocation = new ModelResourceLocation(RegistryEvents.basinBlock.get().getRegistryName(), "");
-        IBakedModel basinexistingModel = modelRegistry.get(basinlocation);
-        if (basinexistingModel == null) {
-            throw new RuntimeException("Did not find BasinBlock in registry");
-        } else if (basinexistingModel instanceof BasinBackedModel) {
-            throw new RuntimeException("Tried to BasinBlock twice");
-        } else {
-            BasinBackedModel backedModel = new BasinBackedModel(basinexistingModel);
-            event.getModelRegistry().put(basinlocation, backedModel);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.benchenssever.villagerswinery.client.gui;
 
+import com.benchenssever.villagerswinery.VillagersWineryMod;
 import com.benchenssever.villagerswinery.fluid.FluidTransferUtil;
 import com.benchenssever.villagerswinery.fluid.LiquidBarrelContainer;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -13,12 +14,17 @@ import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 public class LiquidBarrelScreen extends ContainerScreen<LiquidBarrelContainer> {
-    private final ResourceLocation LIQUID_BARREL_RESOURCE = new ResourceLocation("minecraft", "textures/gui/container/furnace.png");
+    private final ResourceLocation LIQUID_BARREL_RESOURCE = new ResourceLocation(VillagersWineryMod.MODID, "textures/gui/container/barrel.png");
 
     protected LiquidBarrelContainer.FluidSlot hoveredFluidSlot;
+    private int winemakingTimer = 0;
 
     public LiquidBarrelScreen(LiquidBarrelContainer screenContainer, PlayerInventory inv, ITextComponent titleIn) {
         super(screenContainer, inv, titleIn);
+    }
+
+    public static int getProgressionScaled(int existing, int max, int scale) {
+        return max != 0 && existing != 0 ? existing * scale / max : 0;
     }
 
     @Override
@@ -37,11 +43,15 @@ public class LiquidBarrelScreen extends ContainerScreen<LiquidBarrelContainer> {
         if (!fluidStack.isEmpty()) {
             ResourceLocation fluidResource = fluidStack.getFluid().getAttributes().getStillTexture();
             tm.bindTexture(new ResourceLocation(fluidResource.getNamespace(), "textures/" + fluidResource.getPath() + ".png"));
-            int fluidAmount = this.getProgressionScaled(fluidStack.getAmount(), 8000, fluidslot.ySize);
+            int fluidAmount = getProgressionScaled(fluidStack.getAmount(), 8000, fluidslot.ySize);
             int color = fluidStack.getFluid().getAttributes().getColor();
             RenderSystem.color4f((color >> 16 & 0xFF) / 255f, (color >> 8 & 0xFF) / 255f, (color & 0xFF) / 255f, (color >> 24 & 0xFF) / 255f);
             blit(matrixStack, fluidslotx1, fluidsloty2 - fluidAmount, 0, 512 - fluidAmount, fluidslot.xSize, fluidAmount, 16, 512);
         }
+
+        tm.bindTexture(LIQUID_BARREL_RESOURCE);
+        RenderSystem.color4f(1, 1, 1, 1);
+        blit(matrixStack, fluidslotx1, fluidsloty1, 176, 0, fluidslot.xSize, fluidslot.ySize);
 
         if (this.isFluidSlotSelected(fluidslot, mouseX, mouseY)) {
             this.hoveredFluidSlot = fluidslot;
@@ -53,8 +63,6 @@ public class LiquidBarrelScreen extends ContainerScreen<LiquidBarrelContainer> {
             RenderSystem.enableDepthTest();
         }
 
-        RenderSystem.color4f(1, 1, 1, 1);
-        tm.bindTexture(LIQUID_BARREL_RESOURCE);
         renderHoveredTooltip(matrixStack, mouseX, mouseY);
     }
 
@@ -83,12 +91,15 @@ public class LiquidBarrelScreen extends ContainerScreen<LiquidBarrelContainer> {
         tm.bindTexture(LIQUID_BARREL_RESOURCE);
         blit(matrixStack, this.guiLeft, this.guiTop, 0, 0, xSize, ySize);
 
-        int winemakingTime = this.getProgressionScaled(this.container.getLiquidBarrelData().get(0), this.container.getLiquidBarrelData().get(1), 24);
-        blit(matrixStack, this.guiLeft + 79, this.guiTop + 34, 176, 14, winemakingTime, 16);
-    }
-
-    public int getProgressionScaled(int existing, int max, int scale) {
-        return max != 0 && existing != 0 ? existing * scale / max : 0;
+        if (this.container.getLiquidBarrelData().get(2) != 0) {
+            int winemakingProgression = getProgressionScaled(this.container.getLiquidBarrelData().get(0), this.container.getLiquidBarrelData().get(1), 30);
+            int renderWinemakingProgression = Math.min(winemakingProgression, winemakingTimer / 2);
+            blit(matrixStack, this.guiLeft + 62, this.guiTop + 54 - renderWinemakingProgression, 176, 62 - renderWinemakingProgression, 13, renderWinemakingProgression);
+            winemakingTimer++;
+            if (winemakingTimer > 90) {
+                winemakingTimer = 0;
+            }
+        }
     }
 
     public void updateFluid(FluidStack fluidStack, String worldAndPos) {

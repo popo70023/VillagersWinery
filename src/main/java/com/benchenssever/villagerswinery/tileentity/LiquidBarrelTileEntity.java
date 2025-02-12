@@ -35,13 +35,15 @@ import static com.benchenssever.villagerswinery.registration.RegistryEvents.wine
 
 public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileEntity, INamedContainerProvider, INameable {
     public static final int DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME * 8;
-    private ITextComponent customName;    private final FluidTank tank = new FluidTank(DEFAULT_CAPACITY, (e) -> e.getFluid().getAttributes().getTemperature() < 500) {
+    private ITextComponent customName;
+    private final FluidTank tank = new FluidTank(DEFAULT_CAPACITY, (e) -> e.getFluid().getAttributes().getTemperature() < 500) {
         @Override
         protected void onContentsChanged() {
             markDirtyAndUpdate();
         }
     };
-    private WineRecipe winemakingRecipe;    private final LazyOptional<IFluidHandler> holder = LazyOptional.of(() -> tank);
+    private final LazyOptional<IFluidHandler> holder = LazyOptional.of(() -> tank);
+    private WineRecipe winemakingRecipe;
     private int winemakingTime;
     private int winemakingTimeTotal;
     private int winemakingStatus;
@@ -87,25 +89,23 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
         if (nbt.contains(FluidHandlerItemStack.FLUID_NBT_KEY, Constants.NBT.TAG_COMPOUND)) {
             tank.readFromNBT(nbt.getCompound(FluidHandlerItemStack.FLUID_NBT_KEY));
         }
-        this.winemakingTime = nbt.getInt("WinemakingTime");
-        this.winemakingTimeTotal = nbt.getInt("WinemakingTimeTotal");
-        this.winemakingStatus = nbt.getInt("WinemakingStatus");
+        winemakingTime = nbt.getInt("WinemakingTime");
+        winemakingTimeTotal = nbt.getInt("WinemakingTimeTotal");
+        winemakingStatus = nbt.getInt("WinemakingStatus");
         if (nbt.contains("CustomName", 8)) {
-            this.customName = ITextComponent.Serializer.getComponentFromJson(nbt.getString("CustomName"));
+            customName = ITextComponent.Serializer.getComponentFromJson(nbt.getString("CustomName"));
         }
     }
 
     @Override
     public @NotNull CompoundNBT write(@NotNull CompoundNBT compound) {
         compound = super.write(compound);
-        CompoundNBT tankNBT = new CompoundNBT();
-        tank.writeToNBT(tankNBT);
-        compound.put(FluidHandlerItemStack.FLUID_NBT_KEY, tankNBT);
-        compound.putInt("WinemakingTime", this.winemakingTime);
-        compound.putInt("WinemakingTimeTotal", this.winemakingTimeTotal);
-        compound.putInt("WinemakingStatus", this.winemakingStatus);
-        if (this.customName != null) {
-            compound.putString("CustomName", ITextComponent.Serializer.toJson(this.customName));
+        compound.put(FluidHandlerItemStack.FLUID_NBT_KEY, tank.writeToNBT(new CompoundNBT()));
+        compound.putInt("WinemakingTime", winemakingTime);
+        compound.putInt("WinemakingTimeTotal", winemakingTimeTotal);
+        compound.putInt("WinemakingStatus", winemakingStatus);
+        if (customName != null) {
+            compound.putString("CustomName", ITextComponent.Serializer.toJson(customName));
         }
         return compound;
     }
@@ -113,14 +113,18 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
     @Override
     public void tick() {
         if (!world.isRemote) {
-            if (this.winemakingRecipe != null) {
-                this.winemakingTimeTotal = this.getRecipeSpendTime();
-                this.winemakingStatus = 1;
-                this.winemakingTime++;
-                if (this.winemakingTime >= this.winemakingTimeTotal) {
-                    Fluid output = this.getRecipeOutput().getFluid();
-                    int ratio = this.getRecipeOutput().getAmount() / this.getRecipeInput().getAmount();
-                    this.tank.setFluid(new FluidStack(output, this.getTank().getFluidAmount() * ratio));
+            if(winemakingStatus == 1 && winemakingRecipe == null) {
+                winemakingRecipe = getRecipe();
+                winemakingStatus = 0;
+            }
+            if (winemakingRecipe != null) {
+                winemakingTimeTotal = this.getRecipeSpendTime();
+                winemakingStatus = 1;
+                winemakingTime++;
+                if (winemakingTime >= winemakingTimeTotal) {
+                    Fluid output = getRecipeOutput().getFluid();
+                    int ratio = getRecipeOutput().getAmount() / getRecipeInput().getAmount();
+                    tank.setFluid(new FluidStack(output, getTank().getFluidAmount() * ratio));
                     markDirtyAndUpdate();
                 }
             }
@@ -130,10 +134,10 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
     private void markDirtyAndUpdate() {
         markDirty();
         syncToClient();
-        this.winemakingStatus = 0;
-        this.winemakingTime = 0;
-        this.winemakingTimeTotal = 0;
-        this.winemakingRecipe = this.getTank().getFluid().isEmpty() ? null : this.getRecipe();
+        winemakingStatus = 0;
+        winemakingTime = 0;
+        winemakingTimeTotal = 0;
+        winemakingRecipe = getTank().getFluid().isEmpty() ? null : getRecipe();
     }
 
     private WineRecipe getRecipe() {
@@ -145,15 +149,15 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
     }
 
     private FluidStack getRecipeInput() {
-        return this.winemakingRecipe != null ? this.winemakingRecipe.getFluidRecipeInput() : FluidStack.EMPTY;
+        return winemakingRecipe != null ? winemakingRecipe.getFluidRecipeInput() : FluidStack.EMPTY;
     }
 
     private FluidStack getRecipeOutput() {
-        return this.winemakingRecipe != null ? this.winemakingRecipe.getFluidRecipeOutput() : FluidStack.EMPTY;
+        return winemakingRecipe != null ? winemakingRecipe.getFluidRecipeOutput() : FluidStack.EMPTY;
     }
 
     private int getRecipeSpendTime() {
-        return this.winemakingRecipe != null ? this.winemakingRecipe.getSpendTime() : 0;
+        return winemakingRecipe != null ? winemakingRecipe.getSpendTime() : 0;
     }
 
     @Override
@@ -166,17 +170,17 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
 
     @Override
     public @NotNull ITextComponent getName() {
-        return this.customName != null ? this.customName : this.getBlockState().getBlock().getTranslatedName();
+        return customName != null ? customName : getBlockState().getBlock().getTranslatedName();
     }
 
     @Override
     public @NotNull ITextComponent getDisplayName() {
-        return this.getName();
+        return getName();
     }
 
     @Override
     public ITextComponent getCustomName() {
-        return this.customName;
+        return customName;
     }
 
     public void setCustomName(ITextComponent customName) {
@@ -195,13 +199,13 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
     public void syncToClient() {
         if (world == null || world.isRemote) return;
         NetworkHandler.INSTANCE.send(
-                PacketDistributor.TRACKING_CHUNK.with(() -> this.world.getChunkAt(this.pos)),
-                new SyncLiquidBarrelPacket(this.tank.getFluid(), this.getWorldAndPos())
+                PacketDistributor.TRACKING_CHUNK.with(() -> world.getChunkAt(getPos())),
+                new SyncLiquidBarrelPacket(getTank().getFluid(), getWorldAndPos())
         );
     }
 
     public String getWorldAndPos() {
-        return this.world.getDimensionKey().getLocation() + ":" + this.pos.toString();
+        return world.getDimensionKey().getLocation() + ":" + getPos();
     }
 
 

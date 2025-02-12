@@ -9,9 +9,6 @@ import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.data.ModelDataMap;
-import net.minecraftforge.client.model.data.ModelProperty;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
@@ -21,7 +18,7 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +27,6 @@ import javax.annotation.Nullable;
 
 public class BasinTileEntity extends TileEntity implements ITickableTileEntity {
 
-    public static final ModelProperty<FluidStack> FLUID_STACK_MODEL_PROPERTY = new ModelProperty<>();
     public static final int DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME;
     public final ItemStackHandler inputInventory = new ItemStackHandler(1) {
         @Override
@@ -38,7 +34,7 @@ public class BasinTileEntity extends TileEntity implements ITickableTileEntity {
             markDirtyAndUpdate();
         }
     };
-    private final LazyOptional<IItemHandlerModifiable> itemHolder = LazyOptional.of(() -> inputInventory);
+    private final LazyOptional<IItemHandler> itemHolder = LazyOptional.of(() -> inputInventory);
     private final FluidTank outputFluidTank = new FluidTank(DEFAULT_CAPACITY, (F) -> F.getFluid().getAttributes().getTemperature() < 500) {
         @Override
         protected void onContentsChanged() {
@@ -98,20 +94,9 @@ public class BasinTileEntity extends TileEntity implements ITickableTileEntity {
     public @NotNull CompoundNBT write(@Nonnull CompoundNBT compound) {
         compound = super.write(compound);
 
-        CompoundNBT inputItemNBT = inputInventory.serializeNBT();
-        CompoundNBT outputFluidNBT = new CompoundNBT();
-        outputFluidTank.writeToNBT(outputFluidNBT);
-
-        compound.put("inputItem", inputItemNBT);
-        compound.put("outputFluid", outputFluidNBT);
+        compound.put("inputItem", inputInventory.serializeNBT());
+        compound.put("outputFluid", outputFluidTank.writeToNBT(new CompoundNBT()));
         return compound;
-    }
-
-    @Override
-    public @NotNull IModelData getModelData() {
-        return new ModelDataMap.Builder()
-                .withInitial(FLUID_STACK_MODEL_PROPERTY, outputFluidTank.getFluid())
-                .build();
     }
 
     @Override
@@ -126,19 +111,20 @@ public class BasinTileEntity extends TileEntity implements ITickableTileEntity {
 
     @Override
     public @NotNull CompoundNBT getUpdateTag() {
-        CompoundNBT compound = super.getUpdateTag();
-        return write(compound);
+        return write(new CompoundNBT());
     }
 
-    public FluidStack getFluid() {
+    public ItemStack getItemStack(int sold) {
+        return inputInventory.getStackInSlot(sold);
+    }
+
+    public FluidStack getFluidStack() {
         return outputFluidTank.getFluid();
     }
 
     private void markDirtyAndUpdate() {
         markDirty();
-        if (world != null) {
-            world.notifyBlockUpdate(pos, getBlockState(), getBlockState(), Constants.BlockFlags.RERENDER_MAIN_THREAD);
-        }
+        world.notifyBlockUpdate(getPos(), getBlockState(), getBlockState(), Constants.BlockFlags.RERENDER_MAIN_THREAD);
     }
 
 

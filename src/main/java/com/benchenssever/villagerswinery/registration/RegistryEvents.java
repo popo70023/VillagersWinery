@@ -4,13 +4,16 @@ import com.benchenssever.villagerswinery.block.*;
 import com.benchenssever.villagerswinery.client.gui.LiquidBarrelScreen;
 import com.benchenssever.villagerswinery.fluid.LiquidBarrelContainer;
 import com.benchenssever.villagerswinery.item.LiquidBarrelItem;
+import com.benchenssever.villagerswinery.model.BasinTileEntityRenderer;
 import com.benchenssever.villagerswinery.recipe.BasinRecipe;
 import com.benchenssever.villagerswinery.recipe.BasinRecipeSerializers;
-import com.benchenssever.villagerswinery.recipe.WineRecipeSerializers;
 import com.benchenssever.villagerswinery.recipe.WineRecipe;
+import com.benchenssever.villagerswinery.recipe.WineRecipeSerializers;
 import com.benchenssever.villagerswinery.tileentity.BasinTileEntity;
 import com.benchenssever.villagerswinery.tileentity.LiquidBarrelTileEntity;
-import net.minecraft.block.*;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScreenManager;
@@ -27,6 +30,7 @@ import net.minecraft.world.biome.BiomeColors;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -93,6 +97,8 @@ public class RegistryEvents {
             blockColors.register((state, reader, pos, color) -> reader != null && pos != null ? BiomeColors.getFoliageColor(reader, pos) : FoliageColors.getDefault(), RegistryEvents.vineStand.get());
 
             ScreenManager.registerFactory(RegistryEvents.liquidBarrelContainer.get(), LiquidBarrelScreen::new);
+
+            ClientRegistry.bindTileEntityRenderer(basinTileEntity.get(), BasinTileEntityRenderer::new);
         });
     }
 }

@@ -28,7 +28,7 @@ public class LiquidBarrelContainer extends Container {
         this.fluidStack = fluidStack;
         this.liquidBarrelData = liquidBarrelData;
         trackIntArray(liquidBarrelData);
-        this.fluidSlot = new FluidSlot(20, 20, 16, 40);
+        this.fluidSlot = new FluidSlot(81, 20, 21, 32);
         layoutPlayerInventorySlots(playerinventory, 8, 84);
     }
 
