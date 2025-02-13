@@ -51,7 +51,7 @@ public class LiquidBarrelScreen extends ContainerScreen<LiquidBarrelContainer> {
 
         tm.bindTexture(LIQUID_BARREL_RESOURCE);
         RenderSystem.color4f(1, 1, 1, 1);
-        blit(matrixStack, fluidslotx1, fluidsloty1, 176, 0, fluidslot.xSize, fluidslot.ySize);
+        blit(matrixStack, fluidslotx1, fluidsloty1, 180, 1, fluidslot.xSize, fluidslot.ySize);
 
         if (this.isFluidSlotSelected(fluidslot, mouseX, mouseY)) {
             this.hoveredFluidSlot = fluidslot;
@@ -89,12 +89,13 @@ public class LiquidBarrelScreen extends ContainerScreen<LiquidBarrelContainer> {
         TextureManager tm = this.getMinecraft().getTextureManager();
 
         tm.bindTexture(LIQUID_BARREL_RESOURCE);
-        blit(matrixStack, this.guiLeft, this.guiTop, 0, 0, xSize, ySize);
+        blit(matrixStack, this.guiLeft, this.guiTop, 1, 1, xSize, ySize);
 
         if (this.container.getLiquidBarrelData().get(2) != 0) {
             int winemakingProgression = getProgressionScaled(this.container.getLiquidBarrelData().get(0), this.container.getLiquidBarrelData().get(1), 30);
             int renderWinemakingProgression = Math.min(winemakingProgression, winemakingTimer / 2);
-            blit(matrixStack, this.guiLeft + 62, this.guiTop + 54 - renderWinemakingProgression, 176, 62 - renderWinemakingProgression, 13, renderWinemakingProgression);
+            RenderSystem.enableBlend();
+            blit(matrixStack, this.guiLeft + 63, this.guiTop + 54 - renderWinemakingProgression, 179, 63 - renderWinemakingProgression, 13, renderWinemakingProgression);
             winemakingTimer++;
             if (winemakingTimer > 90) {
                 winemakingTimer = 0;
