@@ -79,6 +79,7 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
             return 3;
         }
     };
+
     public LiquidBarrelTileEntity() {
         super(RegistryEvents.liquidBarrelTileEntity.get());
     }
@@ -113,7 +114,7 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
     @Override
     public void tick() {
         if (!world.isRemote) {
-            if(winemakingStatus == 1 && winemakingRecipe == null) {
+            if (winemakingStatus == 1 && winemakingRecipe == null) {
                 winemakingRecipe = getRecipe();
                 winemakingStatus = 0;
             }
@@ -207,8 +208,4 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
     public String getWorldAndPos() {
         return world.getDimensionKey().getLocation() + ":" + getPos();
     }
-
-
-
-
 }

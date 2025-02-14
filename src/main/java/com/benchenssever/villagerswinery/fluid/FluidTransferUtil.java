@@ -3,8 +3,6 @@ package com.benchenssever.villagerswinery.fluid;
 import com.benchenssever.villagerswinery.VillagersWineryMod;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import net.minecraft.client.renderer.model.*;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
@@ -14,13 +12,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.client.model.SimpleModelTransform;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
@@ -29,8 +23,6 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.registries.ForgeRegistries;
-
-import java.util.function.Function;
 
 //TODO: 要重構
 public class FluidTransferUtil {
@@ -151,45 +143,5 @@ public class FluidTransferUtil {
         Fluid fluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(fluidName));
         if (fluid == null) throw new JsonSyntaxException("Unknown fluid '" + fluidName + "'");
         return new FluidStack(fluid, JSONUtils.getInt(json, "amount", 1000));
-    }
-
-    public static BakedQuad getLiquidQuad(FluidStack fluidStack, int capacity, float x1, float x2, float z1, float z2, float bottom, float hight) {
-        FluidAttributes attributes = fluidStack.getFluid().getAttributes();
-        int color = attributes.getColor(fluidStack);
-        int luminosity = attributes.getLuminosity(fluidStack); //TODO: luminosity?
-        float liquidLevel = bottom + ((float) fluidStack.getAmount() / capacity) * hight;
-        RenderMaterial fluidMaterial = ModelLoaderRegistry.blockMaterial(attributes.getStillTexture(fluidStack));
-
-
-        Function<RenderMaterial, TextureAtlasSprite> spriteGetter = ModelLoader.defaultTextureGetter();
-        TextureAtlasSprite sprite = spriteGetter.apply(fluidMaterial);
-        FaceBakery faceBakery = new FaceBakery();
-
-        final int ROTATION_NONE = 0;
-        BlockFaceUV blockFaceUV = new BlockFaceUV(new float[]{0, 0, 4, 4}, ROTATION_NONE);
-
-        final Direction NO_FACE_CULLING = null;
-        final int TINT_INDEX_NONE = -1;  // used for tintable blocks such as grass, which make a call to BlockColors to change their rendering colour.  -1 for not tintable.
-        final String DUMMY_TEXTURE_NAME = "";  // texture name is only needed for loading from json files; not needed here
-
-        BlockPartFace blockPartFace = new BlockPartFace(NO_FACE_CULLING, TINT_INDEX_NONE, DUMMY_TEXTURE_NAME, blockFaceUV);
-
-        final IModelTransform NO_TRANSFORMATION = SimpleModelTransform.IDENTITY;
-        final BlockPartRotation DEFAULT_ROTATION = null;   // rotate based on the face direction
-        final boolean APPLY_SHADING = true;
-        final ResourceLocation DUMMY_RL = new ResourceLocation("dummy_name");  // used for error message only
-        BakedQuad bakedQuad = faceBakery.bakeQuad(new Vector3f(x1, liquidLevel, z1), new Vector3f(x2, liquidLevel, z2), blockPartFace, sprite, Direction.UP, NO_TRANSFORMATION, DEFAULT_ROTATION,
-                APPLY_SHADING, DUMMY_RL);
-
-        int alpha = color >> 24 & 0xFF;
-//        int alpha = 127;
-        int red = color >> 16 & 0xFF;
-        int green = color >> 8 & 0xFF;
-        int blue = color & 0xFF;
-
-        for (int i = 0; i < 4; ++i) {
-            bakedQuad.getVertexData()[i * 8 + 3] = alpha << 24 | blue << 16 | green << 8 | red;
-        }
-        return bakedQuad;
     }
 }

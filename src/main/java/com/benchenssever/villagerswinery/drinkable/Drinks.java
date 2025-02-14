@@ -33,6 +33,7 @@ public class Drinks {
     private final RegistryObject<FlowingFluidBlock> fluidBlock;
     private RegistryObject<FlowingFluid> fluid;
     private RegistryObject<FlowingFluid> flowingFluid;
+
     //TODO: 添加factories模式更換支持，來更換可用的初始化class類別，參考FluidAttributes.Builder
     public Drinks(Builder builder) {
         this.id = builder.id;
@@ -47,7 +48,8 @@ public class Drinks {
                         new Item
                                 .Properties()
                                 .group(builder.group)
-                                .containerItem(BUCKET),
+                                .containerItem(BUCKET)
+                                .maxStackSize(1),
                         this
                 )
         );
