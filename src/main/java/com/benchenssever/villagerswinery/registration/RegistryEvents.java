@@ -5,8 +5,8 @@ import com.benchenssever.villagerswinery.client.gui.LiquidBarrelScreen;
 import com.benchenssever.villagerswinery.fluid.LiquidBarrelContainer;
 import com.benchenssever.villagerswinery.item.LiquidBarrelItem;
 import com.benchenssever.villagerswinery.model.BasinTileEntityRenderer;
-import com.benchenssever.villagerswinery.recipe.BasinRecipe;
-import com.benchenssever.villagerswinery.recipe.BasinRecipeSerializers;
+import com.benchenssever.villagerswinery.recipe.BasinCrushRecipe;
+import com.benchenssever.villagerswinery.recipe.BasinCrushRecipeSerializers;
 import com.benchenssever.villagerswinery.recipe.WineRecipe;
 import com.benchenssever.villagerswinery.recipe.WineRecipeSerializers;
 import com.benchenssever.villagerswinery.tileentity.BasinTileEntity;
@@ -42,15 +42,15 @@ public class RegistryEvents {
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    public static final DeferredRegister<TileEntityType<?>> TILE_ENTITIES  = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, MODID);
-    public static final DeferredRegister<ContainerType<?>> CONTAINERS  = DeferredRegister.create(ForgeRegistries.CONTAINERS, MODID);
-    public static final DeferredRegister<IRecipeSerializer<?>> RECIPE_SERIALIZERS  = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
+    public static final DeferredRegister<TileEntityType<?>> TILE_ENTITIES = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, MODID);
+    public static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, MODID);
+    public static final DeferredRegister<IRecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
 
     public static final RegistryObject<Item> liquidBarrelItem = ITEMS.register("liquid_barrel", () -> new LiquidBarrelItem(RegistryEvents.liquidBarrelBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup).maxStackSize(1)));
     public static final RegistryObject<Item> basinItem = ITEMS.register("basin", () -> new BlockItem(RegistryEvents.basinBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
     public static final RegistryObject<Item> standItem = ITEMS.register("stand", () -> new BlockNamedItem(RegistryEvents.stand.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
     public static final RegistryObject<Item> grapeVineItem = ITEMS.register("grape_vine", () -> new BlockItem(RegistryEvents.grapeVine.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
-    public static final RegistryObject<Item> grape = ITEMS.register("grape",() -> new Item(new Item.Properties().group(RegistryEvents.wineryItemGroup).food(new Food.Builder().fastToEat().saturation(1).hunger(3).build())));
+    public static final RegistryObject<Item> grape = ITEMS.register("grape", () -> new Item(new Item.Properties().group(RegistryEvents.wineryItemGroup).food(new Food.Builder().fastToEat().saturation(1).hunger(3).build())));
 
 
     public static final RegistryObject<Block> liquidBarrelBlock = BLOCKS.register("liquid_barrel", () -> new LiquidBarrel(AbstractBlock.Properties.create(Material.WOOD).hardnessAndResistance(2.5F).sound(SoundType.WOOD).notSolid()));
@@ -65,10 +65,10 @@ public class RegistryEvents {
     public static final RegistryObject<ContainerType<LiquidBarrelContainer>> liquidBarrelContainer = CONTAINERS.register("liquid_barrel_container", () -> IForgeContainerType.create(LiquidBarrelContainer::new));
 
     public static final RegistryObject<IRecipeSerializer<WineRecipe>> wineRecipeSerializer = RECIPE_SERIALIZERS.register("winerecipe", () -> new WineRecipeSerializers<>(WineRecipe::new));
-    public static final RegistryObject<IRecipeSerializer<BasinRecipe>> basinRecipeSerializer = RECIPE_SERIALIZERS.register("basinrecipe", () -> new BasinRecipeSerializers<>(BasinRecipe::new));
+    public static final RegistryObject<IRecipeSerializer<BasinCrushRecipe>> basinCrushRecipeSerializer = RECIPE_SERIALIZERS.register("basincrushrecipe", () -> new BasinCrushRecipeSerializers<>(BasinCrushRecipe::new));
 
     public static final IRecipeType<WineRecipe> wineRecipe = IRecipeType.register("winerecipe");
-    public static final IRecipeType<BasinRecipe> basinRecipe = IRecipeType.register("basinrecipe");
+    public static final IRecipeType<BasinCrushRecipe> basinCrushRecipe = IRecipeType.register("basincrushrecipe");
 
     public static final ItemGroup wineryItemGroup = new ItemGroup("villagerswinery") {
         @Override

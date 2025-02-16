@@ -1,14 +1,17 @@
 package com.benchenssever.villagerswinery.tileentity;
 
+import com.benchenssever.villagerswinery.inventory.InventoryStackHandler;
+import com.benchenssever.villagerswinery.recipe.BasinCrushRecipe;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
@@ -19,18 +22,13 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-public class BasinTileEntity extends TileEntity implements ITickableTileEntity {
-
+public class BasinTileEntity extends TileEntity {
     public static final int DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME;
-    public final ItemStackHandler inputInventory = new ItemStackHandler(1) {
+    public final InventoryStackHandler inputInventory = new InventoryStackHandler(1) {
         @Override
-        protected void onContentsChanged(int slot) {
+        public void markDirty() {
             markDirtyAndUpdate();
         }
     };
@@ -42,14 +40,12 @@ public class BasinTileEntity extends TileEntity implements ITickableTileEntity {
         }
     };
     private final LazyOptional<IFluidHandler> fluidHolder = LazyOptional.of(() -> outputFluidTank);
+    private BasinCrushRecipe basinCrushRecipe;
+    private int basinWalkProgress;
+    private int basinCrushProgress;
 
     public BasinTileEntity() {
         super(RegistryEvents.basinTileEntity.get());
-    }
-
-    @Override
-    public void tick() {
-
     }
 
     public ItemStack insertItem(ItemStack stack) {
@@ -70,11 +66,29 @@ public class BasinTileEntity extends TileEntity implements ITickableTileEntity {
         return false;
     }
 
-    public boolean isItemEmpty() {
-        for (int i = 0; i < inputInventory.getSlots(); i++) {
-            if (!inputInventory.getStackInSlot(i).isEmpty()) return false;
+    public void basinWalk() {
+        if (basinCrushRecipe != null) {
+            basinWalkProgress++;
+            if (basinWalkProgress > 30) {
+                basinWalkProgress -= 30;
+                basinCrush();
+            }
         }
-        return true;
+    }
+
+    public void basinCrush() {
+        if (basinCrushRecipe != null) {
+            FluidStack output = basinCrushRecipe.getFluidRecipeOutput();
+            if (outputFluidTank.fill(output, IFluidHandler.FluidAction.SIMULATE) == output.getAmount()) {
+                inputInventory.decrStackSize(1, 1);
+                outputFluidTank.fill(output, IFluidHandler.FluidAction.EXECUTE);
+                world.playSound(null, pos, SoundEvents.ENTITY_SLIME_JUMP, SoundCategory.BLOCKS, 1.0F, 1.0F);
+            }
+        }
+    }
+
+    public boolean isItemEmpty() {
+        return inputInventory.isEmpty();
     }
 
     @Override
@@ -84,18 +98,27 @@ public class BasinTileEntity extends TileEntity implements ITickableTileEntity {
         if (nbt.contains("inputItem", Constants.NBT.TAG_COMPOUND)) {
             inputInventory.deserializeNBT(nbt.getCompound("inputItem"));
         }
-
         if (nbt.contains("outputFluid", Constants.NBT.TAG_COMPOUND)) {
             outputFluidTank.readFromNBT(nbt.getCompound("outputFluid"));
         }
+        basinWalkProgress = nbt.getInt("basinwalkprogress");
+        basinCrushProgress = nbt.getInt("basincrushprogress");
     }
 
     @Override
-    public @NotNull CompoundNBT write(@Nonnull CompoundNBT compound) {
+    public void onLoad() {
+        basinCrushRecipe = inputInventory.isEmpty() ? null : getRecipe();
+        super.onLoad();
+    }
+
+    @Override
+    public @NotNull CompoundNBT write(@NotNull CompoundNBT compound) {
         compound = super.write(compound);
 
         compound.put("inputItem", inputInventory.serializeNBT());
         compound.put("outputFluid", outputFluidTank.writeToNBT(new CompoundNBT()));
+        compound.putInt("basinwalkprogress", basinWalkProgress);
+        compound.putInt("basincrushprogress", basinCrushProgress);
         return compound;
     }
 
@@ -118,18 +141,34 @@ public class BasinTileEntity extends TileEntity implements ITickableTileEntity {
         return inputInventory.getStackInSlot(sold);
     }
 
+    public int getInventorySize() {
+        return inputInventory.getSlots();
+    }
+
     public FluidStack getFluidStack() {
         return outputFluidTank.getFluid();
     }
 
     private void markDirtyAndUpdate() {
         markDirty();
+        if (basinCrushRecipe == null || !basinCrushRecipe.matches(inputInventory, world)) {
+            basinWalkProgress = 0;
+            basinCrushProgress = 0;
+            basinCrushRecipe = inputInventory.isEmpty() ? null : getRecipe();
+        }
         world.notifyBlockUpdate(getPos(), getBlockState(), getBlockState(), Constants.BlockFlags.RERENDER_MAIN_THREAD);
     }
 
+    private BasinCrushRecipe getRecipe() {
+        return world.getRecipeManager().getRecipes(RegistryEvents.basinCrushRecipe, inputInventory, world)
+                .stream()
+                .filter(recipe -> recipe.matches(inputInventory, world))
+                .findFirst()
+                .orElse(null);
+    }
 
     @Override
-    public <T> @NotNull LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+    public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction side) {
         if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return itemHolder.cast();
         }

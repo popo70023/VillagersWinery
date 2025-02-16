@@ -57,7 +57,7 @@ public class BasinTileEntityRenderer extends TileEntityRenderer<BasinTileEntity>
 
                 float xOffset = 0.3f + (posInLayer % 2) * 0.4f;
                 float zOffset = 0.3f + (posInLayer / 2) * 0.4f;
-                float yOffset = 0.13f + (scale * (layer + 0.5f) / 2.0f);
+                float yOffset = 0.25f + (scale * (layer + 0.5f) / 2.0f);
                 matrixStackIn.translate(xOffset, yOffset, zOffset);
                 matrixStackIn.scale(scale, scale, scale);
                 matrixStackIn.rotate(Vector3f.YP.rotationDegrees(rand.nextFloat() * 360.0f));
@@ -66,7 +66,7 @@ public class BasinTileEntityRenderer extends TileEntityRenderer<BasinTileEntity>
 
                 float xOffset = 0.5f + ((rand.nextFloat() - 0.5f) * 0.1f);
                 float zOffset = 0.5f + ((rand.nextFloat() - 0.5f) * 0.1f);
-                float yOffset = 0.13f + (scale * (i + 0.5f) / 16.0f);
+                float yOffset = 0.25f + (scale * (i + 0.5f) / 16.0f);
                 matrixStackIn.translate(xOffset, yOffset, zOffset);
                 matrixStackIn.scale(scale, scale, scale);
                 matrixStackIn.rotate(Vector3f.XP.rotationDegrees(90.0f));
@@ -83,7 +83,7 @@ public class BasinTileEntityRenderer extends TileEntityRenderer<BasinTileEntity>
     private static void renderFluid(FluidStack fluidStack, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn) {
 
         FluidAttributes attributes = fluidStack.getFluid().getAttributes();
-        float yOffset = 0.125f + (fluidStack.getAmount() * 0.625f / BasinTileEntity.DEFAULT_CAPACITY);
+        float yOffset = 0.25f + (fluidStack.getAmount() * 0.5f / BasinTileEntity.DEFAULT_CAPACITY);
         int color = attributes.getColor(fluidStack);
         int red = color >> 16 & 0xFF;
         int green = color >> 8 & 0xFF;

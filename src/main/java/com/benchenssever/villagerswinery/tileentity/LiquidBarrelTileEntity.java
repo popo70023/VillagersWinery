@@ -31,8 +31,6 @@ import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.minecraftforge.fml.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
-import static com.benchenssever.villagerswinery.registration.RegistryEvents.wineRecipe;
-
 public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileEntity, INamedContainerProvider, INameable {
     public static final int DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME * 8;
     private ITextComponent customName;
@@ -93,9 +91,15 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
         winemakingTime = nbt.getInt("WinemakingTime");
         winemakingTimeTotal = nbt.getInt("WinemakingTimeTotal");
         winemakingStatus = nbt.getInt("WinemakingStatus");
-        if (nbt.contains("CustomName", 8)) {
+        if (nbt.contains("CustomName", Constants.NBT.TAG_STRING)) {
             customName = ITextComponent.Serializer.getComponentFromJson(nbt.getString("CustomName"));
         }
+    }
+
+    @Override
+    public void onLoad() {
+        winemakingRecipe = getTank().getFluid().isEmpty() ? null : getRecipe();
+        super.onLoad();
     }
 
     @Override
@@ -137,14 +141,16 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
         syncToClient();
         winemakingStatus = 0;
         winemakingTime = 0;
-        winemakingTimeTotal = 0;
-        winemakingRecipe = getTank().getFluid().isEmpty() ? null : getRecipe();
+        if (winemakingRecipe == null || !winemakingRecipe.matches(getTank().getFluid(), world)) {
+            winemakingTimeTotal = 0;
+            winemakingRecipe = getTank().getFluid().isEmpty() ? null : getRecipe();
+        }
     }
 
     private WineRecipe getRecipe() {
-        return world.getRecipeManager().getRecipes(wineRecipe, new Inventory(), world)
+        return world.getRecipeManager().getRecipes(RegistryEvents.wineRecipe, new Inventory(), world)
                 .stream()
-                .filter(recipe -> recipe.matches(tank.getFluid(), world))
+                .filter(recipe -> recipe.matches(getTank().getFluid(), world))
                 .findFirst()
                 .orElse(null);
     }

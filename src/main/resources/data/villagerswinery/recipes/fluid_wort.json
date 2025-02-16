@@ -2,11 +2,11 @@
   "type": "villagerswinery:winerecipe",
   "input": {
     "fluid": "villagerswinery:fluid_wort",
-    "amount": 1000
+    "amount": 1
   },
   "output": {
     "fluid": "villagerswinery:fluid_beer",
-    "amount": 1000
+    "amount": 1
   },
   "time": 1600
 }

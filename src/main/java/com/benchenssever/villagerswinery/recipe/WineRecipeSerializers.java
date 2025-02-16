@@ -7,9 +7,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistryEntry;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 public class WineRecipeSerializers<T extends WineRecipe> extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<T> {
     private final WineRecipeSerializers.IFactory<T> factory;
@@ -18,22 +16,20 @@ public class WineRecipeSerializers<T extends WineRecipe> extends ForgeRegistryEn
         this.factory = factory;
     }
 
-    @Nonnull
     @Override
-    public T read(@Nonnull ResourceLocation recipeId, JsonObject json) {
+    public @NotNull T read(@NotNull ResourceLocation recipeId, JsonObject json) {
         FluidStack input = FluidTransferUtil.getFluidStackFromJson(json.getAsJsonObject("input"));
         FluidStack output = FluidTransferUtil.getFluidStackFromJson(json.getAsJsonObject("output"));
         int time = json.get("time").getAsInt();
-        return this.factory.create(recipeId, input, output, time);
+        return factory.create(recipeId, input, output, time);
     }
 
-    @Nullable
     @Override
-    public T read(@Nonnull ResourceLocation recipeId, PacketBuffer buffer) {
+    public T read(@NotNull ResourceLocation recipeId, PacketBuffer buffer) {
         FluidStack input = buffer.readFluidStack();
         FluidStack output = buffer.readFluidStack();
         int time = buffer.readInt();
-        return this.factory.create(recipeId, input, output, time);
+        return factory.create(recipeId, input, output, time);
     }
 
     @Override

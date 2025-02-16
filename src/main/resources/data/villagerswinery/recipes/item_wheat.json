@@ -1,0 +1,11 @@
+{
+  "type": "villagerswinery:basincrushrecipe",
+  "ingredient": {
+    "item": "minecraft:wheat"
+  },
+  "output": {
+    "fluid": "villagerswinery:fluid_beer",
+    "amount": 250
+  },
+  "crushtime": 1
+}

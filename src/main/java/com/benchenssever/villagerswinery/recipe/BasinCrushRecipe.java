@@ -12,17 +12,17 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
-public class BasinRecipe implements IFluidStackRecipe {
+public class BasinCrushRecipe implements IFluidStackRecipe {
     protected final ResourceLocation id;
     protected final Ingredient input;
     protected final FluidStack output;
-    protected final int time;
+    protected final int crushtime;
 
-    public BasinRecipe(ResourceLocation id, Ingredient input, FluidStack output, int time) {
+    public BasinCrushRecipe(ResourceLocation id, Ingredient input, FluidStack output, int crushtime) {
         this.id = id;
         this.input = input;
         this.output = output;
-        this.time = time;
+        this.crushtime = crushtime;
     }
 
     @Override
@@ -40,28 +40,28 @@ public class BasinRecipe implements IFluidStackRecipe {
         return output;
     }
 
-    public int getSpendTime() {
-        return time;
+    public int getCrushTime() {
+        return crushtime;
     }
 
     @Override
     public @NotNull ResourceLocation getId() {
-        return this.id;
+        return id;
     }
 
     @Override
     public @NotNull IRecipeSerializer<?> getSerializer() {
-        return RegistryEvents.basinRecipeSerializer.get();
+        return RegistryEvents.basinCrushRecipeSerializer.get();
     }
 
     @Override
     public @NotNull IRecipeType<?> getType() {
-        return RegistryEvents.basinRecipe;
+        return RegistryEvents.basinCrushRecipe;
     }
 
     @Override
     public boolean matches(IInventory inv, @NotNull World worldIn) {
-        return this.input.test(inv.getStackInSlot(0));
+        return input.test(inv.getStackInSlot(0));
     }
 
     @Override
@@ -87,7 +87,7 @@ public class BasinRecipe implements IFluidStackRecipe {
     @Override
     public @NotNull NonNullList<Ingredient> getIngredients() {
         NonNullList<Ingredient> nonnulllist = NonNullList.create();
-        nonnulllist.add(this.input);
+        nonnulllist.add(input);
         return nonnulllist;
     }
 }
