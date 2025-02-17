@@ -7,12 +7,8 @@ import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
 
 import static com.benchenssever.villagerswinery.registration.DrinksRegistry.drinksCollection;
 
-public class WinebowlFluidHandler extends FluidHandlerItemStack {
-    /**
-     * @param container The container itemStack, data is stored on it directly as NBT.
-     * @param capacity  The maximum capacity of this fluid tank.
-     */
-    public WinebowlFluidHandler(ItemStack container, int capacity) {
+public class WoodenContainerFluidHandler extends FluidHandlerItemStack {
+    public WoodenContainerFluidHandler(ItemStack container, int capacity) {
         super(container, capacity);
     }
 

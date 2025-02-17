@@ -66,10 +66,12 @@ public class LiquidBarrel extends HorizontalBlock {
 
     @Override
     public void onBlockPlacedBy(@NotNull World worldIn, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity placer, ItemStack stack) {
-        if (stack.hasDisplayName()) {
-            TileEntity tileentity = worldIn.getTileEntity(pos);
-            if (tileentity instanceof LiquidBarrelTileEntity) {
-                ((LiquidBarrelTileEntity) tileentity).setCustomName(stack.getDisplayName());
+        TileEntity tileentity = worldIn.getTileEntity(pos);
+        if (tileentity instanceof LiquidBarrelTileEntity) {
+            LiquidBarrelTileEntity barrelTile = (LiquidBarrelTileEntity) tileentity;
+            barrelTile.refreshRecipe();
+            if (stack.hasDisplayName()) {
+                barrelTile.setCustomName(stack.getDisplayName());
             }
         }
     }

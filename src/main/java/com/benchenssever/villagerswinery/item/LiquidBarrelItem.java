@@ -1,7 +1,7 @@
 package com.benchenssever.villagerswinery.item;
 
 import com.benchenssever.villagerswinery.fluid.FluidTransferUtil;
-import com.benchenssever.villagerswinery.fluid.WinebowlFluidHandler;
+import com.benchenssever.villagerswinery.fluid.WoodenContainerFluidHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -30,7 +30,7 @@ public class LiquidBarrelItem extends BlockItem {
     @Override
     public void addInformation(@NotNull ItemStack stack, World worldIn, @NotNull List<ITextComponent> tooltip, @NotNull ITooltipFlag flagIn) {
         super.addInformation(stack, worldIn, tooltip, flagIn);
-        FluidStack fluidStack = new WinebowlFluidHandler(stack, DEFAULT_CAPACITY).getFluid();
+        FluidStack fluidStack = new WoodenContainerFluidHandler(stack, DEFAULT_CAPACITY).getFluid();
         if (!fluidStack.isEmpty()) {
             tooltip.add(FluidTransferUtil.addFluidTooltip(fluidStack));
         }
@@ -50,6 +50,6 @@ public class LiquidBarrelItem extends BlockItem {
 
     @Override
     public ICapabilityProvider initCapabilities(ItemStack stack, CompoundNBT nbt) {
-        return new WinebowlFluidHandler(stack, DEFAULT_CAPACITY);
+        return new WoodenContainerFluidHandler(stack, DEFAULT_CAPACITY);
     }
 }

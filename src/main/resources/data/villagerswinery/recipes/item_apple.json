@@ -1,10 +1,10 @@
 {
   "type": "villagerswinery:basincrushrecipe",
   "ingredient": {
-    "item": "minecraft:wheat"
+    "item": "minecraft:apple"
   },
   "output": {
-    "fluid": "villagerswinery:fluid_wort",
+    "fluid": "villagerswinery:fluid_apple_juice",
     "amount": 250
   },
   "crushtime": 1

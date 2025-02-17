@@ -4,12 +4,15 @@ import com.benchenssever.villagerswinery.inventory.InventoryStackHandler;
 import com.benchenssever.villagerswinery.recipe.BasinCrushRecipe;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.FoodStats;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraftforge.common.capabilities.Capability;
@@ -25,7 +28,7 @@ import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class BasinTileEntity extends TileEntity {
-    public static final int DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME;
+    public static final int DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME * 2;
     public final InventoryStackHandler inputInventory = new InventoryStackHandler(1) {
         @Override
         public void markDirty() {
@@ -66,25 +69,44 @@ public class BasinTileEntity extends TileEntity {
         return false;
     }
 
-    public void basinWalk() {
-        if (basinCrushRecipe != null) {
-            basinWalkProgress++;
-            if (basinWalkProgress > 30) {
-                basinWalkProgress -= 30;
-                basinCrush();
+    public void basinWalk(@NotNull Entity entityIn) {
+        if (canCrush()) {
+            if(entityIn instanceof PlayerEntity) {
+                PlayerEntity player = (PlayerEntity)entityIn;
+                FoodStats playerFoodStats = player.getFoodStats();
+                if(playerFoodStats.getFoodLevel() > 6) {
+                    basinWalkProgress++;
+                    if (basinWalkProgress > 30) {
+                        if(!player.isCreative()) {
+                            playerFoodStats.addExhaustion(0.025F);
+                        }
+                        basinCrush();
+                        basinWalkProgress = 0;
+                    }
+                }
+            } else {
+                basinWalkProgress++;
+                if (basinWalkProgress > 30) {
+                    basinWalkProgress -= 30;
+                    basinCrush();
+                }
             }
         }
     }
 
     public void basinCrush() {
+        if (canCrush() && inputInventory.extractItem(0, 1, false) != ItemStack.EMPTY) {
+            outputFluidTank.fill(basinCrushRecipe.getFluidRecipeOutput(), IFluidHandler.FluidAction.EXECUTE);
+            world.playSound(null, pos, SoundEvents.ENTITY_SLIME_JUMP, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        }
+    }
+
+    private boolean canCrush() {
         if (basinCrushRecipe != null) {
             FluidStack output = basinCrushRecipe.getFluidRecipeOutput();
-            if (outputFluidTank.fill(output, IFluidHandler.FluidAction.SIMULATE) == output.getAmount()) {
-                inputInventory.decrStackSize(1, 1);
-                outputFluidTank.fill(output, IFluidHandler.FluidAction.EXECUTE);
-                world.playSound(null, pos, SoundEvents.ENTITY_SLIME_JUMP, SoundCategory.BLOCKS, 1.0F, 1.0F);
-            }
+            return basinCrushRecipe.matches(inputInventory, world) && outputFluidTank.fill(output, IFluidHandler.FluidAction.SIMULATE) == output.getAmount();
         }
+        return false;
     }
 
     public boolean isItemEmpty() {
@@ -107,7 +129,6 @@ public class BasinTileEntity extends TileEntity {
 
     @Override
     public void onLoad() {
-        basinCrushRecipe = inputInventory.isEmpty() ? null : getRecipe();
         super.onLoad();
     }
 

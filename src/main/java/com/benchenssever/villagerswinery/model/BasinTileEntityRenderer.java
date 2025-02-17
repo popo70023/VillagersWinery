@@ -53,7 +53,7 @@ public class BasinTileEntityRenderer extends TileEntityRenderer<BasinTileEntity>
             if (itemStack.getItem() instanceof BlockItem) {
                 int layer = i / 4;
                 int posInLayer = i % 4;
-                float scale = 0.5f;
+                float scale = 0.6f;
 
                 float xOffset = 0.3f + (posInLayer % 2) * 0.4f;
                 float zOffset = 0.3f + (posInLayer / 2) * 0.4f;

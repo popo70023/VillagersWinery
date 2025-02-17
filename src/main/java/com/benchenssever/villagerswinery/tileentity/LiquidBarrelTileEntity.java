@@ -98,7 +98,7 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
 
     @Override
     public void onLoad() {
-        winemakingRecipe = getTank().getFluid().isEmpty() ? null : getRecipe();
+        refreshRecipe();
         super.onLoad();
     }
 
@@ -143,8 +143,12 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
         winemakingTime = 0;
         if (winemakingRecipe == null || !winemakingRecipe.matches(getTank().getFluid(), world)) {
             winemakingTimeTotal = 0;
-            winemakingRecipe = getTank().getFluid().isEmpty() ? null : getRecipe();
+            refreshRecipe();
         }
+    }
+
+    public void refreshRecipe() {
+        winemakingRecipe = getTank().getFluid().isEmpty() ? null : getRecipe();
     }
 
     private WineRecipe getRecipe() {

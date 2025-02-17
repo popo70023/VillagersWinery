@@ -1,6 +1,6 @@
 package com.benchenssever.villagerswinery.model;
 
-import com.benchenssever.villagerswinery.fluid.WinebowlFluidHandler;
+import com.benchenssever.villagerswinery.fluid.WoodenContainerFluidHandler;
 import com.benchenssever.villagerswinery.item.Winebowl;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.BlockState;
@@ -90,7 +90,7 @@ public class WineBowlBackedModel implements IBakedModel {
 
             @Override
             public IBakedModel getOverrideModel(@NotNull IBakedModel model, @NotNull ItemStack stack, ClientWorld world, LivingEntity livingEntity) {
-                WinebowlFluidHandler winebowl = new WinebowlFluidHandler(stack, Winebowl.DEFAULT_CAPACITY);
+                WoodenContainerFluidHandler winebowl = new WoodenContainerFluidHandler(stack, Winebowl.DEFAULT_CAPACITY);
                 FluidStack fluidStack = winebowl.getFluid();
                 if (cachedModel == null || !cachedModel.fluidStack.equals(fluidStack)) {
                     cachedModel = new WineBowlBackedModel(model, fluidStack);

@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
@@ -79,13 +80,13 @@ public class Basin extends Block {
 
     @Override
     public void onEntityWalk(@NotNull World worldIn, @NotNull BlockPos pos, @NotNull Entity entityIn) {
-        if (!worldIn.isRemote && entityIn instanceof LivingEntity) {
+        if (!worldIn.isRemote && (entityIn instanceof PlayerEntity || entityIn instanceof VillagerEntity)) {
             Vector3d bottomCenter = getEntityBottomCenter(entityIn, pos);
-            if (INSIDE_AABB.contains(bottomCenter) && entityIn.getMotion().lengthSquared() > 0) {
+            if (INSIDE_AABB.contains(bottomCenter)) {
                 TileEntity tile = worldIn.getTileEntity(pos);
                 if (tile instanceof BasinTileEntity) {
                     BasinTileEntity basin = (BasinTileEntity) tile;
-                    basin.basinWalk();
+                    basin.basinWalk(entityIn);
                 }
             }
         }
@@ -94,6 +95,7 @@ public class Basin extends Block {
 
     @Override
     public void onFallenUpon(@NotNull World worldIn, @NotNull BlockPos pos, @NotNull Entity entityIn, float fallDistance) {
+
         if (!worldIn.isRemote && entityIn instanceof LivingEntity) {
             Vector3d bottomCenter = getEntityBottomCenter(entityIn, pos);
             if (INSIDE_AABB.contains(bottomCenter)) {

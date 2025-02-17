@@ -3,7 +3,6 @@ package com.benchenssever.villagerswinery.registration;
 import com.benchenssever.villagerswinery.VillagersWineryMod;
 import com.benchenssever.villagerswinery.drinkable.Drinks;
 import com.benchenssever.villagerswinery.drinkable.WineEffect;
-import com.benchenssever.villagerswinery.item.EmptyWinebowl;
 import com.benchenssever.villagerswinery.item.Winebowl;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderType;
@@ -32,12 +31,17 @@ public class DrinksRegistry {
 
     public static final RegistryObject<Potion> grapeWinePotion = POTION.register("get_merchant_xp", () -> new Potion(new EffectInstance(drunk.get(), 3600), new EffectInstance(getIMerchantXp.get())));
 
-    public static final RegistryObject<Item> emptyWinebowl = ITEMS.register("empty_winebowl", () -> new EmptyWinebowl(new Item.Properties().group(RegistryEvents.wineryItemGroup).maxStackSize(16)));
-    public static final RegistryObject<Item> winebowl = ITEMS.register("winebowl", () -> new Winebowl(new Item.Properties().group(RegistryEvents.wineryItemGroup).maxStackSize(1), emptyWinebowl));
+    public static final RegistryObject<Item> emptyWinebowl = ITEMS.register("empty_winebowl", () -> new Winebowl(new Item.Properties().group(RegistryEvents.wineryItemGroup).maxStackSize(16)));
+    public static final RegistryObject<Item> winebowl = ITEMS.register("winebowl", () -> new Winebowl(new Item.Properties().group(RegistryEvents.wineryItemGroup).maxStackSize(1)));
 
     public static final Drinks grapeWine = new Drinks.Builder("grape_wine")
             .effects(grapeWinePotion)
             .color(0xff9d2ebf)
+            .group(RegistryEvents.wineryItemGroup)
+            .build();
+
+    public static final Drinks grapeJuice = new Drinks.Builder("grape_juice")
+            .color(0xffc34ac0)
             .group(RegistryEvents.wineryItemGroup)
             .build();
 
@@ -63,7 +67,7 @@ public class DrinksRegistry {
             .group(RegistryEvents.wineryItemGroup)
             .build();
 
-    public static final Drinks[] drinksCollection = {grapeWine, beer, wort, appleJuice, cider};
+    public static final Drinks[] drinksCollection = {grapeWine, grapeJuice, beer, wort, appleJuice, cider};
 
     public static void setRegister(IEventBus eventBus) {
         ITEMS.register(eventBus);

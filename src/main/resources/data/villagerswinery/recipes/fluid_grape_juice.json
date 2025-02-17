@@ -1,0 +1,12 @@
+{
+  "type": "villagerswinery:winerecipe",
+  "input": {
+    "fluid": "villagerswinery:fluid_grape_juice",
+    "amount": 1
+  },
+  "output": {
+    "fluid": "villagerswinery:fluid_grape_wine",
+    "amount": 1
+  },
+  "time": 1600
+}
