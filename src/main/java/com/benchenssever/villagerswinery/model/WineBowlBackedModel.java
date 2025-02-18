@@ -90,8 +90,7 @@ public class WineBowlBackedModel implements IBakedModel {
 
             @Override
             public IBakedModel getOverrideModel(@NotNull IBakedModel model, @NotNull ItemStack stack, ClientWorld world, LivingEntity livingEntity) {
-                WoodenContainerFluidHandler winebowl = new WoodenContainerFluidHandler(stack, Winebowl.DEFAULT_CAPACITY);
-                FluidStack fluidStack = winebowl.getFluid();
+                FluidStack fluidStack = WoodenContainerFluidHandler.getFluid(stack);
                 if (cachedModel == null || !cachedModel.fluidStack.equals(fluidStack)) {
                     cachedModel = new WineBowlBackedModel(model, fluidStack);
                 }

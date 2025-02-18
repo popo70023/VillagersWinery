@@ -30,7 +30,7 @@ public class LiquidBarrelItem extends BlockItem {
     @Override
     public void addInformation(@NotNull ItemStack stack, World worldIn, @NotNull List<ITextComponent> tooltip, @NotNull ITooltipFlag flagIn) {
         super.addInformation(stack, worldIn, tooltip, flagIn);
-        FluidStack fluidStack = new WoodenContainerFluidHandler(stack, DEFAULT_CAPACITY).getFluid();
+        FluidStack fluidStack = WoodenContainerFluidHandler.getFluid(stack);
         if (!fluidStack.isEmpty()) {
             tooltip.add(FluidTransferUtil.addFluidTooltip(fluidStack));
         }

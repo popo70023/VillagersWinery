@@ -26,10 +26,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -60,9 +59,7 @@ public class Winebowl extends Item {
         if (playerentity != null) {
             playerentity.addStat(Stats.ITEM_USED.get(this));
             if (!playerentity.abilities.isCreativeMode) {
-                stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).ifPresent(fluidHandler -> {
-                    fluidHandler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
-                });
+                stack = new ItemStack(DrinksRegistry.emptyWinebowl.get());
             }
         }
 
@@ -82,9 +79,9 @@ public class Winebowl extends Item {
     @Override
     public @NotNull ActionResult<ItemStack> onItemRightClick(@NotNull World worldIn, PlayerEntity playerIn, @NotNull Hand handIn) {
         ItemStack stack = playerIn.getHeldItem(handIn);
-        WoodenContainerFluidHandler winebowl = new WoodenContainerFluidHandler(stack, DEFAULT_CAPACITY);
+        FluidStack stackFluid = WoodenContainerFluidHandler.getFluid(stack);
 
-        if (!PotionUtils.getEffectsFromStack(stack).isEmpty() && winebowl.getFluid().getAmount() >= DEFAULT_CAPACITY) {
+        if (!PotionUtils.getEffectsFromStack(stack).isEmpty() && stackFluid.getAmount() >= DEFAULT_CAPACITY) {
             if (Drinks.addDrunkEffectsToEntity(playerIn, playerIn, PotionUtils.getEffectsFromStack(stack), false)) {
                 return DrinkHelper.startDrinking(worldIn, playerIn, handIn);
             }
@@ -94,7 +91,7 @@ public class Winebowl extends Item {
 
     @Override
     public @NotNull ITextComponent getDisplayName(@NotNull ItemStack stack) {
-        FluidStack fluidStack = new WoodenContainerFluidHandler(stack, DEFAULT_CAPACITY).getFluid();
+        FluidStack fluidStack = WoodenContainerFluidHandler.getFluid(stack);
         if (!fluidStack.isEmpty()) {
             return new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".winebowl", new TranslationTextComponent(fluidStack.getTranslationKey()));
         } else {
@@ -106,11 +103,11 @@ public class Winebowl extends Item {
     @Override
     @OnlyIn(Dist.CLIENT)
     public void addInformation(@NotNull ItemStack stack, World worldIn, @NotNull List<ITextComponent> tooltip, @NotNull ITooltipFlag flagIn) {
-        FluidStack fluidStack = new WoodenContainerFluidHandler(stack, DEFAULT_CAPACITY).getFluid();
+        FluidStack fluidStack = WoodenContainerFluidHandler.getFluid(stack);
         if (!fluidStack.isEmpty()) {
             tooltip.add(new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".winebowl.information", new StringTextComponent(Integer.toString(fluidStack.getAmount()))));
         }
-        if (stack.getOrCreateTag().contains("Potion")) {
+        if (stack.getTag() != null && stack.getTag().contains("Potion", Constants.NBT.TAG_STRING)) {
             PotionUtils.addPotionTooltip(stack, tooltip, 1.0F);
         }
     }
@@ -123,10 +120,8 @@ public class Winebowl extends Item {
                 for (Drinks drinks : DrinksRegistry.drinksCollection) {
                     if (drinks.potion == null) continue;
                     ItemStack stack = new ItemStack(this);
-                    WoodenContainerFluidHandler fluidStack = new WoodenContainerFluidHandler(stack, DEFAULT_CAPACITY);
-                    if (fluidStack.fill(new FluidStack(drinks.getFluid(), DEFAULT_CAPACITY), IFluidHandler.FluidAction.EXECUTE) == DEFAULT_CAPACITY) {
-                        items.add(stack);
-                    }
+                    WoodenContainerFluidHandler.setFluid(stack, new FluidStack(drinks.getFluid(), DEFAULT_CAPACITY), drinks.potion.get());
+                    items.add(stack);
                 }
             } else {
                 ItemStack stack = new ItemStack(this);
@@ -139,18 +134,16 @@ public class Winebowl extends Item {
     public @NotNull ActionResultType itemInteractionForEntity(@NotNull ItemStack stack, @NotNull PlayerEntity playerIn, LivingEntity entity, @NotNull Hand hand) {
         if (entity.world.isRemote) return ActionResultType.PASS;
         if (entity instanceof VillagerEntity) {
-            stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).ifPresent(fluidHandler -> {
-                FluidStack fluidInside = fluidHandler.drain(DEFAULT_CAPACITY, IFluidHandler.FluidAction.SIMULATE);
-                if(!PotionUtils.getEffectsFromStack(stack).isEmpty() && fluidInside.getAmount() >= DEFAULT_CAPACITY) {
-                    if (Drinks.addDrunkEffectsToEntity(playerIn, entity, PotionUtils.getEffectsFromStack(stack), true)) {
-                        playerIn.addStat(Stats.ITEM_USED.get(this));
-                        if (!playerIn.abilities.isCreativeMode) {
-                            fluidHandler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
-                        }
+            FluidStack fluidInside = WoodenContainerFluidHandler.getFluid(stack);
+            if(!PotionUtils.getEffectsFromStack(stack).isEmpty() && fluidInside.getAmount() >= DEFAULT_CAPACITY) {
+                if (Drinks.addDrunkEffectsToEntity(playerIn, entity, PotionUtils.getEffectsFromStack(stack), true)) {
+                    playerIn.addStat(Stats.ITEM_USED.get(this));
+                    if (!playerIn.abilities.isCreativeMode) {
+                        playerIn.setHeldItem(hand, new ItemStack(DrinksRegistry.emptyWinebowl.get()));
                     }
+                    return ActionResultType.SUCCESS;
                 }
-            });
-            return ActionResultType.SUCCESS;
+            }
         }
         return ActionResultType.PASS;
     }
