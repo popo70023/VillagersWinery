@@ -30,11 +30,13 @@ public class WineEffect extends Effect {
     @Override
     public void affectEntity(Entity source, Entity indirectSource, @NotNull LivingEntity entityLivingBaseIn, int amplifier, double health) {
         if (entityLivingBaseIn instanceof VillagerEntity) {
-            VillagerEntity Villager = (VillagerEntity) entityLivingBaseIn;
+            VillagerEntity villager = (VillagerEntity) entityLivingBaseIn;
 
             if (this == DrinksRegistry.getIMerchantXp.get()) {
-                Villager.setXP(Villager.getXp() + 1 + amplifier);
-                LOGGER.debug("Villager have {}", Villager.getXp());
+                int newXp = villager.getXp() + 1 + amplifier;
+                villager.setXP(newXp);
+
+                LOGGER.debug("Villager XP updated: {}, Level: {}", villager.getXp(), villager.getVillagerData().getLevel());
             }
         }
     }

@@ -116,11 +116,10 @@ public class Winebowl extends Item {
     @Override
     public void fillItemGroup(@NotNull ItemGroup group, @NotNull NonNullList<ItemStack> items) {
         if (this.isInGroup(group)) {
-            if(this == DrinksRegistry.winebowl.get()) {
-                for (Drinks drinks : DrinksRegistry.drinksCollection) {
-                    if (drinks.potion == null) continue;
+            if (this == DrinksRegistry.winebowl.get()) {
+                for (Drinks drink : DrinksRegistry.drinksCollection) {
                     ItemStack stack = new ItemStack(this);
-                    WoodenContainerFluidHandler.setFluid(stack, new FluidStack(drinks.getFluid(), DEFAULT_CAPACITY), drinks.potion.get());
+                    WoodenContainerFluidHandler.setFluid(stack, drink, DEFAULT_CAPACITY);
                     items.add(stack);
                 }
             } else {
@@ -135,7 +134,7 @@ public class Winebowl extends Item {
         if (entity.world.isRemote) return ActionResultType.PASS;
         if (entity instanceof VillagerEntity) {
             FluidStack fluidInside = WoodenContainerFluidHandler.getFluid(stack);
-            if(!PotionUtils.getEffectsFromStack(stack).isEmpty() && fluidInside.getAmount() >= DEFAULT_CAPACITY) {
+            if (!PotionUtils.getEffectsFromStack(stack).isEmpty() && fluidInside.getAmount() >= DEFAULT_CAPACITY) {
                 if (Drinks.addDrunkEffectsToEntity(playerIn, entity, PotionUtils.getEffectsFromStack(stack), true)) {
                     playerIn.addStat(Stats.ITEM_USED.get(this));
                     if (!playerIn.abilities.isCreativeMode) {
@@ -150,7 +149,7 @@ public class Winebowl extends Item {
 
     @Override
     public ICapabilityProvider initCapabilities(ItemStack stack, CompoundNBT nbt) {
-        if(stack.getItem() == DrinksRegistry.winebowl.get()) {
+        if (stack.getItem() == DrinksRegistry.winebowl.get()) {
             return new WoodenContainerFluidHandler(stack, DEFAULT_CAPACITY) {
                 @Override
                 protected void setContainerToEmpty() {

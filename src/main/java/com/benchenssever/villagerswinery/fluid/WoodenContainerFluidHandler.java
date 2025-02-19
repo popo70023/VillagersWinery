@@ -1,5 +1,6 @@
 package com.benchenssever.villagerswinery.fluid;
 
+import com.benchenssever.villagerswinery.drinkable.DrinkableFluid;
 import com.benchenssever.villagerswinery.drinkable.Drinks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -7,8 +8,6 @@ import net.minecraft.potion.Potion;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
-
-import static com.benchenssever.villagerswinery.registration.DrinksRegistry.drinksCollection;
 
 public class WoodenContainerFluidHandler extends FluidHandlerItemStack {
     public WoodenContainerFluidHandler(ItemStack container, int capacity) {
@@ -18,14 +17,12 @@ public class WoodenContainerFluidHandler extends FluidHandlerItemStack {
     @Override
     protected void setFluid(FluidStack fluid) {
         super.setFluid(fluid);
-        fluid.getFluid().getAttributes();
-        for (Drinks drinks : drinksCollection) {
-            if (fluid.getFluid().isEquivalentTo(drinks.getFluid())) {
-                if (drinks.potion != null) {
-                    this.container.getOrCreateTag().putString("Potion", drinks.potion.get().getRegistryName().toString());
-                    return;
-                }
-                break;
+        if (fluid.getFluid() instanceof DrinkableFluid) {
+            DrinkableFluid drinkableFluid = (DrinkableFluid) fluid.getFluid();
+            Potion potion = drinkableFluid.drinks.getPotion();
+            if (potion != null) {
+                this.container.getOrCreateTag().putString("Potion", potion.getRegistryName().toString());
+                return;
             }
         }
         this.container.removeChildTag("Potion");
@@ -54,17 +51,18 @@ public class WoodenContainerFluidHandler extends FluidHandlerItemStack {
 
     public static FluidStack getFluid(ItemStack fluidContainer) {
         CompoundNBT tagCompound = fluidContainer.getTag();
-        if (tagCompound == null || !tagCompound.contains(FLUID_NBT_KEY, Constants.NBT.TAG_COMPOUND))
-        {
+        if (tagCompound == null || !tagCompound.contains(FLUID_NBT_KEY, Constants.NBT.TAG_COMPOUND)) {
             return FluidStack.EMPTY;
         }
         return FluidStack.loadFluidStackFromNBT(tagCompound.getCompound(FLUID_NBT_KEY));
     }
 
-    public static void setFluid(ItemStack fluidContainer, FluidStack fluidStack, Potion potion) {
+    public static void setFluid(ItemStack fluidContainer, Drinks drinks, int capacity) {
+        FluidStack fluidStack = new FluidStack(drinks.getFluid(), capacity);
+        Potion potion = drinks.getPotion();
         CompoundNBT tagCompound = fluidContainer.getOrCreateTag();
         tagCompound.put(FLUID_NBT_KEY, fluidStack.writeToNBT(new CompoundNBT()));
-        if(potion != null) {
+        if (potion != null) {
             tagCompound.putString("Potion", potion.getRegistryName().toString());
         }
     }

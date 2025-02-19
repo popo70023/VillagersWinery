@@ -65,7 +65,7 @@ public class LiquidBarrel extends HorizontalBlock {
     }
 
     @Override
-    public void onBlockPlacedBy(@NotNull World worldIn, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity placer, ItemStack stack) {
+    public void onBlockPlacedBy(@NotNull World worldIn, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity placer, @NotNull ItemStack stack) {
         TileEntity tileentity = worldIn.getTileEntity(pos);
         if (tileentity instanceof LiquidBarrelTileEntity) {
             LiquidBarrelTileEntity barrelTile = (LiquidBarrelTileEntity) tileentity;

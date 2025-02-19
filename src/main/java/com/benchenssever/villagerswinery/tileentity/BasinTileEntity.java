@@ -130,6 +130,7 @@ public class BasinTileEntity extends TileEntity {
     @Override
     public void onLoad() {
         super.onLoad();
+        refreshRecipe();
     }
 
     @Override
@@ -175,9 +176,13 @@ public class BasinTileEntity extends TileEntity {
         if (basinCrushRecipe == null || !basinCrushRecipe.matches(inputInventory, world)) {
             basinWalkProgress = 0;
             basinCrushProgress = 0;
-            basinCrushRecipe = inputInventory.isEmpty() ? null : getRecipe();
+            refreshRecipe();
         }
         world.notifyBlockUpdate(getPos(), getBlockState(), getBlockState(), Constants.BlockFlags.RERENDER_MAIN_THREAD);
+    }
+
+    public void refreshRecipe() {
+        basinCrushRecipe = inputInventory.isEmpty() ? null : getRecipe();
     }
 
     private BasinCrushRecipe getRecipe() {

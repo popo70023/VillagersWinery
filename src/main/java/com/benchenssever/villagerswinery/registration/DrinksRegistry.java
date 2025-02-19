@@ -34,14 +34,8 @@ public class DrinksRegistry {
     public static final RegistryObject<Item> emptyWinebowl = ITEMS.register("empty_winebowl", () -> new Winebowl(new Item.Properties().group(RegistryEvents.wineryItemGroup).maxStackSize(16)));
     public static final RegistryObject<Item> winebowl = ITEMS.register("winebowl", () -> new Winebowl(new Item.Properties().group(RegistryEvents.wineryItemGroup).maxStackSize(1)));
 
-    public static final Drinks grapeWine = new Drinks.Builder("grape_wine")
-            .effects(grapeWinePotion)
-            .color(0xff9d2ebf)
-            .group(RegistryEvents.wineryItemGroup)
-            .build();
-
-    public static final Drinks grapeJuice = new Drinks.Builder("grape_juice")
-            .color(0xffc34ac0)
+    public static final Drinks wort = new Drinks.Builder("wort")
+            .color(0xFFf5b642)
             .group(RegistryEvents.wineryItemGroup)
             .build();
 
@@ -51,8 +45,14 @@ public class DrinksRegistry {
             .group(RegistryEvents.wineryItemGroup)
             .build();
 
-    public static final Drinks wort = new Drinks.Builder("wort")
-            .color(0xFFf5b642)
+    public static final Drinks grapeJuice = new Drinks.Builder("grape_juice")
+            .color(0xffc34ac0)
+            .group(RegistryEvents.wineryItemGroup)
+            .build();
+
+    public static final Drinks grapeWine = new Drinks.Builder("grape_wine")
+            .effects(grapeWinePotion)
+            .color(0xff9d2ebf)
             .group(RegistryEvents.wineryItemGroup)
             .build();
 
@@ -67,7 +67,7 @@ public class DrinksRegistry {
             .group(RegistryEvents.wineryItemGroup)
             .build();
 
-    public static final Drinks[] drinksCollection = {grapeWine, grapeJuice, beer, wort, appleJuice, cider};
+    public static final Drinks[] drinksCollection = {wort, beer, grapeJuice, grapeWine, appleJuice, cider};
 
     public static void setRegister(IEventBus eventBus) {
         ITEMS.register(eventBus);

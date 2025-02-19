@@ -26,13 +26,13 @@ public class Drinks {
 
     public static final ResourceLocation STILL_WATER_TEXTURE = new ResourceLocation("block/water_still");
     public static final ResourceLocation FLOWING_WATER_TEXTURE = new ResourceLocation("block/water_flow");
-    public final RegistryObject<Potion> potion;
     public final String id;
     public final int color;
     private final RegistryObject<Item> bucket;
     private final RegistryObject<FlowingFluidBlock> fluidBlock;
     private RegistryObject<FlowingFluid> fluid;
     private RegistryObject<FlowingFluid> flowingFluid;
+    private final RegistryObject<Potion> potion;
 
     //TODO: 添加factories模式更換支持，來更換可用的初始化class類別，參考FluidAttributes.Builder
     public Drinks(Builder builder) {
@@ -97,7 +97,7 @@ public class Drinks {
 
     public static boolean addDrunkEffectsToEntity(LivingEntity source, LivingEntity entityLivingBaseIn, List<EffectInstance> effects, boolean execute) {
         EffectInstance drunkEffect = entityLivingBaseIn.getActivePotionEffect(DrinksRegistry.drunk.get());
-        if (drunkEffect == null || drunkEffect.getDuration() < 3600) {
+        if (drunkEffect == null || drunkEffect.getDuration() > 0) {
             if (execute) {
                 int time = 0;
                 if (drunkEffect != null) {
@@ -135,6 +135,10 @@ public class Drinks {
 
     public FlowingFluidBlock getFluidBlock() {
         return fluidBlock.get();
+    }
+
+    public Potion getPotion() {
+        return potion == null ? null : potion.get();
     }
 
     public static class Builder {

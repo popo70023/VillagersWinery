@@ -24,14 +24,14 @@ public class DrinkableFluidBlock extends FlowingFluidBlock {
 
     @Override
     public void onEntityCollision(@NotNull BlockState state, World worldIn, @NotNull BlockPos pos, @NotNull Entity entityIn) {
-        if (worldIn.isRemote || !(drinks.potion != null && entityIn instanceof LivingEntity)) {
+        if (worldIn.isRemote || !(drinks.getPotion() != null && entityIn instanceof LivingEntity)) {
             return;
         }
         BlockPos sourceDrinkPos = backtraceSource(state, worldIn, pos);
         if (sourceDrinkPos == null) return;
         LivingEntity entityLiving = (LivingEntity) entityIn;
 
-        if (Drinks.addDrunkEffectsToEntity(entityLiving, entityLiving, drinks.potion.get().getEffects(), true)) {
+        if (Drinks.addDrunkEffectsToEntity(entityLiving, entityLiving, drinks.getPotion().getEffects(), true)) {
             worldIn.setBlockState(sourceDrinkPos, Blocks.AIR.getDefaultState());
         }
     }
