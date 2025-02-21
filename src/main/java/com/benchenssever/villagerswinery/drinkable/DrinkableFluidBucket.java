@@ -23,11 +23,11 @@ public class DrinkableFluidBucket extends BucketItem {
 
     @Override
     public void addInformation(@NotNull ItemStack stack, World worldIn, List<ITextComponent> tooltip, @NotNull ITooltipFlag flagIn) {
-        tooltip.add(new TranslationTextComponent("item." + VillagersWineryMod.MODID + "." + drinks.id + ".information"));
+        tooltip.add(drinks.getTooltip());
     }
 
     @Override
-    public ITextComponent getDisplayName(@NotNull ItemStack stack) {
+    public @NotNull ITextComponent getDisplayName(@NotNull ItemStack stack) {
         return new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".bucket", new TranslationTextComponent(this.getFluid().getAttributes().getTranslationKey()));
     }
 }

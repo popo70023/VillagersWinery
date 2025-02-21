@@ -1,5 +1,6 @@
 package com.benchenssever.villagerswinery.item;
 
+import com.benchenssever.villagerswinery.drinkable.IDrinkable;
 import com.benchenssever.villagerswinery.fluid.FluidTransferUtil;
 import com.benchenssever.villagerswinery.fluid.WoodenContainerFluidHandler;
 import net.minecraft.block.Block;
@@ -9,7 +10,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
@@ -33,9 +33,10 @@ public class LiquidBarrelItem extends BlockItem {
         FluidStack fluidStack = WoodenContainerFluidHandler.getFluid(stack);
         if (!fluidStack.isEmpty()) {
             tooltip.add(FluidTransferUtil.addFluidTooltip(fluidStack));
-        }
-        if (stack.getOrCreateTag().contains("Potion")) {
-            PotionUtils.addPotionTooltip(stack, tooltip, 1.0F);
+
+            if (fluidStack.getFluid() instanceof IDrinkable) {
+                tooltip.add(((IDrinkable) fluidStack.getFluid()).getTooltip());
+            }
         }
     }
 
