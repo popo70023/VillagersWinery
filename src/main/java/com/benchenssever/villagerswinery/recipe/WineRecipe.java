@@ -63,22 +63,22 @@ public class WineRecipe implements IFluidStackRecipe {
     }
 
     @Override
-    public @NotNull ItemStack getCraftingResult(@NotNull IInventory inv) {
+    public @NotNull ItemStack assemble(@NotNull IInventory inv) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public boolean canFit(int width, int height) {
+    public boolean canCraftInDimensions(int width, int height) {
         return true;
     }
 
     @Override
-    public @NotNull ItemStack getRecipeOutput() {
+    public @NotNull ItemStack getResultItem() {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public @NotNull ItemStack getIcon() {
+    public @NotNull ItemStack getToastSymbol() {
         return new ItemStack(RegistryEvents.liquidBarrelItem.get());
     }
 }

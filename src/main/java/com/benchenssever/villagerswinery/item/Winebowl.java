@@ -17,8 +17,6 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.UseAction;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.potion.PotionUtils;
-import net.minecraft.potion.Potions;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.*;
 import net.minecraft.util.text.ITextComponent;
@@ -42,12 +40,7 @@ public class Winebowl extends Item {
     }
 
     @Override
-    public @NotNull ItemStack getDefaultInstance() {
-        return PotionUtils.addPotionToItemStack(super.getDefaultInstance(), Potions.WATER);
-    }
-
-    @Override
-    public @NotNull ItemStack onItemUseFinish(@NotNull ItemStack stack, @NotNull World worldIn, @NotNull LivingEntity entityLiving) {
+    public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull World worldIn, @NotNull LivingEntity entityLiving) {
         PlayerEntity playerentity = entityLiving instanceof PlayerEntity ? (PlayerEntity) entityLiving : null;
         if (playerentity instanceof ServerPlayerEntity) {
             CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayerEntity) playerentity, stack);
@@ -55,11 +48,11 @@ public class Winebowl extends Item {
         FluidStack stackFluid = WoodenContainerFluidHandler.getFluid(stack);
 
         if (playerentity != null && stackFluid.getFluid() instanceof IDrinkable && stackFluid.getAmount() >= DEFAULT_CAPACITY) {
-            if (!worldIn.isRemote) {
+            if (!worldIn.isClientSide) {
                 Drinks.onDrinkConsumed(playerentity, (IDrinkable) stackFluid.getFluid());
             }
-            playerentity.addStat(Stats.ITEM_USED.get(this));
-            if (!playerentity.abilities.isCreativeMode) {
+            playerentity.awardStat(Stats.ITEM_USED.get(this));
+            if (!playerentity.abilities.instabuild) {
                 stack = new ItemStack(DrinksRegistry.emptyWinebowl.get());
             }
         }
@@ -73,30 +66,30 @@ public class Winebowl extends Item {
         if (stackFluid instanceof IDrinkable) {
             IDrinkable drink = (IDrinkable) stackFluid;
             if (drink.getFood() != null) {
-                return drink.getFood().isFastEating() ? 16 : 32;
+                return drink.getFood().isFastFood() ? 16 : 32;
             }
         }
         return 0;
     }
 
     @Override
-    public @NotNull UseAction getUseAction(@NotNull ItemStack stack) {
+    public @NotNull UseAction getUseAnimation(@NotNull ItemStack stack) {
         return UseAction.DRINK;
     }
 
     @Override
-    public @NotNull ActionResult<ItemStack> onItemRightClick(@NotNull World worldIn, PlayerEntity playerIn, @NotNull Hand handIn) {
-        ItemStack stack = playerIn.getHeldItem(handIn);
+    public @NotNull ActionResult<ItemStack> use(@NotNull World worldIn, PlayerEntity playerIn, @NotNull Hand handIn) {
+        ItemStack stack = playerIn.getItemInHand(handIn);
         FluidStack stackFluid = WoodenContainerFluidHandler.getFluid(stack);
 
         if (stackFluid.getFluid() instanceof IDrinkable && stackFluid.getAmount() >= DEFAULT_CAPACITY && Drinks.isCanConsumed(playerIn, (IDrinkable) stackFluid.getFluid())) {
-            return DrinkHelper.startDrinking(worldIn, playerIn, handIn);
+            return DrinkHelper.useDrink(worldIn, playerIn, handIn);
         }
-        return ActionResult.resultFail(playerIn.getHeldItem(handIn));
+        return ActionResult.fail(playerIn.getItemInHand(handIn));
     }
 
     @Override
-    public @NotNull ITextComponent getDisplayName(@NotNull ItemStack stack) {
+    public @NotNull ITextComponent getName(@NotNull ItemStack stack) {
         FluidStack fluidStack = WoodenContainerFluidHandler.getFluid(stack);
         if (!fluidStack.isEmpty()) {
             return new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".winebowl", new TranslationTextComponent(fluidStack.getTranslationKey()));
@@ -108,7 +101,7 @@ public class Winebowl extends Item {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void addInformation(@NotNull ItemStack stack, World worldIn, @NotNull List<ITextComponent> tooltip, @NotNull ITooltipFlag flagIn) {
+    public void appendHoverText(@NotNull ItemStack stack, World worldIn, @NotNull List<ITextComponent> tooltip, @NotNull ITooltipFlag flagIn) {
         FluidStack fluidStack = WoodenContainerFluidHandler.getFluid(stack);
         if (!fluidStack.isEmpty()) {
             tooltip.add(new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".winebowl.information", new StringTextComponent(Integer.toString(fluidStack.getAmount()))));
@@ -121,8 +114,8 @@ public class Winebowl extends Item {
 
 
     @Override
-    public void fillItemGroup(@NotNull ItemGroup group, @NotNull NonNullList<ItemStack> items) {
-        if (this.isInGroup(group)) {
+    public void fillItemCategory(@NotNull ItemGroup group, @NotNull NonNullList<ItemStack> items) {
+        if (this.allowdedIn(group)) {
             if (this == DrinksRegistry.winebowl.get()) {
                 for (Drinks drink : DrinksRegistry.drinksCollection) {
                     ItemStack stack = new ItemStack(this);
@@ -137,15 +130,15 @@ public class Winebowl extends Item {
     }
 
     @Override
-    public @NotNull ActionResultType itemInteractionForEntity(@NotNull ItemStack stack, @NotNull PlayerEntity playerIn, LivingEntity entity, @NotNull Hand hand) {
-        if (entity.world.isRemote) return ActionResultType.PASS;
+    public @NotNull ActionResultType interactLivingEntity(@NotNull ItemStack stack, @NotNull PlayerEntity playerIn, LivingEntity entity, @NotNull Hand hand) {
+        if (entity.level.isClientSide) return ActionResultType.PASS;
         if (entity instanceof VillagerEntity) {
             FluidStack fluidInside = WoodenContainerFluidHandler.getFluid(stack);
             if (fluidInside.getFluid() instanceof IDrinkable && fluidInside.getAmount() >= DEFAULT_CAPACITY && Drinks.isCanConsumed(playerIn, (IDrinkable) fluidInside.getFluid())) {
                 Drinks.onDrinkConsumed(playerIn, (IDrinkable) fluidInside.getFluid());
-                playerIn.addStat(Stats.ITEM_USED.get(this));
-                if (!playerIn.abilities.isCreativeMode) {
-                    playerIn.setHeldItem(hand, new ItemStack(DrinksRegistry.emptyWinebowl.get()));
+                playerIn.awardStat(Stats.ITEM_USED.get(this));
+                if (!playerIn.abilities.instabuild) {
+                    playerIn.setItemInHand(hand, new ItemStack(DrinksRegistry.emptyWinebowl.get()));
                 }
                 return ActionResultType.SUCCESS;
             }

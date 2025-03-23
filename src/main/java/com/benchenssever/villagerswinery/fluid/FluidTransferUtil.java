@@ -50,13 +50,13 @@ public class FluidTransferUtil {
     }
 
     public static boolean interactWithBucket(World world, BlockPos pos, PlayerEntity player, Hand hand, Direction hit, Direction offset) {
-        ItemStack held = player.getHeldItem(hand);
+        ItemStack held = player.getItemInHand(hand);
         if (held.getItem() instanceof BucketItem) {
             BucketItem bucket = (BucketItem) held.getItem();
             Fluid fluid = bucket.getFluid();
             if (fluid != Fluids.EMPTY) {
-                if (!world.isRemote) {
-                    TileEntity te = world.getTileEntity(pos);
+                if (!world.isClientSide) {
+                    TileEntity te = world.getBlockEntity(pos);
                     if (te != null) {
                         te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, hit)
                                 .ifPresent(handler -> {
@@ -64,10 +64,10 @@ public class FluidTransferUtil {
                                     // must empty the whole bucket
                                     if (handler.fill(fluidStack, IFluidHandler.FluidAction.SIMULATE) == FluidAttributes.BUCKET_VOLUME) {
                                         handler.fill(fluidStack, IFluidHandler.FluidAction.EXECUTE);
-                                        bucket.onLiquidPlaced(world, held, pos.offset(offset));
+                                        bucket.checkExtraContent(world, held, pos.relative(offset));
                                         world.playSound(null, pos, fluid.getAttributes().getEmptySound(), SoundCategory.BLOCKS, 1.0F, 1.0F);
                                         if (!player.isCreative()) {
-                                            player.setHeldItem(hand, held.getContainerItem());
+                                            player.setItemInHand(hand, held.getContainerItem());
                                         }
                                     }
                                 });
@@ -81,13 +81,13 @@ public class FluidTransferUtil {
 
     public static boolean interactWithFluidItem(World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
         // success if the item is a fluid handler, regardless of if fluid moved
-        ItemStack stack = player.getHeldItem(hand);
-        Direction face = hit.getFace();
+        ItemStack stack = player.getItemInHand(hand);
+        Direction face = hit.getDirection();
         // fetch capability before copying, bit more work when its a fluid handler, but saves copying time when its not
         if (!stack.isEmpty() && stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).isPresent()) {
             // only server needs to transfer stuff
-            if (!world.isRemote) {
-                TileEntity te = world.getTileEntity(pos);
+            if (!world.isClientSide) {
+                TileEntity te = world.getBlockEntity(pos);
                 if (te != null) {
                     LazyOptional<IFluidHandler> teCapability = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, face);
                     if (teCapability.isPresent()) {
@@ -107,7 +107,7 @@ public class FluidTransferUtil {
                             }
                             // if either worked, update the player's inventory
                             if (!transferred.isEmpty()) {
-                                player.setHeldItem(hand, DrinkHelper.fill(stack, player, itemHandler.getContainer()));
+                                player.setItemInHand(hand, DrinkHelper.createFilledResult(stack, player, itemHandler.getContainer()));
                             }
                         });
                     }
@@ -120,7 +120,7 @@ public class FluidTransferUtil {
 
     public static boolean interactWithTank(World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
         return interactWithFluidItem(world, pos, player, hand, hit)
-                || interactWithBucket(world, pos, player, hand, hit.getFace(), hit.getFace());
+                || interactWithBucket(world, pos, player, hand, hit.getDirection(), hit.getDirection());
     }
 
     public static boolean isInteractableWithFluidStack(ItemStack held) {
@@ -139,9 +139,9 @@ public class FluidTransferUtil {
     }
 
     public static FluidStack getFluidStackFromJson(JsonObject json) {
-        String fluidName = JSONUtils.getString(json, "fluid");
+        String fluidName = JSONUtils.getAsString(json, "fluid");
         Fluid fluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(fluidName));
         if (fluid == null) throw new JsonSyntaxException("Unknown fluid '" + fluidName + "'");
-        return new FluidStack(fluid, JSONUtils.getInt(json, "amount", 1000));
+        return new FluidStack(fluid, JSONUtils.getAsInt(json, "amount", 1000));
     }
 }

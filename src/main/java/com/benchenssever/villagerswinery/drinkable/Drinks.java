@@ -52,9 +52,9 @@ public class Drinks {
                         fluid,
                         new Item
                                 .Properties()
-                                .group(builder.group)
-                                .containerItem(BUCKET)
-                                .maxStackSize(1),
+                                .tab(builder.group)
+                                .craftRemainder(BUCKET)
+                                .stacksTo(1),
                         this
                 )
         );
@@ -64,9 +64,9 @@ public class Drinks {
                 () -> new DrinkableFluidBlock(
                         fluid,
                         Block.Properties
-                                .create(Material.WATER)
-                                .doesNotBlockMovement()
-                                .hardnessAndResistance(100.0F)
+                                .of(Material.WATER)
+                                .noCollission()
+                                .strength(100.0F)
                                 .noDrops(),
                         this
                 )
@@ -94,7 +94,7 @@ public class Drinks {
                         .color(color)
                         .density(4000)
                         .viscosity(4000)
-                        .sound(SoundEvents.ITEM_BUCKET_FILL, SoundEvents.ITEM_BUCKET_EMPTY))
+                        .sound(SoundEvents.BUCKET_FILL, SoundEvents.BUCKET_EMPTY))
                 .bucket(bucket)
                 .block(block)
                 .slopeFindDistance(3)
@@ -102,12 +102,11 @@ public class Drinks {
     }
 
     public static boolean isCanConsumed(LivingEntity entityLivingBaseIn, IDrinkable drinkable) {
-        EffectInstance drunkEffect = entityLivingBaseIn.getActivePotionEffect(DrinksRegistry.drunk.get());
+        EffectInstance drunkEffect = entityLivingBaseIn.getEffect(DrinksRegistry.drunk.get());
         Food drinkFood = drinkable.getFood();
-        //TODO: 時間限制要記得改回來
         if (drinkFood != null && (drunkEffect == null || drunkEffect.getDuration() > 0)) {
             if (entityLivingBaseIn instanceof PlayerEntity) {
-                return ((PlayerEntity) entityLivingBaseIn).getFoodStats().needFood() || drinkFood.canEatWhenFull();
+                return ((PlayerEntity) entityLivingBaseIn).getFoodData().needsFood() || drinkFood.canAlwaysEat();
             }
             return true;
         }
@@ -115,7 +114,8 @@ public class Drinks {
     }
 
     public static void onDrinkConsumed(LivingEntity entityLivingBaseIn, IDrinkable drinkable) {
-        EffectInstance drunkEffect = entityLivingBaseIn.getActivePotionEffect(DrinksRegistry.drunk.get());
+        EffectInstance drunkEffect = entityLivingBaseIn.getEffect(DrinksRegistry.drunk.get());
+        //TODO: 時間限制要記得改回來
         int time = 0;
         if (drunkEffect != null) {
             time += drunkEffect.getDuration();
@@ -123,20 +123,20 @@ public class Drinks {
         Food drinkFood = drinkable.getFood();
         if (drinkFood == null) return;
         if (entityLivingBaseIn instanceof PlayerEntity) {
-            ((PlayerEntity) entityLivingBaseIn).getFoodStats().addStats(drinkFood.getHealing(), drinkFood.getSaturation());
+            ((PlayerEntity) entityLivingBaseIn).getFoodData().eat(drinkFood.getNutrition(), drinkFood.getSaturationModifier());
         }
         applyDrinkFoodEffects(entityLivingBaseIn, drinkFood, time);
     }
 
     public static void applyDrinkFoodEffects(LivingEntity entityIn, Food food, int time) {
-        World worldIn = entityIn.getEntityWorld();
+        World worldIn = entityIn.getCommandSenderWorld();
         for (Pair<EffectInstance, Float> pair : food.getEffects()) {
-            if (!worldIn.isRemote && pair.getFirst() != null && worldIn.rand.nextFloat() < pair.getSecond()) {
+            if (!worldIn.isClientSide && pair.getFirst() != null && worldIn.random.nextFloat() < pair.getSecond()) {
                 EffectInstance effectinstance = pair.getFirst();
-                if (effectinstance.getPotion() == DrinksRegistry.drunk.get()) {
-                    entityIn.addPotionEffect(new EffectInstance(effectinstance.getPotion(), time + effectinstance.getDuration()));
+                if (effectinstance.getEffect() == DrinksRegistry.drunk.get()) {
+                    entityIn.addEffect(new EffectInstance(effectinstance.getEffect(), time + effectinstance.getDuration()));
                 } else {
-                    entityIn.addPotionEffect(new EffectInstance(effectinstance));
+                    entityIn.addEffect(new EffectInstance(effectinstance));
                 }
             }
         }

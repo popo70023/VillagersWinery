@@ -53,8 +53,8 @@ public class WineBowlBackedModel implements IBakedModel {
 
 
     @Override
-    public boolean isAmbientOcclusion() {
-        return existingModel.isAmbientOcclusion();
+    public boolean useAmbientOcclusion() {
+        return existingModel.useAmbientOcclusion();
     }
 
     @Override
@@ -63,23 +63,23 @@ public class WineBowlBackedModel implements IBakedModel {
     }
 
     @Override
-    public boolean isSideLit() {
-        return existingModel.isSideLit();
+    public boolean usesBlockLight() {
+        return existingModel.usesBlockLight();
     }
 
     @Override
-    public boolean isBuiltInRenderer() {
-        return existingModel.isBuiltInRenderer();
+    public boolean isCustomRenderer() {
+        return existingModel.isCustomRenderer();
     }
 
     @Override
-    public @NotNull TextureAtlasSprite getParticleTexture() {
-        return existingModel.getParticleTexture();
+    public @NotNull TextureAtlasSprite getParticleIcon() {
+        return existingModel.getParticleIcon();
     }
 
     @Override
-    public @NotNull ItemCameraTransforms getItemCameraTransforms() {
-        return existingModel.getItemCameraTransforms();
+    public @NotNull ItemCameraTransforms getTransforms() {
+        return existingModel.getTransforms();
     }
 
     @Override
@@ -89,7 +89,7 @@ public class WineBowlBackedModel implements IBakedModel {
             private WineBowlBackedModel cachedModel;
 
             @Override
-            public IBakedModel getOverrideModel(@NotNull IBakedModel model, @NotNull ItemStack stack, ClientWorld world, LivingEntity livingEntity) {
+            public IBakedModel resolve(@NotNull IBakedModel model, @NotNull ItemStack stack, ClientWorld world, LivingEntity livingEntity) {
                 FluidStack fluidStack = WoodenContainerFluidHandler.getFluid(stack);
                 if (cachedModel == null || !cachedModel.fluidStack.equals(fluidStack)) {
                     cachedModel = new WineBowlBackedModel(model, fluidStack);
@@ -168,7 +168,7 @@ public class WineBowlBackedModel implements IBakedModel {
         int blue = color & 0xFF;
 
         for (int i = 0; i < 4; ++i) {
-            bakedQuad.getVertexData()[i * 8 + 3] = alpha << 24 | blue << 16 | green << 8 | red;
+            bakedQuad.getVertices()[i * 8 + 3] = alpha << 24 | blue << 16 | green << 8 | red;
         }
         return bakedQuad;
     }

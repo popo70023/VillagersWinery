@@ -73,7 +73,7 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
 
         }
 
-        public int size() {
+        public int getCount() {
             return 3;
         }
     };
@@ -83,8 +83,8 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
     }
 
     @Override
-    public void read(@NotNull BlockState state, @NotNull CompoundNBT nbt) {
-        super.read(state, nbt);
+    public void load(@NotNull BlockState state, @NotNull CompoundNBT nbt) {
+        super.load(state, nbt);
         if (nbt.contains(FluidHandlerItemStack.FLUID_NBT_KEY, Constants.NBT.TAG_COMPOUND)) {
             tank.readFromNBT(nbt.getCompound(FluidHandlerItemStack.FLUID_NBT_KEY));
         }
@@ -92,7 +92,7 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
         winemakingTimeTotal = nbt.getInt("WinemakingTimeTotal");
         winemakingStatus = nbt.getInt("WinemakingStatus");
         if (nbt.contains("CustomName", Constants.NBT.TAG_STRING)) {
-            customName = ITextComponent.Serializer.getComponentFromJson(nbt.getString("CustomName"));
+            customName = ITextComponent.Serializer.fromJson(nbt.getString("CustomName"));
         }
     }
 
@@ -103,8 +103,8 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
     }
 
     @Override
-    public @NotNull CompoundNBT write(@NotNull CompoundNBT compound) {
-        compound = super.write(compound);
+    public @NotNull CompoundNBT save(@NotNull CompoundNBT compound) {
+        compound = super.save(compound);
         compound.put(FluidHandlerItemStack.FLUID_NBT_KEY, tank.writeToNBT(new CompoundNBT()));
         compound.putInt("WinemakingTime", winemakingTime);
         compound.putInt("WinemakingTimeTotal", winemakingTimeTotal);
@@ -117,7 +117,7 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
 
     @Override
     public void tick() {
-        if (!world.isRemote) {
+        if (!level.isClientSide) {
             if (winemakingStatus == 1 && winemakingRecipe == null) {
                 winemakingRecipe = getRecipe();
                 winemakingStatus = 0;
@@ -137,11 +137,11 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
     }
 
     private void markDirtyAndUpdate() {
-        markDirty();
+        setChanged();
         syncToClient();
         winemakingStatus = 0;
         winemakingTime = 0;
-        if (winemakingRecipe == null || !winemakingRecipe.matches(getTank().getFluid(), world)) {
+        if (winemakingRecipe == null || !winemakingRecipe.matches(getTank().getFluid(), level)) {
             winemakingTimeTotal = 0;
             refreshRecipe();
         }
@@ -152,9 +152,9 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
     }
 
     private WineRecipe getRecipe() {
-        return world.getRecipeManager().getRecipes(RegistryEvents.wineRecipe, new Inventory(), world)
+        return level.getRecipeManager().getRecipesFor(RegistryEvents.wineRecipe, new Inventory(), level)
                 .stream()
-                .filter(recipe -> recipe.matches(getTank().getFluid(), world))
+                .filter(recipe -> recipe.matches(getTank().getFluid(), level))
                 .findFirst()
                 .orElse(null);
     }
@@ -181,7 +181,7 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
 
     @Override
     public @NotNull ITextComponent getName() {
-        return customName != null ? customName : getBlockState().getBlock().getTranslatedName();
+        return customName != null ? customName : getBlockState().getBlock().getName();
     }
 
     @Override
@@ -208,14 +208,14 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
     }
 
     public void syncToClient() {
-        if (world == null || world.isRemote) return;
+        if (level == null || level.isClientSide) return;
         NetworkHandler.INSTANCE.send(
-                PacketDistributor.TRACKING_CHUNK.with(() -> world.getChunkAt(getPos())),
+                PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(getBlockPos())),
                 new SyncLiquidBarrelPacket(getTank().getFluid(), getWorldAndPos())
         );
     }
 
     public String getWorldAndPos() {
-        return world.getDimensionKey().getLocation() + ":" + getPos();
+        return level.dimension().location() + ":" + getBlockPos();
     }
 }

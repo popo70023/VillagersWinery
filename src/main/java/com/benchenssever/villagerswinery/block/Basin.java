@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 public class Basin extends Block {
     public static final AxisAlignedBB INSIDE_AABB = new AxisAlignedBB(2.0 / 16.0, 4.0 / 16.0, 2.0 / 16.0, 14.0 / 16.0, 14.0 / 16.0, 14.0 / 16.0);
     private static final VoxelShape INSIDE = VoxelShapes.create(INSIDE_AABB);
-    protected static final VoxelShape SHAPE = VoxelShapes.combineAndSimplify(makeCuboidShape(0, 0, 0, 16, 14, 16), VoxelShapes.or(INSIDE, makeCuboidShape(2, 0, 0, 14, 2, 16), makeCuboidShape(0, 0, 2, 16, 2, 14)), IBooleanFunction.ONLY_FIRST);
+    protected static final VoxelShape SHAPE = VoxelShapes.join(box(0, 0, 0, 16, 14, 16), VoxelShapes.or(INSIDE, box(2, 0, 0, 14, 2, 16), box(0, 0, 2, 16, 2, 14)), IBooleanFunction.ONLY_FIRST);
 
     public Basin(Properties properties) {
         super(properties);
@@ -45,10 +45,10 @@ public class Basin extends Block {
     }
 
     @Override
-    public @NotNull ActionResultType onBlockActivated(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos, @NotNull PlayerEntity player, @NotNull Hand handIn, @NotNull BlockRayTraceResult hit) {
-        if (INSIDE_AABB.contains(hit.getHitVec().subtract(pos.getX(), pos.getY(), pos.getZ()))) {
+    public @NotNull ActionResultType use(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos, @NotNull PlayerEntity player, @NotNull Hand handIn, @NotNull BlockRayTraceResult hit) {
+        if (INSIDE_AABB.contains(hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))) {
             if (!FluidTransferUtil.interactWithTank(worldIn, pos, player, handIn, hit)) {
-                if (!worldIn.isRemote) {
+                if (!worldIn.isClientSide) {
                     insertOrRextractItem(worldIn, pos, player, handIn);
                 }
             }
@@ -58,20 +58,20 @@ public class Basin extends Block {
     }
 
     private boolean insertOrRextractItem(World world, BlockPos pos, PlayerEntity player, Hand handIn) {
-        ItemStack heldItem = player.getHeldItem(handIn);
-        TileEntity tile = world.getTileEntity(pos);
+        ItemStack heldItem = player.getItemInHand(handIn);
+        TileEntity tile = world.getBlockEntity(pos);
         if (tile instanceof BasinTileEntity) {
             BasinTileEntity basin = (BasinTileEntity) tile;
 
             if (!heldItem.isEmpty() && basin.isItemCanInsert(heldItem)) {
                 ItemStack remaining = basin.insertItem(heldItem);
-                player.setHeldItem(handIn, remaining);
+                player.setItemInHand(handIn, remaining);
                 return true;
             }
 
             if (heldItem.isEmpty() && !basin.isItemEmpty()) {
                 ItemStack remaining = basin.extractItem(64);
-                player.setHeldItem(handIn, remaining);
+                player.setItemInHand(handIn, remaining);
                 return true;
             }
         }
@@ -79,49 +79,49 @@ public class Basin extends Block {
     }
 
     @Override
-    public void onEntityWalk(@NotNull World worldIn, @NotNull BlockPos pos, @NotNull Entity entityIn) {
-        if (!worldIn.isRemote && (entityIn instanceof PlayerEntity || entityIn instanceof VillagerEntity)) {
+    public void stepOn(@NotNull World worldIn, @NotNull BlockPos pos, @NotNull Entity entityIn) {
+        if (!worldIn.isClientSide && (entityIn instanceof PlayerEntity || entityIn instanceof VillagerEntity)) {
             Vector3d bottomCenter = getEntityBottomCenter(entityIn, pos);
             if (INSIDE_AABB.contains(bottomCenter)) {
-                TileEntity tile = worldIn.getTileEntity(pos);
+                TileEntity tile = worldIn.getBlockEntity(pos);
                 if (tile instanceof BasinTileEntity) {
                     BasinTileEntity basin = (BasinTileEntity) tile;
                     basin.basinWalk(entityIn);
                 }
             }
         }
-        super.onEntityWalk(worldIn, pos, entityIn);
+        super.stepOn(worldIn, pos, entityIn);
     }
 
     @Override
-    public void onFallenUpon(@NotNull World worldIn, @NotNull BlockPos pos, @NotNull Entity entityIn, float fallDistance) {
+    public void fallOn(@NotNull World worldIn, @NotNull BlockPos pos, @NotNull Entity entityIn, float fallDistance) {
 
-        if (!worldIn.isRemote && entityIn instanceof LivingEntity) {
+        if (!worldIn.isClientSide && entityIn instanceof LivingEntity) {
             Vector3d bottomCenter = getEntityBottomCenter(entityIn, pos);
             if (INSIDE_AABB.contains(bottomCenter)) {
-                TileEntity tile = worldIn.getTileEntity(pos);
+                TileEntity tile = worldIn.getBlockEntity(pos);
                 if (tile instanceof BasinTileEntity) {
                     BasinTileEntity basin = (BasinTileEntity) tile;
                     basin.basinCrush();
                 }
             }
         }
-        super.onFallenUpon(worldIn, pos, entityIn, fallDistance);
+        super.fallOn(worldIn, pos, entityIn, fallDistance);
     }
 
     @Override
-    public void onReplaced(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos, @NotNull BlockState newState, boolean isMoving) {
-        if (!worldIn.isRemote && !state.matchesBlock(newState.getBlock())) {
-            TileEntity tileentity = worldIn.getTileEntity(pos);
+    public void onRemove(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos, @NotNull BlockState newState, boolean isMoving) {
+        if (!worldIn.isClientSide && !state.is(newState.getBlock())) {
+            TileEntity tileentity = worldIn.getBlockEntity(pos);
             if (tileentity instanceof BasinTileEntity) {
                 BasinTileEntity basin = (BasinTileEntity) tileentity;
                 for (int i = 0; i < basin.getInventorySize(); i++) {
-                    InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), basin.getItemStack(i));
+                    InventoryHelper.dropItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), basin.getItemStack(i));
                 }
-                worldIn.removeTileEntity(pos);
+                worldIn.removeBlockEntity(pos);
             }
         }
-        super.onReplaced(state, worldIn, pos, newState, isMoving);
+        super.onRemove(state, worldIn, pos, newState, isMoving);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class Basin extends Block {
 
     private static Vector3d getEntityBottomCenter(Entity entityIn, BlockPos pos) {
         AxisAlignedBB boundingBox = entityIn.getBoundingBox();
-        Vector3d entitylocal = entityIn.getPositionVec();
-        return new Vector3d(entitylocal.getX() - pos.getX(), boundingBox.minY - pos.getY(), entitylocal.getZ() - pos.getZ());
+        Vector3d entitylocal = entityIn.position();
+        return new Vector3d(entitylocal.x() - pos.getX(), boundingBox.minY - pos.getY(), entitylocal.z() - pos.getZ());
     }
 }

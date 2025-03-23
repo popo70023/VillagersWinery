@@ -29,16 +29,16 @@ public abstract class DrinkableFluid extends ForgeFlowingFluid implements IDrink
     public static class Flowing extends DrinkableFluid {
         public Flowing(Properties properties, Drinks drinks) {
             super(properties, drinks);
-            setDefaultState(getStateContainer().getBaseState().with(LEVEL_1_8, 7));
+            registerDefaultState(getStateDefinition().any().setValue(LEVEL, 7));
         }
 
-        protected void fillStateContainer(StateContainer.@NotNull Builder<Fluid, FluidState> builder) {
-            super.fillStateContainer(builder);
-            builder.add(LEVEL_1_8);
+        protected void createFluidStateDefinition(StateContainer.@NotNull Builder<Fluid, FluidState> builder) {
+            super.createFluidStateDefinition(builder);
+            builder.add(LEVEL);
         }
 
-        public int getLevel(FluidState state) {
-            return state.get(LEVEL_1_8);
+        public int getAmount(FluidState state) {
+            return state.getValue(LEVEL);
         }
 
         public boolean isSource(@NotNull FluidState state) {
@@ -51,7 +51,7 @@ public abstract class DrinkableFluid extends ForgeFlowingFluid implements IDrink
             super(properties, drinks);
         }
 
-        public int getLevel(@NotNull FluidState state) {
+        public int getAmount(@NotNull FluidState state) {
             return 8;
         }
 

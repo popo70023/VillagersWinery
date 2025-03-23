@@ -23,8 +23,8 @@ public class DrinkableFluidBlock extends FlowingFluidBlock {
     }
 
     @Override
-    public void onEntityCollision(@NotNull BlockState state, World worldIn, @NotNull BlockPos pos, @NotNull Entity entityIn) {
-        if (worldIn.isRemote || !(drinks.getFood() != null && entityIn instanceof LivingEntity)) {
+    public void entityInside(@NotNull BlockState state, World worldIn, @NotNull BlockPos pos, @NotNull Entity entityIn) {
+        if (worldIn.isClientSide || !(drinks.getFood() != null && entityIn instanceof LivingEntity)) {
             return;
         }
         BlockPos sourceDrinkPos = backtraceSource(state, worldIn, pos);
@@ -33,7 +33,7 @@ public class DrinkableFluidBlock extends FlowingFluidBlock {
 
         if (Drinks.isCanConsumed(entityLiving, (IDrinkable) drinks.getFluid())) {
             Drinks.onDrinkConsumed(entityLiving, (IDrinkable) drinks.getFluid());
-            worldIn.setBlockState(sourceDrinkPos, Blocks.AIR.getDefaultState());
+            worldIn.setBlockAndUpdate(sourceDrinkPos, Blocks.AIR.defaultBlockState());
         }
     }
 
@@ -44,7 +44,7 @@ public class DrinkableFluidBlock extends FlowingFluidBlock {
         while (true) {
             BlockPos lastPos = pos;
             for (Direction direction : searchOrder) {
-                BlockPos offset = pos.offset(direction);
+                BlockPos offset = pos.relative(direction);
                 BlockState nextBlockState = worldIn.getBlockState(offset);
                 if (nextBlockState.getBlock() == this) {
                     if (nextBlockState.getFluidState().isSource()) {
@@ -55,7 +55,7 @@ public class DrinkableFluidBlock extends FlowingFluidBlock {
                         pos = offset;
                         break;
                     }
-                    if (nextBlockState.getFluidState().getLevel() > current.getFluidState().getLevel()) {
+                    if (nextBlockState.getFluidState().getAmount() > current.getFluidState().getAmount()) {
                         current = nextBlockState;
                         pos = offset;
                         break;

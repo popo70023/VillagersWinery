@@ -18,7 +18,7 @@ public class LiquidBarrelContainer extends Container {
     private final IIntArray liquidBarrelData;
 
     public LiquidBarrelContainer(int id, PlayerInventory playerinventory, PacketBuffer data) {
-        this(id, playerinventory, FluidStack.readFromPacket(data), data.readString(32767), new IntArray(3));
+        this(id, playerinventory, FluidStack.readFromPacket(data), data.readUtf(32767), new IntArray(3));
     }
 
     public LiquidBarrelContainer(int id, PlayerInventory playerinventory, FluidStack fluidStack, String worldAndPos, IIntArray liquidBarrelData) {
@@ -27,7 +27,7 @@ public class LiquidBarrelContainer extends Container {
         this.worldAndPos = worldAndPos;
         this.fluidStack = fluidStack;
         this.liquidBarrelData = liquidBarrelData;
-        trackIntArray(liquidBarrelData);
+        addDataSlots(liquidBarrelData);
         this.fluidSlot = new FluidSlot(81, 20, 21, 32);
         layoutPlayerInventorySlots(playerinventory, 8, 84);
     }
@@ -61,7 +61,7 @@ public class LiquidBarrelContainer extends Container {
     }
 
     @Override
-    public boolean canInteractWith(PlayerEntity playerIn) {
+    public boolean stillValid(PlayerEntity playerIn) {
         return true;
     }
 

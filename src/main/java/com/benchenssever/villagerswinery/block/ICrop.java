@@ -13,21 +13,21 @@ import java.util.Random;
 
 public interface ICrop {
     static boolean isDirtGround(BlockState state) {
-        return state.matchesBlock(Blocks.GRASS_BLOCK) || state.matchesBlock(Blocks.DIRT) || state.matchesBlock(Blocks.COARSE_DIRT) || state.matchesBlock(Blocks.PODZOL) || state.matchesBlock(Blocks.FARMLAND);
+        return state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.DIRT) || state.is(Blocks.COARSE_DIRT) || state.is(Blocks.PODZOL) || state.is(Blocks.FARMLAND);
     }
 
     IntegerProperty getAgeProperty();
 
     default int getAge(BlockState state) {
-        return state.get(this.getAgeProperty());
+        return state.getValue(this.getAgeProperty());
     }
 
     default int getMaxAge() {
-        return this.getAgeProperty().getAllowedValues().size() - 1;
+        return this.getAgeProperty().getPossibleValues().size() - 1;
     }
 
     default BlockState withAge(BlockState state, int age) {
-        return state.with(this.getAgeProperty(), age);
+        return state.setValue(this.getAgeProperty(), age);
     }
 
     default boolean isMaxAge(BlockState state) {
@@ -39,12 +39,12 @@ public interface ICrop {
     default void growth(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
         if (!worldIn.isAreaLoaded(pos, 1))
             return;
-        if (worldIn.getLightSubtracted(pos, 0) >= 9) {
+        if (worldIn.getRawBrightness(pos, 0) >= 9) {
             int i = this.getAge(state);
             if (i < this.getMaxAge()) {
                 float f = this.getGrowthChance((Block) this, worldIn, pos);
                 if (net.minecraftforge.common.ForgeHooks.onCropsGrowPre(worldIn, pos, state, random.nextInt((int) (25.0F / f) + 1) == 0)) {
-                    worldIn.setBlockState(pos, this.withAge(state, i + 1), 2);
+                    worldIn.setBlock(pos, this.withAge(state, i + 1), 2);
                     net.minecraftforge.common.ForgeHooks.onCropsGrowPost(worldIn, pos, state);
                 }
             }

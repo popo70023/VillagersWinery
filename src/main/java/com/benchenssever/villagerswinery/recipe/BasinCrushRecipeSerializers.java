@@ -19,24 +19,24 @@ public class BasinCrushRecipeSerializers<T extends BasinCrushRecipe> extends For
     }
 
     @Override
-    public @NotNull T read(@NotNull ResourceLocation recipeId, @NotNull JsonObject json) {
-        Ingredient input = Ingredient.deserialize(JSONUtils.getJsonObject(json, "ingredient"));
+    public @NotNull T fromJson(@NotNull ResourceLocation recipeId, @NotNull JsonObject json) {
+        Ingredient input = Ingredient.fromJson(JSONUtils.getAsJsonObject(json, "ingredient"));
         FluidStack output = FluidTransferUtil.getFluidStackFromJson(json.getAsJsonObject("output"));
         int crushTime = json.get("crushtime").getAsInt();
         return factory.create(recipeId, input, output, crushTime);
     }
 
     @Override
-    public T read(@NotNull ResourceLocation recipeId, @NotNull PacketBuffer buffer) {
-        Ingredient input = Ingredient.read(buffer);
+    public T fromNetwork(@NotNull ResourceLocation recipeId, @NotNull PacketBuffer buffer) {
+        Ingredient input = Ingredient.fromNetwork(buffer);
         FluidStack output = buffer.readFluidStack();
         int crushTime = buffer.readInt();
         return factory.create(recipeId, input, output, crushTime);
     }
 
     @Override
-    public void write(@NotNull PacketBuffer buffer, T recipe) {
-        recipe.input.write(buffer);
+    public void toNetwork(@NotNull PacketBuffer buffer, T recipe) {
+        recipe.input.toNetwork(buffer);
         buffer.writeFluidStack(recipe.getFluidRecipeOutput());
         buffer.writeInt(recipe.getCrushTime());
     }

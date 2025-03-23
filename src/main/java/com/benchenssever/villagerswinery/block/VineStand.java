@@ -56,38 +56,38 @@ public class VineStand extends Stand implements IOnStand, IForgeShearable {
     }
 
     @Override
-    public @NotNull ActionResultType onBlockActivated(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos, PlayerEntity player, @NotNull Hand handIn, @NotNull BlockRayTraceResult hit) {
-        ItemStack stack = player.getHeldItem(handIn);
-        if (ItemTags.getCollection().get(new ResourceLocation("forge", "shears")).contains(stack.getItem()) && this.isShearable(stack, worldIn, pos)) {
-            worldIn.playSound(player, pos, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.PLAYERS, 1.0F, 1.0F);
-            if (!worldIn.isRemote()) {
+    public @NotNull ActionResultType use(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos, PlayerEntity player, @NotNull Hand handIn, @NotNull BlockRayTraceResult hit) {
+        ItemStack stack = player.getItemInHand(handIn);
+        if (ItemTags.getAllTags().getTag(new ResourceLocation("forge", "shears")).contains(stack.getItem()) && this.isShearable(stack, worldIn, pos)) {
+            worldIn.playSound(player, pos, SoundEvents.SHEEP_SHEAR, SoundCategory.PLAYERS, 1.0F, 1.0F);
+            if (!worldIn.isClientSide()) {
                 List<ItemStack> drops = onSheared(player, stack, worldIn, pos, 0);
                 for (ItemStack drop : drops) {
-                    InventoryHelper.spawnItemStack(worldIn, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, drop);
+                    InventoryHelper.dropItemStack(worldIn, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, drop);
                 }
-                worldIn.setBlockState(pos, this.getStand().getDefaultState(), 2);
-                if (!player.abilities.isCreativeMode) {
-                    stack.damageItem(1, player, (p) -> p.sendBreakAnimation(handIn));
+                worldIn.setBlock(pos, this.getStand().defaultBlockState(), 2);
+                if (!player.abilities.instabuild) {
+                    stack.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(handIn));
                 }
             }
             return ActionResultType.SUCCESS;
         }
-        return super.onBlockActivated(state, worldIn, pos, player, handIn, hit);
+        return super.use(state, worldIn, pos, player, handIn, hit);
     }
 
     @Override
     public void randomTick(@NotNull BlockState state, @NotNull ServerWorld worldIn, @NotNull BlockPos pos, @NotNull Random random) {
         super.randomTick(state, worldIn, pos, random);
-        if (worldIn.rand.nextInt(4) == 0 && worldIn.isAreaLoaded(pos, 4)) {
-            BlockPos growPos = pos.offset(Direction.getRandomDirection(random));
-            if (worldIn.getBlockState(growPos).getBlock().matchesBlock(this.getStand())) {
-                worldIn.setBlockState(growPos, this.getDefaultState(), 2);
+        if (worldIn.random.nextInt(4) == 0 && worldIn.isAreaLoaded(pos, 4)) {
+            BlockPos growPos = pos.relative(Direction.getRandom(random));
+            if (worldIn.getBlockState(growPos).getBlock().is(this.getStand())) {
+                worldIn.setBlock(growPos, this.defaultBlockState(), 2);
             }
         }
     }
 
     @Override
-    public @NotNull ItemStack getItem(@NotNull IBlockReader worldIn, @NotNull BlockPos pos, @NotNull BlockState state) {
+    public @NotNull ItemStack getCloneItemStack(@NotNull IBlockReader worldIn, @NotNull BlockPos pos, @NotNull BlockState state) {
         return new ItemStack(this.getVineItem());
     }
 
@@ -98,11 +98,11 @@ public class VineStand extends Stand implements IOnStand, IForgeShearable {
 
     @Override
     public boolean putOnStand(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, ItemStack stack) {
-        if (ICrop.isDirtGround(worldIn.getBlockState(pos.down()))) {
-            worldIn.playSound(player, pos, this.getSoundType(this.getDefaultState(), worldIn, pos, player).getPlaceSound(), SoundCategory.PLAYERS, 1.0F, 1.0F);
-            if (!worldIn.isRemote()) {
-                worldIn.setBlockState(pos, this.getDefaultState(), 2);
-                if (!player.abilities.isCreativeMode) {
+        if (ICrop.isDirtGround(worldIn.getBlockState(pos.below()))) {
+            worldIn.playSound(player, pos, this.getSoundType(this.defaultBlockState(), worldIn, pos, player).getPlaceSound(), SoundCategory.PLAYERS, 1.0F, 1.0F);
+            if (!worldIn.isClientSide()) {
+                worldIn.setBlock(pos, this.defaultBlockState(), 2);
+                if (!player.abilities.instabuild) {
                     stack.shrink(1);
                 }
             }

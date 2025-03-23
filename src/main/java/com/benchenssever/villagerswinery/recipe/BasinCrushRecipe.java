@@ -61,26 +61,26 @@ public class BasinCrushRecipe implements IFluidStackRecipe {
 
     @Override
     public boolean matches(IInventory inv, @NotNull World worldIn) {
-        return input.test(inv.getStackInSlot(0));
+        return input.test(inv.getItem(0));
     }
 
     @Override
-    public @NotNull ItemStack getCraftingResult(@NotNull IInventory inv) {
+    public @NotNull ItemStack assemble(@NotNull IInventory inv) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public boolean canFit(int width, int height) {
+    public boolean canCraftInDimensions(int width, int height) {
         return true;
     }
 
     @Override
-    public @NotNull ItemStack getRecipeOutput() {
+    public @NotNull ItemStack getResultItem() {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public @NotNull ItemStack getIcon() {
+    public @NotNull ItemStack getToastSymbol() {
         return new ItemStack(RegistryEvents.basinItem.get());
     }
 

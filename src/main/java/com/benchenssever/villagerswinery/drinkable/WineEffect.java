@@ -24,25 +24,25 @@ public class WineEffect extends Effect {
     }
 
     @Override
-    public void performEffect(@NotNull LivingEntity entityLivingBaseIn, int amplifier) {
+    public void applyEffectTick(@NotNull LivingEntity entityLivingBaseIn, int amplifier) {
     }
 
     @Override
-    public void affectEntity(Entity source, Entity indirectSource, @NotNull LivingEntity entityLivingBaseIn, int amplifier, double health) {
+    public void applyInstantenousEffect(Entity source, Entity indirectSource, @NotNull LivingEntity entityLivingBaseIn, int amplifier, double health) {
         if (entityLivingBaseIn instanceof VillagerEntity) {
             VillagerEntity villager = (VillagerEntity) entityLivingBaseIn;
 
             if (this == DrinksRegistry.getIMerchantXp.get()) {
-                int newXp = villager.getXp() + 1 + amplifier;
-                villager.setXP(newXp);
+                int newXp = villager.getVillagerXp() + 1 + amplifier;
+                villager.setVillagerXp(newXp);
 
-                LOGGER.debug("Villager XP updated: {}, Level: {}", villager.getXp(), villager.getVillagerData().getLevel());
+                LOGGER.debug("Villager XP updated: {}, Level: {}", villager.getVillagerXp(), villager.getVillagerData().getLevel());
             }
         }
     }
 
     @Override
-    public boolean isInstant() {
+    public boolean isInstantenous() {
         return this.instant;
     }
 }

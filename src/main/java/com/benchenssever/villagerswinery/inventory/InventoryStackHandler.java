@@ -12,7 +12,7 @@ public class InventoryStackHandler extends ItemStackHandler implements IInventor
     }
 
     @Override
-    public int getSizeInventory() {
+    public int getContainerSize() {
         return getSlots();
     }
 
@@ -27,35 +27,40 @@ public class InventoryStackHandler extends ItemStackHandler implements IInventor
     }
 
     @Override
-    public @NotNull ItemStack decrStackSize(int index, int count) {
+    public @NotNull ItemStack getItem(int pIndex) {
+        return getStackInSlot(pIndex);
+    }
+
+    @Override
+    public @NotNull ItemStack removeItem(int index, int count) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public @NotNull ItemStack removeStackFromSlot(int index) {
+    public @NotNull ItemStack removeItemNoUpdate(int index) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public void setInventorySlotContents(int index, @NotNull ItemStack stack) {
+    public void setItem(int index, @NotNull ItemStack stack) {
     }
 
     @Override
     protected void onContentsChanged(int slot) {
         super.onContentsChanged(slot);
-        markDirty();
+        setChanged();
     }
 
     @Override
-    public void markDirty() {
+    public void setChanged() {
     }
 
     @Override
-    public boolean isUsableByPlayer(@NotNull PlayerEntity player) {
+    public boolean stillValid(@NotNull PlayerEntity player) {
         return true;
     }
 
     @Override
-    public void clear() {
+    public void clearContent() {
     }
 }

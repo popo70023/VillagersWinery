@@ -46,22 +46,22 @@ public class RegistryEvents {
     public static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, MODID);
     public static final DeferredRegister<IRecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
 
-    public static final RegistryObject<Item> liquidBarrelItem = ITEMS.register("liquid_barrel", () -> new LiquidBarrelItem(RegistryEvents.liquidBarrelBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup).maxStackSize(1)));
-    public static final RegistryObject<Item> basinItem = ITEMS.register("basin", () -> new BlockItem(RegistryEvents.basinBlock.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
-    public static final RegistryObject<Item> standItem = ITEMS.register("stand", () -> new BlockNamedItem(RegistryEvents.stand.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
-    public static final RegistryObject<Item> grapeVineItem = ITEMS.register("grape_vine", () -> new BlockItem(RegistryEvents.grapeVine.get(), new Item.Properties().group(RegistryEvents.wineryItemGroup)));
-    public static final RegistryObject<Item> grape = ITEMS.register("grape", () -> new Item(new Item.Properties().group(RegistryEvents.wineryItemGroup).food(new Food.Builder().fastToEat().saturation(1).hunger(3).build())));
+    public static final RegistryObject<Item> liquidBarrelItem = ITEMS.register("liquid_barrel", () -> new LiquidBarrelItem(RegistryEvents.liquidBarrelBlock.get(), new Item.Properties().tab(RegistryEvents.wineryItemGroup).stacksTo(1)));
+    public static final RegistryObject<Item> basinItem = ITEMS.register("basin", () -> new BlockItem(RegistryEvents.basinBlock.get(), new Item.Properties().tab(RegistryEvents.wineryItemGroup)));
+    public static final RegistryObject<Item> standItem = ITEMS.register("stand", () -> new BlockNamedItem(RegistryEvents.stand.get(), new Item.Properties().tab(RegistryEvents.wineryItemGroup)));
+    public static final RegistryObject<Item> grapeVineItem = ITEMS.register("grape_vine", () -> new BlockItem(RegistryEvents.grapeVine.get(), new Item.Properties().tab(RegistryEvents.wineryItemGroup)));
+    public static final RegistryObject<Item> grape = ITEMS.register("grape", () -> new Item(new Item.Properties().tab(RegistryEvents.wineryItemGroup).food(new Food.Builder().fast().saturationMod(1).nutrition(3).build())));
 
 
-    public static final RegistryObject<Block> liquidBarrelBlock = BLOCKS.register("liquid_barrel", () -> new LiquidBarrel(AbstractBlock.Properties.create(Material.WOOD).hardnessAndResistance(2.5F).sound(SoundType.WOOD).notSolid()));
-    public static final RegistryObject<Block> basinBlock = BLOCKS.register("basin", () -> new Basin(AbstractBlock.Properties.create(Material.WOOD).hardnessAndResistance(2.5F).sound(SoundType.WOOD).notSolid()));
-    public static final RegistryObject<Block> stand = BLOCKS.register("stand", () -> new Stand(AbstractBlock.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(2.5F).sound(SoundType.WOOD).notSolid()));
-    public static final RegistryObject<Block> vineStand = BLOCKS.register("vine_stand", () -> new VineStand(AbstractBlock.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(2.5F).sound(SoundType.VINE).notSolid(), Items.VINE));
-    public static final RegistryObject<Block> grapeVineStand = BLOCKS.register("grape_vine_stand", () -> new CropVineStand(AbstractBlock.Properties.create(Material.PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(2.5F).sound(SoundType.VINE).notSolid(), RegistryEvents.grapeVine, RegistryEvents.grape));
-    public static final RegistryObject<Block> grapeVine = BLOCKS.register("grape_vine", () -> new CropVine(AbstractBlock.Properties.create(Material.TALL_PLANTS).doesNotBlockMovement().tickRandomly().hardnessAndResistance(0.2F).sound(SoundType.VINE).notSolid(), grape));
+    public static final RegistryObject<Block> liquidBarrelBlock = BLOCKS.register("liquid_barrel", () -> new LiquidBarrel(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD).noOcclusion()));
+    public static final RegistryObject<Block> basinBlock = BLOCKS.register("basin", () -> new Basin(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD).noOcclusion()));
+    public static final RegistryObject<Block> stand = BLOCKS.register("stand", () -> new Stand(AbstractBlock.Properties.of(Material.PLANT).noCollission().randomTicks().strength(2.5F).sound(SoundType.WOOD).noOcclusion()));
+    public static final RegistryObject<Block> vineStand = BLOCKS.register("vine_stand", () -> new VineStand(AbstractBlock.Properties.of(Material.PLANT).noCollission().randomTicks().strength(2.5F).sound(SoundType.VINE).noOcclusion(), Items.VINE));
+    public static final RegistryObject<Block> grapeVineStand = BLOCKS.register("grape_vine_stand", () -> new CropVineStand(AbstractBlock.Properties.of(Material.PLANT).noCollission().randomTicks().strength(2.5F).sound(SoundType.VINE).noOcclusion(), RegistryEvents.grapeVine, RegistryEvents.grape));
+    public static final RegistryObject<Block> grapeVine = BLOCKS.register("grape_vine", () -> new CropVine(AbstractBlock.Properties.of(Material.REPLACEABLE_PLANT).noCollission().randomTicks().strength(0.2F).sound(SoundType.VINE).noOcclusion(), grape));
 
-    public static final RegistryObject<TileEntityType<LiquidBarrelTileEntity>> liquidBarrelTileEntity = TILE_ENTITIES.register("liquid_barrel_tileentity", () -> TileEntityType.Builder.create(LiquidBarrelTileEntity::new, RegistryEvents.liquidBarrelBlock.get()).build(null));
-    public static final RegistryObject<TileEntityType<BasinTileEntity>> basinTileEntity = TILE_ENTITIES.register("basin_tileentity", () -> TileEntityType.Builder.create(BasinTileEntity::new, RegistryEvents.basinBlock.get()).build(null));
+    public static final RegistryObject<TileEntityType<LiquidBarrelTileEntity>> liquidBarrelTileEntity = TILE_ENTITIES.register("liquid_barrel_tileentity", () -> TileEntityType.Builder.of(LiquidBarrelTileEntity::new, RegistryEvents.liquidBarrelBlock.get()).build(null));
+    public static final RegistryObject<TileEntityType<BasinTileEntity>> basinTileEntity = TILE_ENTITIES.register("basin_tileentity", () -> TileEntityType.Builder.of(BasinTileEntity::new, RegistryEvents.basinBlock.get()).build(null));
     public static final RegistryObject<ContainerType<LiquidBarrelContainer>> liquidBarrelContainer = CONTAINERS.register("liquid_barrel_container", () -> IForgeContainerType.create(LiquidBarrelContainer::new));
 
     public static final RegistryObject<IRecipeSerializer<WineRecipe>> wineRecipeSerializer = RECIPE_SERIALIZERS.register("winerecipe", () -> new WineRecipeSerializers<>(WineRecipe::new));
@@ -72,7 +72,7 @@ public class RegistryEvents {
 
     public static final ItemGroup wineryItemGroup = new ItemGroup("villagerswinery") {
         @Override
-        public @NotNull ItemStack createIcon() {
+        public @NotNull ItemStack makeIcon() {
             return new ItemStack(DrinksRegistry.emptyWinebowl.get());
         }
     };
@@ -87,16 +87,16 @@ public class RegistryEvents {
 
     public static void setRender(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            RenderTypeLookup.setRenderLayer(RegistryEvents.stand.get(), RenderType.getCutout());
-            RenderTypeLookup.setRenderLayer(RegistryEvents.vineStand.get(), RenderType.getCutout());
-            RenderTypeLookup.setRenderLayer(RegistryEvents.grapeVineStand.get(), RenderType.getCutout());
-            RenderTypeLookup.setRenderLayer(RegistryEvents.grapeVine.get(), RenderType.getCutout());
+            RenderTypeLookup.setRenderLayer(RegistryEvents.stand.get(), RenderType.cutout());
+            RenderTypeLookup.setRenderLayer(RegistryEvents.vineStand.get(), RenderType.cutout());
+            RenderTypeLookup.setRenderLayer(RegistryEvents.grapeVineStand.get(), RenderType.cutout());
+            RenderTypeLookup.setRenderLayer(RegistryEvents.grapeVine.get(), RenderType.cutout());
 
 
             BlockColors blockColors = Minecraft.getInstance().getBlockColors();
-            blockColors.register((state, reader, pos, color) -> reader != null && pos != null ? BiomeColors.getFoliageColor(reader, pos) : FoliageColors.getDefault(), RegistryEvents.vineStand.get());
+            blockColors.register((state, reader, pos, color) -> reader != null && pos != null ? BiomeColors.getAverageFoliageColor(reader, pos) : FoliageColors.getDefaultColor(), RegistryEvents.vineStand.get());
 
-            ScreenManager.registerFactory(RegistryEvents.liquidBarrelContainer.get(), LiquidBarrelScreen::new);
+            ScreenManager.register(RegistryEvents.liquidBarrelContainer.get(), LiquidBarrelScreen::new);
 
             ClientRegistry.bindTileEntityRenderer(basinTileEntity.get(), BasinTileEntityRenderer::new);
         });

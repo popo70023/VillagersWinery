@@ -27,11 +27,11 @@ public class LiquidBarrel extends HorizontalBlock {
 
     public LiquidBarrel(AbstractBlock.Properties properties) {
         super(properties);
-        this.setDefaultState(this.stateContainer.getBaseState().with(HORIZONTAL_FACING, Direction.NORTH).with(VERTICAL, false));
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(VERTICAL, false));
     }
 
     public static Direction getLiquidBarrelDirection(BlockState state) {
-        return state.get(VERTICAL) ? Direction.UP : state.get(HORIZONTAL_FACING);
+        return state.getValue(VERTICAL) ? Direction.UP : state.getValue(FACING);
     }
 
     @Override
@@ -45,32 +45,32 @@ public class LiquidBarrel extends HorizontalBlock {
     }
 
     @Override
-    public @NotNull ActionResultType onBlockActivated(@NotNull BlockState state, @NotNull World world, @NotNull BlockPos pos, @NotNull PlayerEntity player, @NotNull Hand hand, BlockRayTraceResult hit) {
-        if (hit.getFace() == getLiquidBarrelDirection(state)) {
+    public @NotNull ActionResultType use(@NotNull BlockState state, @NotNull World world, @NotNull BlockPos pos, @NotNull PlayerEntity player, @NotNull Hand hand, BlockRayTraceResult hit) {
+        if (hit.getDirection() == getLiquidBarrelDirection(state)) {
             if (!FluidTransferUtil.interactWithTank(world, pos, player, hand, hit) && hand == Hand.MAIN_HAND) {
-                world.playSound(player, pos, SoundEvents.BLOCK_BARREL_OPEN, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                if (!world.isRemote) {
-                    LiquidBarrelTileEntity tileentity = (LiquidBarrelTileEntity) world.getTileEntity(pos);
+                world.playSound(player, pos, SoundEvents.BARREL_OPEN, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                if (!world.isClientSide) {
+                    LiquidBarrelTileEntity tileentity = (LiquidBarrelTileEntity) world.getBlockEntity(pos);
                     if (tileentity != null) {
                         NetworkHooks.openGui((ServerPlayerEntity) player, tileentity, (packerBuffer) -> {
                             tileentity.getTank().getFluid().writeToPacket(packerBuffer);
-                            packerBuffer.writeString(tileentity.getWorldAndPos());
+                            packerBuffer.writeUtf(tileentity.getWorldAndPos());
                         });
                     }
                 }
             }
             return ActionResultType.SUCCESS;
         }
-        return super.onBlockActivated(state, world, pos, player, hand, hit);
+        return super.use(state, world, pos, player, hand, hit);
     }
 
     @Override
-    public void onBlockPlacedBy(@NotNull World worldIn, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity placer, @NotNull ItemStack stack) {
-        TileEntity tileentity = worldIn.getTileEntity(pos);
+    public void setPlacedBy(@NotNull World worldIn, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity placer, @NotNull ItemStack stack) {
+        TileEntity tileentity = worldIn.getBlockEntity(pos);
         if (tileentity instanceof LiquidBarrelTileEntity) {
             LiquidBarrelTileEntity barrelTile = (LiquidBarrelTileEntity) tileentity;
             barrelTile.refreshRecipe();
-            if (stack.hasDisplayName()) {
+            if (stack.hasCustomHoverName()) {
                 barrelTile.setCustomName(stack.getDisplayName());
             }
         }
@@ -78,12 +78,12 @@ public class LiquidBarrel extends HorizontalBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        return this.getDefaultState().with(HORIZONTAL_FACING, context.getPlacementHorizontalFacing().getOpposite()).with(VERTICAL, context.getNearestLookingDirection().getOpposite() == Direction.UP);
+        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite()).setValue(VERTICAL, context.getNearestLookingDirection().getOpposite() == Direction.UP);
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.@NotNull Builder<Block, BlockState> builder) {
-        super.fillStateContainer(builder);
-        builder.add(HORIZONTAL_FACING, VERTICAL);
+    protected void createBlockStateDefinition(StateContainer.@NotNull Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+        builder.add(FACING, VERTICAL);
     }
 }

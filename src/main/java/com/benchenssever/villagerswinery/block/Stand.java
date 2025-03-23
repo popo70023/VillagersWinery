@@ -21,7 +21,7 @@ import java.util.List;
 public class Stand extends BushBlock {
     public static final List<IOnStand> listOnStandBlock = new ArrayList<>();
 
-    private static final VoxelShape STAND_SHAPE = Block.makeCuboidShape(1.0D, 0.0D, 1.0D, 15.0D, 16.0D, 15.0D);
+    private static final VoxelShape STAND_SHAPE = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 16.0D, 15.0D);
 
     public Stand(Properties properties) {
         super(properties);
@@ -33,8 +33,8 @@ public class Stand extends BushBlock {
     }
 
     @Override
-    public @NotNull ActionResultType onBlockActivated(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos, PlayerEntity player, @NotNull Hand handIn, @NotNull BlockRayTraceResult hit) {
-        ItemStack stack = player.getHeldItem(handIn);
+    public @NotNull ActionResultType use(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos, PlayerEntity player, @NotNull Hand handIn, @NotNull BlockRayTraceResult hit) {
+        ItemStack stack = player.getItemInHand(handIn);
         IOnStand theStandBlock = null;
         for (IOnStand onStandBlock : listOnStandBlock) {
             if (onStandBlock.itemOnStand() == stack.getItem()) {
@@ -51,7 +51,7 @@ public class Stand extends BushBlock {
     }
 
     @Override
-    protected boolean isValidGround(@NotNull BlockState state, @NotNull IBlockReader worldIn, @NotNull BlockPos pos) {
-        return super.isValidGround(state, worldIn, pos) || state.getBlock() instanceof Stand;
+    protected boolean mayPlaceOn(@NotNull BlockState state, @NotNull IBlockReader worldIn, @NotNull BlockPos pos) {
+        return super.mayPlaceOn(state, worldIn, pos) || state.getBlock() instanceof Stand;
     }
 }

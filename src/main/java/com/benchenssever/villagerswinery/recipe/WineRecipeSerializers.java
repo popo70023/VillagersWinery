@@ -17,7 +17,7 @@ public class WineRecipeSerializers<T extends WineRecipe> extends ForgeRegistryEn
     }
 
     @Override
-    public @NotNull T read(@NotNull ResourceLocation recipeId, JsonObject json) {
+    public @NotNull T fromJson(@NotNull ResourceLocation recipeId, JsonObject json) {
         FluidStack input = FluidTransferUtil.getFluidStackFromJson(json.getAsJsonObject("input"));
         FluidStack output = FluidTransferUtil.getFluidStackFromJson(json.getAsJsonObject("output"));
         int time = json.get("time").getAsInt();
@@ -25,7 +25,7 @@ public class WineRecipeSerializers<T extends WineRecipe> extends ForgeRegistryEn
     }
 
     @Override
-    public T read(@NotNull ResourceLocation recipeId, PacketBuffer buffer) {
+    public T fromNetwork(@NotNull ResourceLocation recipeId, PacketBuffer buffer) {
         FluidStack input = buffer.readFluidStack();
         FluidStack output = buffer.readFluidStack();
         int time = buffer.readInt();
@@ -33,7 +33,7 @@ public class WineRecipeSerializers<T extends WineRecipe> extends ForgeRegistryEn
     }
 
     @Override
-    public void write(PacketBuffer buffer, T recipe) {
+    public void toNetwork(PacketBuffer buffer, T recipe) {
         buffer.writeFluidStack(recipe.getFluidRecipeInput());
         buffer.writeFluidStack(recipe.getFluidRecipeOutput());
         buffer.writeInt(recipe.getSpendTime());

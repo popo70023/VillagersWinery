@@ -28,8 +28,8 @@ public class LiquidBarrelItem extends BlockItem {
     }
 
     @Override
-    public void addInformation(@NotNull ItemStack stack, World worldIn, @NotNull List<ITextComponent> tooltip, @NotNull ITooltipFlag flagIn) {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+    public void appendHoverText(@NotNull ItemStack stack, World worldIn, @NotNull List<ITextComponent> tooltip, @NotNull ITooltipFlag flagIn) {
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
         FluidStack fluidStack = WoodenContainerFluidHandler.getFluid(stack);
         if (!fluidStack.isEmpty()) {
             tooltip.add(FluidTransferUtil.addFluidTooltip(fluidStack));
@@ -41,12 +41,12 @@ public class LiquidBarrelItem extends BlockItem {
     }
 
     @Override
-    protected boolean onBlockPlaced(@NotNull BlockPos pos, @NotNull World worldIn, PlayerEntity player, ItemStack stack, @NotNull BlockState state) {
+    protected boolean updateCustomBlockEntityTag(@NotNull BlockPos pos, @NotNull World worldIn, PlayerEntity player, ItemStack stack, @NotNull BlockState state) {
         CompoundNBT tagCompound = stack.getTag();
         if (tagCompound != null && tagCompound.contains(FLUID_NBT_KEY)) {
-            stack.getOrCreateChildTag("BlockEntityTag").put(FLUID_NBT_KEY, tagCompound.getCompound(FLUID_NBT_KEY));
+            stack.getOrCreateTagElement("BlockEntityTag").put(FLUID_NBT_KEY, tagCompound.getCompound(FLUID_NBT_KEY));
         }
-        return super.onBlockPlaced(pos, worldIn, player, stack, state);
+        return super.updateCustomBlockEntityTag(pos, worldIn, player, stack, state);
     }
 
     @Override

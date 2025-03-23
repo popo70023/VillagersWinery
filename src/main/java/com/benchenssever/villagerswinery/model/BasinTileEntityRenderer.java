@@ -45,10 +45,10 @@ public class BasinTileEntityRenderer extends TileEntityRenderer<BasinTileEntity>
 
     private static void renderItem(ItemStack itemStack, BasinTileEntity tileEntityIn, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int combinedLightIn, int combinedOverlayIn) {
         int itemCount = (int) Math.ceil((itemStack.getCount()) / 8.0);
-        Random rand = new Random(tileEntityIn.getPos().hashCode());
+        Random rand = new Random(tileEntityIn.getBlockPos().hashCode());
 
         for (int i = 0; i < itemCount; i++) {
-            matrixStackIn.push();
+            matrixStackIn.pushPose();
 
             if (itemStack.getItem() instanceof BlockItem) {
                 int layer = i / 4;
@@ -60,7 +60,7 @@ public class BasinTileEntityRenderer extends TileEntityRenderer<BasinTileEntity>
                 float yOffset = 0.25f + (scale * (layer + 0.5f) / 2.0f);
                 matrixStackIn.translate(xOffset, yOffset, zOffset);
                 matrixStackIn.scale(scale, scale, scale);
-                matrixStackIn.rotate(Vector3f.YP.rotationDegrees(rand.nextFloat() * 360.0f));
+                matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(rand.nextFloat() * 360.0f));
             } else {
                 float scale = 0.7f;
 
@@ -69,14 +69,14 @@ public class BasinTileEntityRenderer extends TileEntityRenderer<BasinTileEntity>
                 float yOffset = 0.25f + (scale * (i + 0.5f) / 16.0f);
                 matrixStackIn.translate(xOffset, yOffset, zOffset);
                 matrixStackIn.scale(scale, scale, scale);
-                matrixStackIn.rotate(Vector3f.XP.rotationDegrees(90.0f));
-                matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(rand.nextFloat() * 360.0f));
+                matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(90.0f));
+                matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(rand.nextFloat() * 360.0f));
             }
 
             ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-            IBakedModel ibakedmodel = itemRenderer.getItemModelWithOverrides(itemStack, tileEntityIn.getWorld(), null);
-            itemRenderer.renderItem(itemStack, ItemCameraTransforms.TransformType.FIXED, true, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, ibakedmodel);
-            matrixStackIn.pop();
+            IBakedModel ibakedmodel = itemRenderer.getModel(itemStack, tileEntityIn.getLevel(), null);
+            itemRenderer.render(itemStack, ItemCameraTransforms.TransformType.FIXED, true, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, ibakedmodel);
+            matrixStackIn.popPose();
         }
     }
 
@@ -90,51 +90,51 @@ public class BasinTileEntityRenderer extends TileEntityRenderer<BasinTileEntity>
         int blue = color & 0xFF;
         int alpha = (color >> 24) & 0xFF;
 
-        matrixStackIn.push();
+        matrixStackIn.pushPose();
 
         RenderMaterial fluidMaterial = ModelLoaderRegistry.blockMaterial(attributes.getStillTexture(fluidStack));
         TextureAtlasSprite sprite = ModelLoader.defaultTextureGetter().apply(fluidMaterial);
-        IVertexBuilder vertexBuilder = bufferIn.getBuffer(RenderType.getEntityTranslucentCull(sprite.getAtlasTexture().getTextureLocation()));
+        IVertexBuilder vertexBuilder = bufferIn.getBuffer(RenderType.entityTranslucentCull(sprite.atlas().location()));
 
-        float minU = sprite.getMinU();
-        float maxU = sprite.getMaxU();
-        float minV = sprite.getMinV();
-        float maxV = sprite.getMaxV();
+        float minU = sprite.getU0();
+        float maxU = sprite.getU1();
+        float minV = sprite.getV0();
+        float maxV = sprite.getV1();
 
-        Matrix4f matrix = matrixStackIn.getLast().getMatrix();
+        Matrix4f matrix = matrixStackIn.last().pose();
 
-        vertexBuilder.pos(matrix, 0.0625f, yOffset, 0.9375f) // 顶点 1
+        vertexBuilder.vertex(matrix, 0.0625f, yOffset, 0.9375f) // 顶点 1
                 .color(red, green, blue, alpha)
-                .tex(minU, minV)
-                .overlay(combinedOverlayIn)
-                .lightmap(combinedLightIn)
+                .uv(minU, minV)
+                .overlayCoords(combinedOverlayIn)
+                .uv2(combinedLightIn)
                 .normal(0, 1, 0)
                 .endVertex();
 
-        vertexBuilder.pos(matrix, 0.9375f, yOffset, 0.9375f) // 顶点 2
+        vertexBuilder.vertex(matrix, 0.9375f, yOffset, 0.9375f) // 顶点 2
                 .color(red, green, blue, alpha)
-                .tex(maxU, minV)
-                .overlay(combinedOverlayIn)
-                .lightmap(combinedLightIn)
+                .uv(maxU, minV)
+                .overlayCoords(combinedOverlayIn)
+                .uv2(combinedLightIn)
                 .normal(0, 1, 0)
                 .endVertex();
 
-        vertexBuilder.pos(matrix, 0.9375f, yOffset, 0.0625f) // 顶点 3
+        vertexBuilder.vertex(matrix, 0.9375f, yOffset, 0.0625f) // 顶点 3
                 .color(red, green, blue, alpha)
-                .tex(maxU, maxV)
-                .overlay(combinedOverlayIn)
-                .lightmap(combinedLightIn)
+                .uv(maxU, maxV)
+                .overlayCoords(combinedOverlayIn)
+                .uv2(combinedLightIn)
                 .normal(0, 1, 0)
                 .endVertex();
 
-        vertexBuilder.pos(matrix, 0.0625f, yOffset, 0.0625f) // 顶点 4
+        vertexBuilder.vertex(matrix, 0.0625f, yOffset, 0.0625f) // 顶点 4
                 .color(red, green, blue, alpha)
-                .tex(minU, maxV)
-                .overlay(combinedOverlayIn)
-                .lightmap(combinedLightIn)
+                .uv(minU, maxV)
+                .overlayCoords(combinedOverlayIn)
+                .uv2(combinedLightIn)
                 .normal(0, 1, 0)
                 .endVertex();
 
-        matrixStackIn.pop();
+        matrixStackIn.popPose();
     }
 }

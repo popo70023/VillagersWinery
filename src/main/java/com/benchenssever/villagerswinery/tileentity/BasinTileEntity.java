@@ -31,7 +31,7 @@ public class BasinTileEntity extends TileEntity {
     public static final int DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME * 2;
     public final InventoryStackHandler inputInventory = new InventoryStackHandler(1) {
         @Override
-        public void markDirty() {
+        public void setChanged() {
             markDirtyAndUpdate();
         }
     };
@@ -73,7 +73,7 @@ public class BasinTileEntity extends TileEntity {
         if (canCrush()) {
             if(entityIn instanceof PlayerEntity) {
                 PlayerEntity player = (PlayerEntity)entityIn;
-                FoodStats playerFoodStats = player.getFoodStats();
+                FoodStats playerFoodStats = player.getFoodData();
                 if(playerFoodStats.getFoodLevel() > 6) {
                     basinWalkProgress++;
                     if (basinWalkProgress > 30) {
@@ -97,14 +97,14 @@ public class BasinTileEntity extends TileEntity {
     public void basinCrush() {
         if (canCrush() && inputInventory.extractItem(0, 1, false) != ItemStack.EMPTY) {
             outputFluidTank.fill(basinCrushRecipe.getFluidRecipeOutput(), IFluidHandler.FluidAction.EXECUTE);
-            world.playSound(null, pos, SoundEvents.ENTITY_SLIME_JUMP, SoundCategory.BLOCKS, 1.0F, 1.0F);
+            level.playSound(null, getBlockPos(), SoundEvents.SLIME_JUMP, SoundCategory.BLOCKS, 1.0F, 1.0F);
         }
     }
 
     private boolean canCrush() {
         if (basinCrushRecipe != null) {
             FluidStack output = basinCrushRecipe.getFluidRecipeOutput();
-            return basinCrushRecipe.matches(inputInventory, world) && outputFluidTank.fill(output, IFluidHandler.FluidAction.SIMULATE) == output.getAmount();
+            return basinCrushRecipe.matches(inputInventory, level) && outputFluidTank.fill(output, IFluidHandler.FluidAction.SIMULATE) == output.getAmount();
         }
         return false;
     }
@@ -114,8 +114,8 @@ public class BasinTileEntity extends TileEntity {
     }
 
     @Override
-    public void read(@NotNull BlockState state, @NotNull CompoundNBT nbt) {
-        super.read(state, nbt);
+    public void load(@NotNull BlockState state, @NotNull CompoundNBT nbt) {
+        super.load(state, nbt);
 
         if (nbt.contains("inputItem", Constants.NBT.TAG_COMPOUND)) {
             inputInventory.deserializeNBT(nbt.getCompound("inputItem"));
@@ -134,8 +134,8 @@ public class BasinTileEntity extends TileEntity {
     }
 
     @Override
-    public @NotNull CompoundNBT write(@NotNull CompoundNBT compound) {
-        compound = super.write(compound);
+    public @NotNull CompoundNBT save(@NotNull CompoundNBT compound) {
+        compound = super.save(compound);
 
         compound.put("inputItem", inputInventory.serializeNBT());
         compound.put("outputFluid", outputFluidTank.writeToNBT(new CompoundNBT()));
@@ -146,17 +146,17 @@ public class BasinTileEntity extends TileEntity {
 
     @Override
     public SUpdateTileEntityPacket getUpdatePacket() {
-        return new SUpdateTileEntityPacket(pos, 1, getUpdateTag());
+        return new SUpdateTileEntityPacket(worldPosition, 1, getUpdateTag());
     }
 
     @Override
     public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
-        handleUpdateTag(world.getBlockState(pkt.getPos()), pkt.getNbtCompound());
+        handleUpdateTag(level.getBlockState(pkt.getPos()), pkt.getTag());
     }
 
     @Override
     public @NotNull CompoundNBT getUpdateTag() {
-        return write(new CompoundNBT());
+        return save(new CompoundNBT());
     }
 
     public ItemStack getItemStack(int sold) {
@@ -172,13 +172,13 @@ public class BasinTileEntity extends TileEntity {
     }
 
     private void markDirtyAndUpdate() {
-        markDirty();
-        if (basinCrushRecipe == null || !basinCrushRecipe.matches(inputInventory, world)) {
+        setChanged();
+        if (basinCrushRecipe == null || !basinCrushRecipe.matches(inputInventory, level)) {
             basinWalkProgress = 0;
             basinCrushProgress = 0;
             refreshRecipe();
         }
-        world.notifyBlockUpdate(getPos(), getBlockState(), getBlockState(), Constants.BlockFlags.RERENDER_MAIN_THREAD);
+        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Constants.BlockFlags.RERENDER_MAIN_THREAD);
     }
 
     public void refreshRecipe() {
@@ -186,9 +186,9 @@ public class BasinTileEntity extends TileEntity {
     }
 
     private BasinCrushRecipe getRecipe() {
-        return world.getRecipeManager().getRecipes(RegistryEvents.basinCrushRecipe, inputInventory, world)
+        return level.getRecipeManager().getRecipesFor(RegistryEvents.basinCrushRecipe, inputInventory, level)
                 .stream()
-                .filter(recipe -> recipe.matches(inputInventory, world))
+                .filter(recipe -> recipe.matches(inputInventory, level))
                 .findFirst()
                 .orElse(null);
     }
@@ -205,8 +205,8 @@ public class BasinTileEntity extends TileEntity {
     }
 
     @Override
-    public void remove() {
-        super.remove();
+    public void setRemoved() {
+        super.setRemoved();
         itemHolder.invalidate();
         fluidHolder.invalidate();
     }

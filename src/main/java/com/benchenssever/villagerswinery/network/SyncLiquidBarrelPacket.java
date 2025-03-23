@@ -20,17 +20,17 @@ public class SyncLiquidBarrelPacket {
 
     public static void encode(SyncLiquidBarrelPacket packet, PacketBuffer buffer) {
         packet.fluidStack.writeToPacket(buffer);
-        buffer.writeString(packet.worldAndPos);
+        buffer.writeUtf(packet.worldAndPos);
     }
 
     public static SyncLiquidBarrelPacket decode(PacketBuffer buffer) {
-        return new SyncLiquidBarrelPacket(FluidStack.readFromPacket(buffer), buffer.readString(32767));
+        return new SyncLiquidBarrelPacket(FluidStack.readFromPacket(buffer), buffer.readUtf(32767));
     }
 
     public static void handle(SyncLiquidBarrelPacket packet, Supplier<NetworkEvent.Context> context) {
         context.get().enqueueWork(() -> {
             Minecraft minecraft = Minecraft.getInstance();
-            Screen currentScreen = minecraft.currentScreen;
+            Screen currentScreen = minecraft.screen;
             if (currentScreen instanceof LiquidBarrelScreen) {
                 ((LiquidBarrelScreen) currentScreen).updateFluid(packet.fluidStack, packet.worldAndPos);
             }

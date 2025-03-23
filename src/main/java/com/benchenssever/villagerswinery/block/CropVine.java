@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.Random;
 
 public class CropVine extends VineBlock implements IGrowable, ICrop {
-    public static final IntegerProperty AGE = BlockStateProperties.AGE_0_7;
+    public static final IntegerProperty AGE = BlockStateProperties.AGE_7;
     private final RegistryObject<Item> product;
 
     public CropVine(Properties properties, RegistryObject<Item> product) {
         super(properties);
-        this.setDefaultState(this.getDefaultState().with(AGE, 0));
+        this.registerDefaultState(this.defaultBlockState().setValue(AGE, 0));
         this.product = product;
     }
 
@@ -71,47 +71,47 @@ public class CropVine extends VineBlock implements IGrowable, ICrop {
     }
 
     @Override
-    public @NotNull ActionResultType onBlockActivated(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos, PlayerEntity player, @NotNull Hand handIn, @NotNull BlockRayTraceResult hit) {
-        ItemStack stack = player.getHeldItem(handIn);
-        if (ItemTags.getCollection().get(new ResourceLocation("forge", "shears")).contains(stack.getItem()) && this.isShearable(stack, worldIn, pos)) {
-            worldIn.playSound(player, pos, SoundEvents.ENTITY_SHEEP_SHEAR, SoundCategory.PLAYERS, 1.0F, 1.0F);
-            if (!worldIn.isRemote()) {
+    public @NotNull ActionResultType use(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos, PlayerEntity player, @NotNull Hand handIn, @NotNull BlockRayTraceResult hit) {
+        ItemStack stack = player.getItemInHand(handIn);
+        if (ItemTags.getAllTags().getTag(new ResourceLocation("forge", "shears")).contains(stack.getItem()) && this.isShearable(stack, worldIn, pos)) {
+            worldIn.playSound(player, pos, SoundEvents.SHEEP_SHEAR, SoundCategory.PLAYERS, 1.0F, 1.0F);
+            if (!worldIn.isClientSide()) {
                 List<ItemStack> drops = onSheared(player, stack, worldIn, pos, 0);
                 for (ItemStack drop : drops) {
-                    InventoryHelper.spawnItemStack(worldIn, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, drop);
+                    InventoryHelper.dropItemStack(worldIn, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, drop);
                 }
-                worldIn.setBlockState(pos, this.withAge(state, 0), 2);
-                if (!player.abilities.isCreativeMode) {
-                    stack.attemptDamageItem(1, new Random(), (ServerPlayerEntity) player);
+                worldIn.setBlock(pos, this.withAge(state, 0), 2);
+                if (!player.abilities.instabuild) {
+                    stack.hurt(1, new Random(), (ServerPlayerEntity) player);
                 }
             }
             return ActionResultType.SUCCESS;
         }
-        return super.onBlockActivated(state, worldIn, pos, player, handIn, hit);
+        return super.use(state, worldIn, pos, player, handIn, hit);
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.@NotNull Builder<Block, BlockState> builder) {
-        super.fillStateContainer(builder);
+    protected void createBlockStateDefinition(StateContainer.@NotNull Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
         builder.add(AGE);
     }
 
     @Override
-    public boolean canGrow(@NotNull IBlockReader worldIn, @NotNull BlockPos pos, @NotNull BlockState state, boolean isClient) {
+    public boolean isValidBonemealTarget(@NotNull IBlockReader worldIn, @NotNull BlockPos pos, @NotNull BlockState state, boolean isClient) {
         return !this.isMaxAge(state);
     }
 
     @Override
-    public boolean canUseBonemeal(@NotNull World worldIn, @NotNull Random rand, @NotNull BlockPos pos, @NotNull BlockState state) {
+    public boolean isBonemealSuccess(@NotNull World worldIn, @NotNull Random rand, @NotNull BlockPos pos, @NotNull BlockState state) {
         return true;
     }
 
     @Override
-    public void grow(ServerWorld worldIn, @NotNull Random rand, @NotNull BlockPos pos, @NotNull BlockState state) {
-        int age = this.getAge(state) + MathHelper.nextInt(worldIn.rand, 2, 5);
+    public void performBonemeal(ServerWorld worldIn, @NotNull Random rand, @NotNull BlockPos pos, @NotNull BlockState state) {
+        int age = this.getAge(state) + MathHelper.nextInt(worldIn.random, 2, 5);
         if (age > this.getMaxAge()) {
             age = this.getMaxAge();
         }
-        worldIn.setBlockState(pos, this.withAge(state, age), 2);
+        worldIn.setBlock(pos, this.withAge(state, age), 2);
     }
 }
