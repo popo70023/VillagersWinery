@@ -1,5 +1,6 @@
 package com.benchenssever.villagerswinery.drinkable;
 
+import com.benchenssever.villagerswinery.api.IVillagerEntityMixin;
 import com.benchenssever.villagerswinery.registration.DrinksRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -29,14 +30,17 @@ public class WineEffect extends Effect {
 
     @Override
     public void applyInstantenousEffect(Entity source, Entity indirectSource, @NotNull LivingEntity entityLivingBaseIn, int amplifier, double health) {
-        if (entityLivingBaseIn instanceof VillagerEntity) {
-            VillagerEntity villager = (VillagerEntity) entityLivingBaseIn;
+        if (entityLivingBaseIn instanceof IVillagerEntityMixin) {
 
             if (this == DrinksRegistry.getIMerchantXp.get()) {
+                VillagerEntity villager = (VillagerEntity) entityLivingBaseIn;
                 int newXp = villager.getVillagerXp() + 1 + amplifier;
                 villager.setVillagerXp(newXp);
 
                 LOGGER.debug("Villager XP updated: {}, Level: {}", villager.getVillagerXp(), villager.getVillagerData().getLevel());
+            } else if(this == DrinksRegistry.addFoodLevel.get()) {
+                IVillagerEntityMixin villager = (IVillagerEntityMixin) entityLivingBaseIn;
+                villager.villagersWinery$addFoodLevel(amplifier * 12 + 12);
             }
         }
     }

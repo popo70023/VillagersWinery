@@ -134,8 +134,8 @@ public class Winebowl extends Item {
         if (entity.level.isClientSide) return ActionResultType.PASS;
         if (entity instanceof VillagerEntity) {
             FluidStack fluidInside = WoodenContainerFluidHandler.getFluid(stack);
-            if (fluidInside.getFluid() instanceof IDrinkable && fluidInside.getAmount() >= DEFAULT_CAPACITY && Drinks.isCanConsumed(playerIn, (IDrinkable) fluidInside.getFluid())) {
-                Drinks.onDrinkConsumed(playerIn, (IDrinkable) fluidInside.getFluid());
+            if (fluidInside.getFluid() instanceof IDrinkable && fluidInside.getAmount() >= DEFAULT_CAPACITY && Drinks.isCanConsumed(entity, (IDrinkable) fluidInside.getFluid())) {
+                Drinks.onDrinkConsumed(entity, (IDrinkable) fluidInside.getFluid());
                 playerIn.awardStat(Stats.ITEM_USED.get(this));
                 if (!playerIn.abilities.instabuild) {
                     playerIn.setItemInHand(hand, new ItemStack(DrinksRegistry.emptyWinebowl.get()));

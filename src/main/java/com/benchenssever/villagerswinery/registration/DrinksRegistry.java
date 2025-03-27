@@ -27,6 +27,7 @@ public class DrinksRegistry {
 
     public static final RegistryObject<Effect> drunk = EFFECT.register("drunk", () -> new WineEffect(EffectType.NEUTRAL, 0xFF796400));
     public static final RegistryObject<Effect> getIMerchantXp = EFFECT.register("get_merchant_xp", () -> new WineEffect(EffectType.BENEFICIAL, 0xFF796400, true));
+    public static final RegistryObject<Effect> addFoodLevel = EFFECT.register("add_food_level", () -> new WineEffect(EffectType.BENEFICIAL, 0xFF796400, true));
 
     public static final RegistryObject<Item> emptyWinebowl = ITEMS.register("empty_winebowl", () -> new Winebowl(new Item.Properties().tab(RegistryEvents.wineryItemGroup).stacksTo(16)));
     public static final RegistryObject<Item> winebowl = ITEMS.register("winebowl", () -> new Winebowl(new Item.Properties().tab(RegistryEvents.wineryItemGroup).stacksTo(1)));
@@ -46,7 +47,7 @@ public class DrinksRegistry {
                     .nutrition(1)
                     .saturationMod(2.0f)
                     .effect(() -> new EffectInstance(drunk.get(), 3600), 1.0f)
-                    .effect(() -> new EffectInstance(getIMerchantXp.get()), 1.0f)
+                    .effect(() -> new EffectInstance(addFoodLevel.get()), 1.0f)
                     .alwaysEat()
                     .build())
             .group(RegistryEvents.wineryItemGroup)

@@ -130,13 +130,18 @@ public class Drinks {
 
     public static void applyDrinkFoodEffects(LivingEntity entityIn, Food food, int time) {
         World worldIn = entityIn.getCommandSenderWorld();
+        if(worldIn.isClientSide) return;
         for (Pair<EffectInstance, Float> pair : food.getEffects()) {
-            if (!worldIn.isClientSide && pair.getFirst() != null && worldIn.random.nextFloat() < pair.getSecond()) {
+            if (pair.getFirst() != null && worldIn.random.nextFloat() < pair.getSecond()) {
                 EffectInstance effectinstance = pair.getFirst();
                 if (effectinstance.getEffect() == DrinksRegistry.drunk.get()) {
                     entityIn.addEffect(new EffectInstance(effectinstance.getEffect(), time + effectinstance.getDuration()));
                 } else {
-                    entityIn.addEffect(new EffectInstance(effectinstance));
+                    if(effectinstance.getEffect().isInstantenous()) {
+                        effectinstance.getEffect().applyInstantenousEffect(entityIn, null, entityIn, effectinstance.getAmplifier(), 1.0D);
+                    } else {
+                        entityIn.addEffect(new EffectInstance(effectinstance));
+                    }
                 }
             }
         }
