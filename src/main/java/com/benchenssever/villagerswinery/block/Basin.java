@@ -1,6 +1,6 @@
 package com.benchenssever.villagerswinery.block;
 
-import com.benchenssever.villagerswinery.fluid.FluidTransferUtil;
+import com.benchenssever.villagerswinery.fluid.FluidUtils;
 import com.benchenssever.villagerswinery.tileentity.BasinTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -47,7 +47,7 @@ public class Basin extends Block {
     @Override
     public @NotNull ActionResultType use(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos, @NotNull PlayerEntity player, @NotNull Hand handIn, @NotNull BlockRayTraceResult hit) {
         if (INSIDE_AABB.contains(hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))) {
-            if (!FluidTransferUtil.interactWithTank(worldIn, pos, player, handIn, hit)) {
+            if (!FluidUtils.interactWithTank(worldIn, pos, player, handIn, hit)) {
                 if (!worldIn.isClientSide) {
                     insertOrRextractItem(worldIn, pos, player, handIn);
                 }

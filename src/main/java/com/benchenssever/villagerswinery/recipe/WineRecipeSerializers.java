@@ -1,6 +1,6 @@
 package com.benchenssever.villagerswinery.recipe;
 
-import com.benchenssever.villagerswinery.fluid.FluidTransferUtil;
+import com.benchenssever.villagerswinery.fluid.FluidUtils;
 import com.google.gson.JsonObject;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.network.PacketBuffer;
@@ -18,8 +18,8 @@ public class WineRecipeSerializers<T extends WineRecipe> extends ForgeRegistryEn
 
     @Override
     public @NotNull T fromJson(@NotNull ResourceLocation recipeId, JsonObject json) {
-        FluidStack input = FluidTransferUtil.getFluidStackFromJson(json.getAsJsonObject("input"));
-        FluidStack output = FluidTransferUtil.getFluidStackFromJson(json.getAsJsonObject("output"));
+        FluidStack input = FluidUtils.getFluidStackFromJson(json.getAsJsonObject("input"));
+        FluidStack output = FluidUtils.getFluidStackFromJson(json.getAsJsonObject("output"));
         int time = json.get("time").getAsInt();
         return factory.create(recipeId, input, output, time);
     }

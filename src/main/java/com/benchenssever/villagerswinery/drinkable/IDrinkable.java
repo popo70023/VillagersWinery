@@ -7,4 +7,6 @@ public interface IDrinkable {
     Food getFood();
 
     TranslationTextComponent getTooltip();
+
+    boolean isAlcohol();
 }

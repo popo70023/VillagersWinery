@@ -1,5 +1,6 @@
 package com.benchenssever.villagerswinery.tileentity;
 
+import com.benchenssever.villagerswinery.fluid.FluidUtils;
 import com.benchenssever.villagerswinery.fluid.LiquidBarrelContainer;
 import com.benchenssever.villagerswinery.network.NetworkHandler;
 import com.benchenssever.villagerswinery.network.SyncLiquidBarrelPacket;
@@ -34,7 +35,7 @@ import org.jetbrains.annotations.NotNull;
 public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileEntity, INamedContainerProvider, INameable {
     public static final int DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME * 8;
     private ITextComponent customName;
-    private final FluidTank tank = new FluidTank(DEFAULT_CAPACITY, (e) -> e.getFluid().getAttributes().getTemperature() < 500) {
+    private final FluidTank tank = new FluidTank(DEFAULT_CAPACITY, FluidUtils.WOODEN_CONTAINER_VALIDATOR) {
         @Override
         protected void onContentsChanged() {
             markDirtyAndUpdate();

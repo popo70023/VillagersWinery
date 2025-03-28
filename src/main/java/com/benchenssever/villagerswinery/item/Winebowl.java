@@ -3,12 +3,12 @@ package com.benchenssever.villagerswinery.item;
 import com.benchenssever.villagerswinery.VillagersWineryMod;
 import com.benchenssever.villagerswinery.drinkable.Drinks;
 import com.benchenssever.villagerswinery.drinkable.IDrinkable;
-import com.benchenssever.villagerswinery.fluid.WoodenContainerFluidHandler;
+import com.benchenssever.villagerswinery.fluid.FluidUtils;
+import com.benchenssever.villagerswinery.fluid.ItemStackFluidHandler;
 import com.benchenssever.villagerswinery.registration.DrinksRegistry;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.fluid.Fluid;
@@ -18,7 +18,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.UseAction;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.DrinkHelper;
+import net.minecraft.util.Hand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -45,7 +48,7 @@ public class Winebowl extends Item {
         if (playerentity instanceof ServerPlayerEntity) {
             CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayerEntity) playerentity, stack);
         }
-        FluidStack stackFluid = WoodenContainerFluidHandler.getFluid(stack);
+        FluidStack stackFluid = ItemStackFluidHandler.getFluid(stack);
 
         if (playerentity != null && stackFluid.getFluid() instanceof IDrinkable && stackFluid.getAmount() >= DEFAULT_CAPACITY) {
             if (!worldIn.isClientSide) {
@@ -62,7 +65,7 @@ public class Winebowl extends Item {
 
     @Override
     public int getUseDuration(@NotNull ItemStack stack) {
-        Fluid stackFluid = WoodenContainerFluidHandler.getFluid(stack).getFluid();
+        Fluid stackFluid = ItemStackFluidHandler.getFluid(stack).getFluid();
         if (stackFluid instanceof IDrinkable) {
             IDrinkable drink = (IDrinkable) stackFluid;
             if (drink.getFood() != null) {
@@ -80,7 +83,7 @@ public class Winebowl extends Item {
     @Override
     public @NotNull ActionResult<ItemStack> use(@NotNull World worldIn, PlayerEntity playerIn, @NotNull Hand handIn) {
         ItemStack stack = playerIn.getItemInHand(handIn);
-        FluidStack stackFluid = WoodenContainerFluidHandler.getFluid(stack);
+        FluidStack stackFluid = ItemStackFluidHandler.getFluid(stack);
 
         if (stackFluid.getFluid() instanceof IDrinkable && stackFluid.getAmount() >= DEFAULT_CAPACITY && Drinks.isCanConsumed(playerIn, (IDrinkable) stackFluid.getFluid())) {
             return DrinkHelper.useDrink(worldIn, playerIn, handIn);
@@ -90,21 +93,17 @@ public class Winebowl extends Item {
 
     @Override
     public @NotNull ITextComponent getName(@NotNull ItemStack stack) {
-        FluidStack fluidStack = WoodenContainerFluidHandler.getFluid(stack);
-        if (!fluidStack.isEmpty()) {
-            return new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".winebowl", new TranslationTextComponent(fluidStack.getTranslationKey()));
-        } else {
-            return new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".empty_winebowl");
-        }
+        FluidStack fluidStack = ItemStackFluidHandler.getFluid(stack);
+        return new TranslationTextComponent(this.getDescriptionId(stack), new TranslationTextComponent(fluidStack.getTranslationKey()));
     }
 
 
     @Override
     @OnlyIn(Dist.CLIENT)
     public void appendHoverText(@NotNull ItemStack stack, World worldIn, @NotNull List<ITextComponent> tooltip, @NotNull ITooltipFlag flagIn) {
-        FluidStack fluidStack = WoodenContainerFluidHandler.getFluid(stack);
+        FluidStack fluidStack = ItemStackFluidHandler.getFluid(stack);
         if (!fluidStack.isEmpty()) {
-            tooltip.add(new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".winebowl.information", new StringTextComponent(Integer.toString(fluidStack.getAmount()))));
+            tooltip.add(FluidUtils.addFluidAmountTooltip(fluidStack.getAmount()));
 
             if (fluidStack.getFluid() instanceof IDrinkable) {
                 tooltip.add(((IDrinkable) fluidStack.getFluid()).getTooltip());
@@ -119,45 +118,44 @@ public class Winebowl extends Item {
             if (this == DrinksRegistry.winebowl.get()) {
                 for (Drinks drink : DrinksRegistry.drinksCollection) {
                     ItemStack stack = new ItemStack(this);
-                    WoodenContainerFluidHandler.setFluid(stack, drink, DEFAULT_CAPACITY);
+                    ItemStackFluidHandler.setFluid(stack, drink, DEFAULT_CAPACITY);
                     items.add(stack);
                 }
-            } else {
-                ItemStack stack = new ItemStack(this);
-                items.add(stack);
             }
         }
-    }
-
-    @Override
-    public @NotNull ActionResultType interactLivingEntity(@NotNull ItemStack stack, @NotNull PlayerEntity playerIn, LivingEntity entity, @NotNull Hand hand) {
-        if (entity.level.isClientSide) return ActionResultType.PASS;
-        if (entity instanceof VillagerEntity) {
-            FluidStack fluidInside = WoodenContainerFluidHandler.getFluid(stack);
-            if (fluidInside.getFluid() instanceof IDrinkable && fluidInside.getAmount() >= DEFAULT_CAPACITY && Drinks.isCanConsumed(entity, (IDrinkable) fluidInside.getFluid())) {
-                Drinks.onDrinkConsumed(entity, (IDrinkable) fluidInside.getFluid());
-                playerIn.awardStat(Stats.ITEM_USED.get(this));
-                if (!playerIn.abilities.instabuild) {
-                    playerIn.setItemInHand(hand, new ItemStack(DrinksRegistry.emptyWinebowl.get()));
-                }
-                return ActionResultType.SUCCESS;
-            }
-        }
-        return ActionResultType.PASS;
     }
 
     @Override
     public ICapabilityProvider initCapabilities(ItemStack stack, CompoundNBT nbt) {
-        if (stack.getItem() == DrinksRegistry.winebowl.get()) {
-            return new WoodenContainerFluidHandler(stack, DEFAULT_CAPACITY) {
-                @Override
-                protected void setContainerToEmpty() {
-                    super.setContainerToEmpty();
-                    container = new ItemStack(DrinksRegistry.emptyWinebowl.get());
-                }
-            };
-        } else {
-            return new WoodenContainerFluidHandler(new ItemStack(DrinksRegistry.winebowl.get()), DEFAULT_CAPACITY);
+        return new ItemStackFluidHandler(stack, DEFAULT_CAPACITY, FluidUtils.WOODEN_CONTAINER_VALIDATOR) {
+            @Override
+            protected void setContainerToEmpty() {
+                super.setContainerToEmpty();
+                container = new ItemStack(DrinksRegistry.emptyWinebowl.get());
+            }
+        };
+    }
+
+    public static class Empty extends Winebowl {
+        public Empty(Properties properties) {
+            super(properties);
+        }
+
+        @Override
+        public @NotNull ITextComponent getName(@NotNull ItemStack stack) {
+            return new TranslationTextComponent(this.getDescriptionId(stack));
+        }
+
+        @Override
+        public void fillItemCategory(@NotNull ItemGroup group, @NotNull NonNullList<ItemStack> items) {
+            if (this.allowdedIn(group)) {
+                items.add(new ItemStack(this));
+            }
+        }
+
+        @Override
+        public ICapabilityProvider initCapabilities(ItemStack stack, CompoundNBT nbt) {
+            return new ItemStackFluidHandler(new ItemStack(DrinksRegistry.winebowl.get()), DEFAULT_CAPACITY, FluidUtils.WOODEN_CONTAINER_VALIDATOR);
         }
     }
 }

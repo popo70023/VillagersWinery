@@ -1,6 +1,6 @@
 package com.benchenssever.villagerswinery.block;
 
-import com.benchenssever.villagerswinery.fluid.FluidTransferUtil;
+import com.benchenssever.villagerswinery.fluid.FluidUtils;
 import com.benchenssever.villagerswinery.tileentity.LiquidBarrelTileEntity;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
@@ -47,7 +47,7 @@ public class LiquidBarrel extends HorizontalBlock {
     @Override
     public @NotNull ActionResultType use(@NotNull BlockState state, @NotNull World world, @NotNull BlockPos pos, @NotNull PlayerEntity player, @NotNull Hand hand, BlockRayTraceResult hit) {
         if (hit.getDirection() == getLiquidBarrelDirection(state)) {
-            if (!FluidTransferUtil.interactWithTank(world, pos, player, hand, hit) && hand == Hand.MAIN_HAND) {
+            if (!FluidUtils.interactWithTank(world, pos, player, hand, hit) && hand == Hand.MAIN_HAND) {
                 world.playSound(player, pos, SoundEvents.BARREL_OPEN, SoundCategory.BLOCKS, 1.0F, 1.0F);
                 if (!world.isClientSide) {
                     LiquidBarrelTileEntity tileentity = (LiquidBarrelTileEntity) world.getBlockEntity(pos);

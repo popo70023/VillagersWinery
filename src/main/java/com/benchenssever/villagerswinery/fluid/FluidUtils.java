@@ -24,8 +24,11 @@ import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.function.Predicate;
+
 //TODO: 要重構
-public class FluidTransferUtil {
+public class FluidUtils {
+    public static final Predicate<FluidStack> WOODEN_CONTAINER_VALIDATOR = (fluidStack) -> fluidStack.getFluid().getAttributes().getTemperature() < 500;
 
     public static FluidStack tryTransfer(IFluidHandler input, IFluidHandler output, int maxFill) {
         // first, figure out how much we can drain
@@ -132,10 +135,15 @@ public class FluidTransferUtil {
             return !held.isEmpty() && held.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY).isPresent();
     }
 
-    public static TranslationTextComponent addFluidTooltip(FluidStack fluidStack) {
-        return new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".fluid.information",
+    public static TranslationTextComponent addFluidStackTooltip(FluidStack fluidStack) {
+        return new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".fluid_stack.information",
                 new TranslationTextComponent(fluidStack.getTranslationKey()),
                 new StringTextComponent(Integer.toString(fluidStack.getAmount())));
+    }
+
+    public static TranslationTextComponent addFluidAmountTooltip(int amount) {
+        return new TranslationTextComponent("item." + VillagersWineryMod.MODID + ".fluid_amount.information",
+                new StringTextComponent(Integer.toString(amount)));
     }
 
     public static FluidStack getFluidStackFromJson(JsonObject json) {

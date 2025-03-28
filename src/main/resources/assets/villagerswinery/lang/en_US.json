@@ -1,14 +1,13 @@
 {
-  "//": "村民酒莊",
+  "_comment_1": "村民酒莊",
   "itemGroup.villagerswinery": "村民酒莊",
 
-  "//": "村民酒莊 物品",
+  "_comment_2": "村民酒莊 物品",
   "item.villagerswinery.empty_winebowl": "空酒杯",
   "item.villagerswinery.winebowl": "裝有%s的酒杯",
-  "item.villagerswinery.winebowl.information": "%s mb",
   "item.villagerswinery.stand": "支架",
 
-  "//": "村民酒莊 液體",
+  "_comment_3": "村民酒莊 液體",
   "fluid.villagerswinery.fluid_wort": "麥芽汁",
   "item.villagerswinery.wort.information": "神說，要有麥芽汁，所以世界上第一桶麥芽汁就啵的一聲這麼冒出來了",
   "fluid.villagerswinery.fluid_beer": "啤酒",
@@ -21,18 +20,19 @@
   "item.villagerswinery.apple_juice.information": "蘋果的精華",
   "fluid.villagerswinery.fluid_cider": "蘋果酒",
   "item.villagerswinery.cider.information": "蘋果的精華的精華",
-  "item.villagerswinery.fluid.information": "%s %smb",
+  "item.villagerswinery.fluid_stack.information": "%s %smb",
+  "item.villagerswinery.fluid_amount.information": "%smb",
 
-  "//": "村民酒莊 物品",
+  "_comment_4": "村民酒莊 物品",
   "block.villagerswinery.liquid_barrel": "儲液木桶",
   "block.villagerswinery.basin": "工作盆",
   "item.villagerswinery.bucket": "桶裝%s",
   "item.villagerswinery.grape": "葡萄",
   "block.villagerswinery.grape_vine": "葡萄藤蔓",
 
-  "//": "村民酒莊 效果",
+  "_comment_5": "村民酒莊 效果",
   "effect.villagerswinery.drunk": "酒醉",
-  "effect.villagerswinery.get_merchant_xp": "交易經驗",
-
-  "potion.villagerswinery.get_merchant_xp": "交易經驗"
+  "effect.villagerswinery.add_food_level": "提升村民飽足",
+  "effect.villagerswinery.get_merchant_xp": "增加交易經驗",
+  "effect.villagerswinery.refresh_offers": "交易刷新"
 }

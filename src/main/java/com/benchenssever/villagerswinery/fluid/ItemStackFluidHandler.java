@@ -6,15 +6,26 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
+import org.jetbrains.annotations.NotNull;
 
-public class WoodenContainerFluidHandler extends FluidHandlerItemStack {
-    public WoodenContainerFluidHandler(ItemStack container, int capacity) {
+import java.util.function.Predicate;
+
+public class ItemStackFluidHandler extends FluidHandlerItemStack {
+    protected Predicate<FluidStack> validator;
+
+    public ItemStackFluidHandler(ItemStack container, int capacity) {
         super(container, capacity);
+        this.validator = fluidStack -> true;
+    }
+
+    public ItemStackFluidHandler(ItemStack container, int capacity, Predicate<FluidStack> validator) {
+        super(container, capacity);
+        this.validator = validator;
     }
 
     @Override
-    public boolean isFluidValid(int tank, FluidStack stack) {
-        return stack.getFluid().getAttributes().getTemperature() < 500;
+    public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
+        return validator.test(stack);
     }
 
     @Override

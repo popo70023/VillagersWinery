@@ -38,13 +38,14 @@ public class Drinks {
     private RegistryObject<FlowingFluid> flowingFluid;
     private final TranslationTextComponent tooltip;
     private final Food food;
+    private final boolean isAlcohol;
 
     //TODO: 添加factories模式更換支持，來更換可用的初始化class類別，參考FluidAttributes.Builder
     public Drinks(Builder builder) {
         this.id = builder.id;
         this.color = builder.color;
         this.food = builder.food;
-
+        this.isAlcohol = builder.isAlcohol;
 
         bucket = DrinksRegistry.ITEMS.register(
                 builder.id + "_fluid_bucket",
@@ -104,18 +105,18 @@ public class Drinks {
     public static boolean isCanConsumed(LivingEntity entityLivingBaseIn, IDrinkable drinkable) {
         EffectInstance drunkEffect = entityLivingBaseIn.getEffect(DrinksRegistry.drunk.get());
         Food drinkFood = drinkable.getFood();
+        //TODO: 時間限制要記得改回來
         if (drinkFood != null && (drunkEffect == null || drunkEffect.getDuration() > 0)) {
             if (entityLivingBaseIn instanceof PlayerEntity) {
                 return ((PlayerEntity) entityLivingBaseIn).getFoodData().needsFood() || drinkFood.canAlwaysEat();
             }
-            return true;
+            return !(drinkable.isAlcohol() && entityLivingBaseIn.isBaby());
         }
         return false;
     }
 
     public static void onDrinkConsumed(LivingEntity entityLivingBaseIn, IDrinkable drinkable) {
         EffectInstance drunkEffect = entityLivingBaseIn.getEffect(DrinksRegistry.drunk.get());
-        //TODO: 時間限制要記得改回來
         int time = 0;
         if (drunkEffect != null) {
             time += drunkEffect.getDuration();
@@ -130,14 +131,14 @@ public class Drinks {
 
     public static void applyDrinkFoodEffects(LivingEntity entityIn, Food food, int time) {
         World worldIn = entityIn.getCommandSenderWorld();
-        if(worldIn.isClientSide) return;
+        if (worldIn.isClientSide) return;
         for (Pair<EffectInstance, Float> pair : food.getEffects()) {
             if (pair.getFirst() != null && worldIn.random.nextFloat() < pair.getSecond()) {
                 EffectInstance effectinstance = pair.getFirst();
                 if (effectinstance.getEffect() == DrinksRegistry.drunk.get()) {
                     entityIn.addEffect(new EffectInstance(effectinstance.getEffect(), time + effectinstance.getDuration()));
                 } else {
-                    if(effectinstance.getEffect().isInstantenous()) {
+                    if (effectinstance.getEffect().isInstantenous()) {
                         effectinstance.getEffect().applyInstantenousEffect(entityIn, null, entityIn, effectinstance.getAmplifier(), 1.0D);
                     } else {
                         entityIn.addEffect(new EffectInstance(effectinstance));
@@ -171,11 +172,16 @@ public class Drinks {
         return tooltip;
     }
 
+    public boolean isAlcohol() {
+        return isAlcohol;
+    }
+
     public static class Builder {
         private final String id;
         ItemGroup group;
         private int color = 0xFFFFFFFF;
         private Food food;
+        private boolean isAlcohol = false;
 
         public Builder(String id) {
             this.id = id;
@@ -193,6 +199,11 @@ public class Drinks {
 
         public final Builder group(ItemGroup group) {
             this.group = group;
+            return this;
+        }
+
+        public final Builder isAlcohol() {
+            isAlcohol = true;
             return this;
         }
 

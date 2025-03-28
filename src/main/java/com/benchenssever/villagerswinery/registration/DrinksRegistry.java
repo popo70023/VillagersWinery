@@ -25,11 +25,12 @@ public class DrinksRegistry {
     public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(ForgeRegistries.FLUIDS, VillagersWineryMod.MODID);
     public static final DeferredRegister<Effect> EFFECT = DeferredRegister.create(ForgeRegistries.POTIONS, VillagersWineryMod.MODID);
 
-    public static final RegistryObject<Effect> drunk = EFFECT.register("drunk", () -> new WineEffect(EffectType.NEUTRAL, 0xFF796400));
-    public static final RegistryObject<Effect> getIMerchantXp = EFFECT.register("get_merchant_xp", () -> new WineEffect(EffectType.BENEFICIAL, 0xFF796400, true));
-    public static final RegistryObject<Effect> addFoodLevel = EFFECT.register("add_food_level", () -> new WineEffect(EffectType.BENEFICIAL, 0xFF796400, true));
+    public static final RegistryObject<Effect> drunk = EFFECT.register("drunk", () -> new WineEffect(EffectType.NEUTRAL, 0xFF796400, false));
+    public static final RegistryObject<Effect> addFoodLevel = EFFECT.register("add_food_level", () -> new WineEffect.Villager(EffectType.BENEFICIAL, 0xFF796400, true));
+    public static final RegistryObject<Effect> getIMerchantXp = EFFECT.register("get_merchant_xp", () -> new WineEffect.Villager(EffectType.BENEFICIAL, 0xFF796400, true));
+    public static final RegistryObject<Effect> refreshOffers = EFFECT.register("refresh_offers", () -> new WineEffect.Villager(EffectType.BENEFICIAL, 0xFF796400, true));
 
-    public static final RegistryObject<Item> emptyWinebowl = ITEMS.register("empty_winebowl", () -> new Winebowl(new Item.Properties().tab(RegistryEvents.wineryItemGroup).stacksTo(16)));
+    public static final RegistryObject<Item> emptyWinebowl = ITEMS.register("empty_winebowl", () -> new Winebowl.Empty(new Item.Properties().tab(RegistryEvents.wineryItemGroup).stacksTo(16)));
     public static final RegistryObject<Item> winebowl = ITEMS.register("winebowl", () -> new Winebowl(new Item.Properties().tab(RegistryEvents.wineryItemGroup).stacksTo(1)));
 
     public static final Drinks wort = new Drinks.Builder("wort")
@@ -51,6 +52,7 @@ public class DrinksRegistry {
                     .alwaysEat()
                     .build())
             .group(RegistryEvents.wineryItemGroup)
+            .isAlcohol()
             .build();
 
     public static final Drinks grapeJuice = new Drinks.Builder("grape_juice")
@@ -70,6 +72,7 @@ public class DrinksRegistry {
                     .effect(() -> new EffectInstance(getIMerchantXp.get()), 1.0f)
                     .build())
             .group(RegistryEvents.wineryItemGroup)
+            .isAlcohol()
             .build();
 
     public static final Drinks appleJuice = new Drinks.Builder("apple_juice")
@@ -86,8 +89,10 @@ public class DrinksRegistry {
             .food(new Food.Builder()
                     .saturationMod(0.3f)
                     .effect(() -> new EffectInstance(drunk.get(), 3600), 1.0f)
+                    .effect(() -> new EffectInstance(refreshOffers.get()), 1.0f)
                     .build())
             .group(RegistryEvents.wineryItemGroup)
+            .isAlcohol()
             .build();
 
     public static final Drinks[] drinksCollection = {wort, beer, grapeJuice, grapeWine, appleJuice, cider};

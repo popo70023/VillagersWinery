@@ -1,6 +1,6 @@
 package com.benchenssever.villagerswinery.recipe;
 
-import com.benchenssever.villagerswinery.fluid.FluidTransferUtil;
+import com.benchenssever.villagerswinery.fluid.FluidUtils;
 import com.google.gson.JsonObject;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
@@ -21,7 +21,7 @@ public class BasinCrushRecipeSerializers<T extends BasinCrushRecipe> extends For
     @Override
     public @NotNull T fromJson(@NotNull ResourceLocation recipeId, @NotNull JsonObject json) {
         Ingredient input = Ingredient.fromJson(JSONUtils.getAsJsonObject(json, "ingredient"));
-        FluidStack output = FluidTransferUtil.getFluidStackFromJson(json.getAsJsonObject("output"));
+        FluidStack output = FluidUtils.getFluidStackFromJson(json.getAsJsonObject("output"));
         int crushTime = json.get("crushtime").getAsInt();
         return factory.create(recipeId, input, output, crushTime);
     }
