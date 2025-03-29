@@ -26,8 +26,6 @@ import java.util.function.Supplier;
 import static net.minecraft.item.Items.BUCKET;
 
 public class Drinks {
-
-
     public static final ResourceLocation STILL_WATER_TEXTURE = new ResourceLocation("block/water_still");
     public static final ResourceLocation FLOWING_WATER_TEXTURE = new ResourceLocation("block/water_flow");
     public final String id;
@@ -39,6 +37,7 @@ public class Drinks {
     private final TranslationTextComponent tooltip;
     private final Food food;
     private final boolean isAlcohol;
+    private final boolean isForDrink;
 
     //TODO: 添加factories模式更換支持，來更換可用的初始化class類別，參考FluidAttributes.Builder
     public Drinks(Builder builder) {
@@ -46,6 +45,7 @@ public class Drinks {
         this.color = builder.color;
         this.food = builder.food;
         this.isAlcohol = builder.isAlcohol;
+        this.isForDrink = builder.isForDrink;
 
         bucket = DrinksRegistry.ITEMS.register(
                 builder.id + "_fluid_bucket",
@@ -176,12 +176,17 @@ public class Drinks {
         return isAlcohol;
     }
 
+    public boolean isForDrink() {
+        return isForDrink;
+    }
+
     public static class Builder {
         private final String id;
         ItemGroup group;
         private int color = 0xFFFFFFFF;
         private Food food;
         private boolean isAlcohol = false;
+        public boolean isForDrink = true;
 
         public Builder(String id) {
             this.id = id;
@@ -204,6 +209,11 @@ public class Drinks {
 
         public final Builder isAlcohol() {
             isAlcohol = true;
+            return this;
+        }
+
+        public final Builder notForDrink() {
+            isForDrink = false;
             return this;
         }
 

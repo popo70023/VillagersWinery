@@ -9,4 +9,6 @@ public interface IDrinkable {
     TranslationTextComponent getTooltip();
 
     boolean isAlcohol();
+
+    boolean isForDrink();
 }

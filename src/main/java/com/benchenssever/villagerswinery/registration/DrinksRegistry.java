@@ -40,6 +40,7 @@ public class DrinksRegistry {
                     .saturationMod(3.6f)
                     .build())
             .group(RegistryEvents.wineryItemGroup)
+            .notForDrink()
             .build();
 
     public static final Drinks beer = new Drinks.Builder("beer")

@@ -31,6 +31,11 @@ public abstract class DrinkableFluid extends ForgeFlowingFluid implements IDrink
         return drinks.isAlcohol();
     }
 
+    @Override
+    public boolean isForDrink() {
+        return drinks.isForDrink();
+    }
+
     public static class Flowing extends DrinkableFluid {
         public Flowing(Properties properties, Drinks drinks) {
             super(properties, drinks);

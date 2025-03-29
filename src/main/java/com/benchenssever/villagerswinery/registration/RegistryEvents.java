@@ -2,6 +2,7 @@ package com.benchenssever.villagerswinery.registration;
 
 import com.benchenssever.villagerswinery.block.*;
 import com.benchenssever.villagerswinery.client.gui.LiquidBarrelScreen;
+import com.benchenssever.villagerswinery.entity.ai.VillagerFollowPlayerSensor;
 import com.benchenssever.villagerswinery.fluid.LiquidBarrelContainer;
 import com.benchenssever.villagerswinery.item.LiquidBarrelItem;
 import com.benchenssever.villagerswinery.model.BasinTileEntityRenderer;
@@ -20,6 +21,10 @@ import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.color.BlockColors;
+import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
+import net.minecraft.entity.ai.brain.schedule.Activity;
+import net.minecraft.entity.ai.brain.sensor.SensorType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.*;
 import net.minecraft.item.crafting.IRecipeSerializer;
@@ -36,6 +41,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 import static com.benchenssever.villagerswinery.VillagersWineryMod.MODID;
 
 public class RegistryEvents {
@@ -45,6 +52,9 @@ public class RegistryEvents {
     public static final DeferredRegister<TileEntityType<?>> TILE_ENTITIES = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, MODID);
     public static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, MODID);
     public static final DeferredRegister<IRecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MODID);
+    public static final DeferredRegister<MemoryModuleType<?>> MEMORY_MODULE_TYPES = DeferredRegister.create(ForgeRegistries.MEMORY_MODULE_TYPES, MODID);
+    public static final DeferredRegister<SensorType<?>> SENSOR_TYPES = DeferredRegister.create(ForgeRegistries.SENSOR_TYPES, MODID);
+    public static final DeferredRegister<Activity> ACTIVITIES = DeferredRegister.create(ForgeRegistries.ACTIVITIES, MODID);
 
     public static final RegistryObject<Item> liquidBarrelItem = ITEMS.register("liquid_barrel", () -> new LiquidBarrelItem(RegistryEvents.liquidBarrelBlock.get(), new Item.Properties().tab(RegistryEvents.wineryItemGroup).stacksTo(1)));
     public static final RegistryObject<Item> basinItem = ITEMS.register("basin", () -> new BlockItem(RegistryEvents.basinBlock.get(), new Item.Properties().tab(RegistryEvents.wineryItemGroup)));
@@ -70,6 +80,10 @@ public class RegistryEvents {
     public static final IRecipeType<WineRecipe> wineRecipe = IRecipeType.register("winerecipe");
     public static final IRecipeType<BasinCrushRecipe> basinCrushRecipe = IRecipeType.register("basincrushrecipe");
 
+    public static final RegistryObject<MemoryModuleType<PlayerEntity>> villagesFollowPlayerMemory = MEMORY_MODULE_TYPES.register("villages_follow_player_memory", () -> new MemoryModuleType<>(Optional.empty()));
+    public static final RegistryObject<SensorType<VillagerFollowPlayerSensor>> villagerFollowPlayerSensor = SENSOR_TYPES.register("villages_follow_player_sensor", () -> new SensorType<>(VillagerFollowPlayerSensor::new));
+    public static final RegistryObject<Activity> villagesFollowPlayerActivity = ACTIVITIES.register("villages_follow_player_activity", () -> new Activity("follow"));
+
     public static final ItemGroup wineryItemGroup = new ItemGroup("villagerswinery") {
         @Override
         public @NotNull ItemStack makeIcon() {
@@ -83,6 +97,9 @@ public class RegistryEvents {
         TILE_ENTITIES.register(eventBus);
         CONTAINERS.register(eventBus);
         RECIPE_SERIALIZERS.register(eventBus);
+        MEMORY_MODULE_TYPES.register(eventBus);
+        SENSOR_TYPES.register(eventBus);
+        ACTIVITIES.register(eventBus);
     }
 
     public static void setRender(FMLClientSetupEvent event) {
