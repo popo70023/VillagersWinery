@@ -14,16 +14,16 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
-public class VillagerFollowPlayerGoal extends TemptGoal {
+public class FollowPlayerGoal extends TemptGoal {
 
-    public VillagerFollowPlayerGoal(CreatureEntity mob, double speedModifier, boolean canScare) {
+    public FollowPlayerGoal(CreatureEntity mob, double speedModifier, boolean canScare) {
         super(mob, speedModifier, canScare, Ingredient.EMPTY);
     }
 
     @Override
     protected boolean shouldFollowItem(@NotNull ItemStack heldItem) {
         Brain<?> brain = mob.getBrain();
-        if(brain.isActive(Activity.REST) || brain.isActive(Activity.PANIC) || brain.isActive(Activity.HIDE)) {
+        if (brain.isActive(Activity.REST) || brain.isActive(Activity.PANIC) || brain.isActive(Activity.HIDE)) {
             return false;
         }
 

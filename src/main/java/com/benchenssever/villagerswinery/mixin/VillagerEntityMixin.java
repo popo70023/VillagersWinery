@@ -1,17 +1,22 @@
 package com.benchenssever.villagerswinery.mixin;
 
+import com.benchenssever.villagerswinery.api.IBrainMixin;
 import com.benchenssever.villagerswinery.api.IVillagerEntityMixin;
 import com.benchenssever.villagerswinery.drinkable.Drinks;
 import com.benchenssever.villagerswinery.drinkable.IDrinkable;
-import com.benchenssever.villagerswinery.entity.ai.VillagerFollowPlayerGoal;
+import com.benchenssever.villagerswinery.entity.ai.FollowPlayerTask;
 import com.benchenssever.villagerswinery.fluid.ItemStackFluidHandler;
 import com.benchenssever.villagerswinery.item.Winebowl;
 import com.benchenssever.villagerswinery.registration.DrinksRegistry;
+import com.benchenssever.villagerswinery.registration.RegistryEvents;
+import com.google.common.collect.ImmutableList;
+import com.mojang.serialization.Dynamic;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ai.brain.Brain;
+import net.minecraft.entity.ai.brain.schedule.Activity;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.villager.VillagerType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MerchantOffers;
 import net.minecraft.stats.Stats;
@@ -57,9 +62,25 @@ public abstract class VillagerEntityMixin extends AbstractVillagerEntity impleme
         updateTrades();
     }
 
-    @Inject(method = "<init>(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;Lnet/minecraft/entity/villager/VillagerType;)V", at = @At("TAIL"))
-    private void villagerFollowPlayer(EntityType<? extends VillagerEntity> entityType, World world, VillagerType type, CallbackInfo ci) {
-        this.goalSelector.addGoal(2, new VillagerFollowPlayerGoal(this, .4D, false));
+//    @Inject(method = "<init>(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;Lnet/minecraft/entity/villager/VillagerType;)V", at = @At("TAIL"))
+//    private void villagerFollowPlayer(EntityType<? extends VillagerEntity> entityType, World world, VillagerType type, CallbackInfo ci) {
+//        this.goalSelector.addGoal(2, new FollowPlayerGoal(this, .4D, false));
+//    }
+
+    @Inject(method = "makeBrain", at = @At("RETURN"), cancellable = true)
+    protected void modifyBrain(Dynamic<?> pDynamic, CallbackInfoReturnable<Brain<?>> cir) {
+        Brain<?> newBrain = cir.getReturnValue();
+        if (newBrain instanceof IBrainMixin) {
+            IBrainMixin brainMixin = (IBrainMixin) newBrain;
+            brainMixin.villagersWinery$addMemoryModuleType(ImmutableList.of(RegistryEvents.followPlayerMemory.get()));
+            brainMixin.villagersWinery$addSensorType(ImmutableList.of(RegistryEvents.followPlayerSensor.get()));
+        }
+        cir.setReturnValue(newBrain);
+    }
+
+    @Inject(method = "registerBrainGoals", at = @At("TAIL"))
+    protected void addBrainGoals(Brain<VillagerEntity> villagerBrain, CallbackInfo ci) {
+        villagerBrain.addActivity(Activity.CORE, 4, ImmutableList.of(new FollowPlayerTask(.4d)));
     }
 
     @Inject(method = "mobInteract", at = @At("HEAD"), cancellable = true)

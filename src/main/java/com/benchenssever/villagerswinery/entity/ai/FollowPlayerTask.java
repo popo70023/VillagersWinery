@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class FollowPlayerTask extends Task<LivingEntity> {
     private final double moveSpeed;
-    private static final MemoryModuleType<PlayerEntity> TARGET_PLAYER = RegistryEvents.villagesFollowPlayerMemory.get();
+    private static final MemoryModuleType<PlayerEntity> TARGET_PLAYER = RegistryEvents.followPlayerMemory.get();
 
     public FollowPlayerTask(double moveSpeed) {
         super(ImmutableMap.of(TARGET_PLAYER, MemoryModuleStatus.VALUE_PRESENT));
@@ -25,13 +25,14 @@ public class FollowPlayerTask extends Task<LivingEntity> {
         PlayerEntity targetPlayer = owner.getBrain().getMemory(TARGET_PLAYER).orElse(null);
         if (targetPlayer != null && owner instanceof AbstractVillagerEntity) {
             AbstractVillagerEntity theVillager = (AbstractVillagerEntity) owner;
+            theVillager.lookAt(targetPlayer, theVillager.getMaxHeadYRot(), theVillager.getMaxHeadXRot());
             theVillager.getNavigation().moveTo(targetPlayer, moveSpeed);
         }
     }
 
     @Override
     protected boolean canStillUse(@NotNull ServerWorld world, LivingEntity entity, long gameTime) {
-        return entity.getBrain().getMemory(TARGET_PLAYER).isPresent();
+        return entity.getBrain().getMemory(TARGET_PLAYER).isPresent() && !FollowPlayerSensor.isEntityUnavailable(entity.getBrain());
     }
 
     @Override

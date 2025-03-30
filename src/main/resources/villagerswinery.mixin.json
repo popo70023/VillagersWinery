@@ -3,6 +3,7 @@
   "package": "com.benchenssever.villagerswinery.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "BrainMixin",
     "VillagerEntityMixin"
   ],
   "injectors": {

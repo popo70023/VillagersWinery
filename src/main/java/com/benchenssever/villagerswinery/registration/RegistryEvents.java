@@ -2,7 +2,7 @@ package com.benchenssever.villagerswinery.registration;
 
 import com.benchenssever.villagerswinery.block.*;
 import com.benchenssever.villagerswinery.client.gui.LiquidBarrelScreen;
-import com.benchenssever.villagerswinery.entity.ai.VillagerFollowPlayerSensor;
+import com.benchenssever.villagerswinery.entity.ai.FollowPlayerSensor;
 import com.benchenssever.villagerswinery.fluid.LiquidBarrelContainer;
 import com.benchenssever.villagerswinery.item.LiquidBarrelItem;
 import com.benchenssever.villagerswinery.model.BasinTileEntityRenderer;
@@ -80,9 +80,8 @@ public class RegistryEvents {
     public static final IRecipeType<WineRecipe> wineRecipe = IRecipeType.register("winerecipe");
     public static final IRecipeType<BasinCrushRecipe> basinCrushRecipe = IRecipeType.register("basincrushrecipe");
 
-    public static final RegistryObject<MemoryModuleType<PlayerEntity>> villagesFollowPlayerMemory = MEMORY_MODULE_TYPES.register("villages_follow_player_memory", () -> new MemoryModuleType<>(Optional.empty()));
-    public static final RegistryObject<SensorType<VillagerFollowPlayerSensor>> villagerFollowPlayerSensor = SENSOR_TYPES.register("villages_follow_player_sensor", () -> new SensorType<>(VillagerFollowPlayerSensor::new));
-    public static final RegistryObject<Activity> villagesFollowPlayerActivity = ACTIVITIES.register("villages_follow_player_activity", () -> new Activity("follow"));
+    public static final RegistryObject<MemoryModuleType<PlayerEntity>> followPlayerMemory = MEMORY_MODULE_TYPES.register("follow_player_memory", () -> new MemoryModuleType<>(Optional.empty()));
+    public static final RegistryObject<SensorType<FollowPlayerSensor>> followPlayerSensor = SENSOR_TYPES.register("follow_player_sensor", () -> new SensorType<>(FollowPlayerSensor::new));
 
     public static final ItemGroup wineryItemGroup = new ItemGroup("villagerswinery") {
         @Override

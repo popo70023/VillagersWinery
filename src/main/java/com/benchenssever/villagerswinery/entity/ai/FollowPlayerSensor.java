@@ -7,7 +7,9 @@ import com.benchenssever.villagerswinery.item.Winebowl;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
+import net.minecraft.entity.ai.brain.schedule.Activity;
 import net.minecraft.entity.ai.brain.sensor.Sensor;
 import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -20,23 +22,34 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
-public class VillagerFollowPlayerSensor extends Sensor<VillagerEntity> {
+public class FollowPlayerSensor extends Sensor<LivingEntity> {
     private static final int SEARCH_RADIUS = 10;
 
     @Override
-    protected void doTick(@NotNull ServerWorld world, @NotNull VillagerEntity entity) {
+    protected void doTick(@NotNull ServerWorld world, @NotNull LivingEntity entity) {
         PlayerEntity nearestPlayer = findNearestPlayer(entity);
-        boolean hasFollowPlayerMemory = entity.getBrain().getMemory(RegistryEvents.villagesFollowPlayerMemory.get()).isPresent();
-        if (nearestPlayer != null && !hasFollowPlayerMemory) {
-            entity.getBrain().setMemory(RegistryEvents.villagesFollowPlayerMemory.get(), nearestPlayer);
-        } else if (nearestPlayer == null && hasFollowPlayerMemory) {
-            entity.getBrain().eraseMemory(RegistryEvents.villagesFollowPlayerMemory.get());
+        Brain<?> brain = entity.getBrain();
+        PlayerEntity memberPlayer = brain.getMemory(RegistryEvents.followPlayerMemory.get()).orElse(null);
+
+        if (nearestPlayer == null || isEntityUnavailable(brain)) {
+            if (memberPlayer != null) {
+                brain.eraseMemory(RegistryEvents.followPlayerMemory.get());
+            }
+            return;
+        }
+
+        if (memberPlayer == null || memberPlayer.getUUID() != nearestPlayer.getUUID()) {
+            brain.setMemory(RegistryEvents.followPlayerMemory.get(), nearestPlayer);
         }
     }
 
     @Override
     public @NotNull Set<MemoryModuleType<?>> requires() {
-        return ImmutableSet.of(RegistryEvents.villagesFollowPlayerMemory.get());
+        return ImmutableSet.of(RegistryEvents.followPlayerMemory.get());
+    }
+
+    public static boolean isEntityUnavailable(Brain<?> brain) {
+        return brain.isActive(Activity.REST) || brain.isActive(Activity.PANIC) || brain.isActive(Activity.HIDE);
     }
 
     public static PlayerEntity findNearestPlayer(LivingEntity entity) {
@@ -46,13 +59,19 @@ public class VillagerFollowPlayerSensor extends Sensor<VillagerEntity> {
                 SEARCH_RADIUS,
                 predicateEntity -> {
                     if (!(predicateEntity instanceof PlayerEntity)) return false;
-                    IDrinkable heldDrink = hasHoldingDrinkableItem((PlayerEntity) predicateEntity);
-                    if (heldDrink != null) {
+                    PlayerEntity player = (PlayerEntity) predicateEntity;
+                    IDrinkable heldDrink = hasHoldingDrinkableItem(player);
+                    if (heldDrink != null && getPlayerReputation(entity, player) > -5) {
                         return preferenceByAge(heldDrink, entity);
                     }
                     return false;
                 }
         );
+    }
+
+    public static int getPlayerReputation(LivingEntity villager, PlayerEntity player) {
+        if(!(villager instanceof VillagerEntity)) return 0;
+        return ((VillagerEntity)villager).getGossips().getReputation(player.getUUID(), gossipType -> true);
     }
 
     public static IDrinkable hasHoldingDrinkableItem(PlayerEntity player) {
