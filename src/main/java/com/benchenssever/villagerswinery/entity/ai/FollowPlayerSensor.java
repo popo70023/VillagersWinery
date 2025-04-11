@@ -1,9 +1,9 @@
 package com.benchenssever.villagerswinery.entity.ai;
 
-import com.benchenssever.villagerswinery.drinkable.IDrinkable;
-import com.benchenssever.villagerswinery.fluid.ItemStackFluidHandler;
-import com.benchenssever.villagerswinery.item.LiquidBarrelItem;
-import com.benchenssever.villagerswinery.item.Winebowl;
+import com.benchenssever.villagerswinery.content.drinkable.IDrinkable;
+import com.benchenssever.villagerswinery.content.capability.ItemStackFluidHandler;
+import com.benchenssever.villagerswinery.content.equipment.LiquidBarrelItem;
+import com.benchenssever.villagerswinery.content.equipment.WinebowlItem;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.entity.LivingEntity;
@@ -76,7 +76,7 @@ public class FollowPlayerSensor extends Sensor<LivingEntity> {
 
     public static IDrinkable hasHoldingDrinkableItem(PlayerEntity player) {
         ItemStack heldItem = player.getItemInHand(Hand.MAIN_HAND);
-        if (heldItem.getItem() instanceof LiquidBarrelItem || heldItem.getItem() instanceof Winebowl) {
+        if (heldItem.getItem() instanceof LiquidBarrelItem || heldItem.getItem() instanceof WinebowlItem) {
             FluidStack fluidInside = ItemStackFluidHandler.getFluid(heldItem);
             if (fluidInside.getFluid() instanceof IDrinkable) {
                 return (IDrinkable) fluidInside.getFluid();

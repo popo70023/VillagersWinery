@@ -1,8 +1,7 @@
 package com.benchenssever.villagerswinery.client.gui;
 
 import com.benchenssever.villagerswinery.VillagersWineryMod;
-import com.benchenssever.villagerswinery.fluid.FluidUtils;
-import com.benchenssever.villagerswinery.fluid.LiquidBarrelContainer;
+import com.benchenssever.villagerswinery.content.capability.FluidUtils;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;

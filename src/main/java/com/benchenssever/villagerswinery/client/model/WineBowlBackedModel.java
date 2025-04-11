@@ -1,7 +1,7 @@
-package com.benchenssever.villagerswinery.model;
+package com.benchenssever.villagerswinery.client.model;
 
-import com.benchenssever.villagerswinery.fluid.ItemStackFluidHandler;
-import com.benchenssever.villagerswinery.item.Winebowl;
+import com.benchenssever.villagerswinery.content.capability.ItemStackFluidHandler;
+import com.benchenssever.villagerswinery.content.equipment.WinebowlItem;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.RenderType;
@@ -138,7 +138,7 @@ public class WineBowlBackedModel implements IBakedModel {
         FluidAttributes attributes = fluidStack.getFluid().getAttributes();
         int color = attributes.getColor(fluidStack);
         int luminosity = attributes.getLuminosity(fluidStack); //TODO: luminosity?
-        float liquidLevel = 1.0f + (fluidStack.getAmount() * 6.0f / Winebowl.DEFAULT_CAPACITY);
+        float liquidLevel = 1.0f + (fluidStack.getAmount() * 6.0f / WinebowlItem.DEFAULT_CAPACITY);
         RenderMaterial fluidMaterial = ModelLoaderRegistry.blockMaterial(attributes.getStillTexture(fluidStack));
 
 

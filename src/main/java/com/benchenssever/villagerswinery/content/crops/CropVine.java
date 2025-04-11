@@ -1,9 +1,11 @@
-package com.benchenssever.villagerswinery.block;
+package com.benchenssever.villagerswinery.content.crops;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.IGrowable;
+import net.minecraft.block.VineBlock;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -25,14 +27,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class CropVineStand extends VineStand implements IGrowable, ICrop {
+public class CropVine extends VineBlock implements IGrowable, ICrop {
     public static final IntegerProperty AGE = BlockStateProperties.AGE_7;
     private final RegistryObject<Item> product;
 
-    public CropVineStand(Properties properties, RegistryObject<Block> vine, RegistryObject<Item> product) {
-        super(properties, vine);
-        this.product = product;
+    public CropVine(Properties properties, RegistryObject<Item> product) {
+        super(properties);
         this.registerDefaultState(this.defaultBlockState().setValue(AGE, 0));
+        this.product = product;
     }
 
     @Override
@@ -46,46 +48,46 @@ public class CropVineStand extends VineStand implements IGrowable, ICrop {
     }
 
     @Override
-    public float getGrowthChance(Block blockIn, IBlockReader worldIn, BlockPos pos) {
-        return 1.0F;
+    public boolean isShearable(@NotNull ItemStack item, World world, BlockPos pos) {
+        return this.isMaxAge(world.getBlockState(pos));
     }
 
     @Override
     public @NotNull List<ItemStack> onSheared(PlayerEntity player, @NotNull ItemStack item, World world, BlockPos pos, int fortune) {
         List<ItemStack> drops = new ArrayList<>();
-        drops.add(new ItemStack(this.isMaxAge(world.getBlockState(pos)) ? this.getProduct() : this.getVineItem()));
+        if (this.isMaxAge(world.getBlockState(pos))) drops.add(new ItemStack(this.getProduct()));
         return drops;
     }
 
     @Override
-    public @NotNull ActionResultType use(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos, PlayerEntity player, @NotNull Hand handIn, @NotNull BlockRayTraceResult hit) {
-        ItemStack stack = player.getItemInHand(handIn);
-        if (ItemTags.getAllTags().getTag(new ResourceLocation("forge", "shears")).contains(stack.getItem())) {
-            worldIn.playSound(player, pos, SoundEvents.SHEEP_SHEAR, SoundCategory.PLAYERS, 1.0F, 1.0F);
-            if (!worldIn.isClientSide()) {
-                List<ItemStack> drops = onSheared(player, stack, worldIn, pos, 0);
-                for (ItemStack drop : drops) {
-                    InventoryHelper.dropItemStack(worldIn, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, drop);
-                }
-                if (this.isMaxAge(state)) {
-                    worldIn.setBlock(pos, state.setValue(this.getAgeProperty(), 0), 2);
-                } else {
-                    worldIn.setBlock(pos, this.getStand().defaultBlockState(), 2);
-                }
-
-                if (!player.abilities.instabuild) {
-                    stack.hurtAndBreak(1, player, (p) -> p.broadcastBreakEvent(handIn));
-                }
-            }
-            return ActionResultType.SUCCESS;
-        }
-        return super.use(state, worldIn, pos, player, handIn, hit);
+    public float getGrowthChance(Block blockIn, IBlockReader worldIn, BlockPos pos) {
+        return 1.0F;
     }
 
     @Override
     public void randomTick(@NotNull BlockState state, @NotNull ServerWorld worldIn, @NotNull BlockPos pos, @NotNull Random random) {
         super.randomTick(state, worldIn, pos, random);
         this.growth(state, worldIn, pos, random);
+    }
+
+    @Override
+    public @NotNull ActionResultType use(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos, PlayerEntity player, @NotNull Hand handIn, @NotNull BlockRayTraceResult hit) {
+        ItemStack stack = player.getItemInHand(handIn);
+        if (ItemTags.getAllTags().getTag(new ResourceLocation("forge", "shears")).contains(stack.getItem()) && this.isShearable(stack, worldIn, pos)) {
+            worldIn.playSound(player, pos, SoundEvents.SHEEP_SHEAR, SoundCategory.PLAYERS, 1.0F, 1.0F);
+            if (!worldIn.isClientSide()) {
+                List<ItemStack> drops = onSheared(player, stack, worldIn, pos, 0);
+                for (ItemStack drop : drops) {
+                    InventoryHelper.dropItemStack(worldIn, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, drop);
+                }
+                worldIn.setBlock(pos, this.withAge(state, 0), 2);
+                if (!player.abilities.instabuild) {
+                    stack.hurt(1, new Random(), (ServerPlayerEntity) player);
+                }
+            }
+            return ActionResultType.SUCCESS;
+        }
+        return super.use(state, worldIn, pos, player, handIn, hit);
     }
 
     @Override
@@ -107,7 +109,9 @@ public class CropVineStand extends VineStand implements IGrowable, ICrop {
     @Override
     public void performBonemeal(ServerWorld worldIn, @NotNull Random rand, @NotNull BlockPos pos, @NotNull BlockState state) {
         int age = this.getAge(state) + MathHelper.nextInt(worldIn.random, 2, 5);
-        if (age > this.getMaxAge()) age = this.getMaxAge();
+        if (age > this.getMaxAge()) {
+            age = this.getMaxAge();
+        }
         worldIn.setBlock(pos, this.withAge(state, age), 2);
     }
 }

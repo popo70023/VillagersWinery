@@ -1,9 +1,9 @@
 package com.benchenssever.villagerswinery.entity.ai;
 
-import com.benchenssever.villagerswinery.drinkable.IDrinkable;
-import com.benchenssever.villagerswinery.fluid.ItemStackFluidHandler;
-import com.benchenssever.villagerswinery.item.LiquidBarrelItem;
-import com.benchenssever.villagerswinery.item.Winebowl;
+import com.benchenssever.villagerswinery.content.drinkable.IDrinkable;
+import com.benchenssever.villagerswinery.content.capability.ItemStackFluidHandler;
+import com.benchenssever.villagerswinery.content.equipment.LiquidBarrelItem;
+import com.benchenssever.villagerswinery.content.equipment.WinebowlItem;
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.Brain;
@@ -27,7 +27,7 @@ public class FollowPlayerGoal extends TemptGoal {
             return false;
         }
 
-        if (heldItem.getItem() instanceof LiquidBarrelItem || heldItem.getItem() instanceof Winebowl) {
+        if (heldItem.getItem() instanceof LiquidBarrelItem || heldItem.getItem() instanceof WinebowlItem) {
             FluidStack fluidInside = ItemStackFluidHandler.getFluid(heldItem);
             if (fluidInside.getFluid() instanceof IDrinkable) {
                 return preferenceByAge((IDrinkable) fluidInside.getFluid(), mob);

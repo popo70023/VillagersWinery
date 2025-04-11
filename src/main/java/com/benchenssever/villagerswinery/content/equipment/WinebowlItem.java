@@ -1,10 +1,9 @@
-package com.benchenssever.villagerswinery.item;
+package com.benchenssever.villagerswinery.content.equipment;
 
-import com.benchenssever.villagerswinery.VillagersWineryMod;
-import com.benchenssever.villagerswinery.drinkable.Drinks;
-import com.benchenssever.villagerswinery.drinkable.IDrinkable;
-import com.benchenssever.villagerswinery.fluid.FluidUtils;
-import com.benchenssever.villagerswinery.fluid.ItemStackFluidHandler;
+import com.benchenssever.villagerswinery.content.capability.ItemStackFluidHandler;
+import com.benchenssever.villagerswinery.content.drinkable.Drinkable;
+import com.benchenssever.villagerswinery.content.drinkable.IDrinkable;
+import com.benchenssever.villagerswinery.content.capability.FluidUtils;
 import com.benchenssever.villagerswinery.registration.DrinksRegistry;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.client.util.ITooltipFlag;
@@ -23,7 +22,6 @@ import net.minecraft.util.DrinkHelper;
 import net.minecraft.util.Hand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
@@ -35,10 +33,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class Winebowl extends Item {
+public class WinebowlItem extends Item {
     public static final int DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME / 4;
 
-    public Winebowl(Properties properties) {
+    public WinebowlItem(Properties properties) {
         super(properties);
     }
 
@@ -52,7 +50,7 @@ public class Winebowl extends Item {
 
         if (playerentity != null && stackFluid.getFluid() instanceof IDrinkable && stackFluid.getAmount() >= DEFAULT_CAPACITY) {
             if (!worldIn.isClientSide) {
-                Drinks.onDrinkConsumed(playerentity, (IDrinkable) stackFluid.getFluid());
+                Drinkable.onDrinkConsumed(playerentity, (IDrinkable) stackFluid.getFluid());
             }
             playerentity.awardStat(Stats.ITEM_USED.get(this));
             if (!playerentity.abilities.instabuild) {
@@ -85,7 +83,7 @@ public class Winebowl extends Item {
         ItemStack stack = playerIn.getItemInHand(handIn);
         FluidStack stackFluid = ItemStackFluidHandler.getFluid(stack);
 
-        if (stackFluid.getFluid() instanceof IDrinkable && stackFluid.getAmount() >= DEFAULT_CAPACITY && Drinks.isCanConsumed(playerIn, (IDrinkable) stackFluid.getFluid())) {
+        if (stackFluid.getFluid() instanceof IDrinkable && stackFluid.getAmount() >= DEFAULT_CAPACITY && Drinkable.isCanConsumed(playerIn, (IDrinkable) stackFluid.getFluid())) {
             return DrinkHelper.useDrink(worldIn, playerIn, handIn);
         }
         return ActionResult.fail(playerIn.getItemInHand(handIn));
@@ -115,12 +113,10 @@ public class Winebowl extends Item {
     @Override
     public void fillItemCategory(@NotNull ItemGroup group, @NotNull NonNullList<ItemStack> items) {
         if (this.allowdedIn(group)) {
-            if (this == DrinksRegistry.winebowl.get()) {
-                for (Drinks drink : DrinksRegistry.drinksCollection) {
-                    ItemStack stack = new ItemStack(this);
-                    ItemStackFluidHandler.setFluid(stack, drink, DEFAULT_CAPACITY);
-                    items.add(stack);
-                }
+            for (Drinkable drink : Drinkable.getDrinkableCollection()) {
+                ItemStack stack = new ItemStack(this);
+                ItemStackFluidHandler.setFluid(stack, drink, DEFAULT_CAPACITY);
+                items.add(stack);
             }
         }
     }
@@ -136,7 +132,7 @@ public class Winebowl extends Item {
         };
     }
 
-    public static class Empty extends Winebowl {
+    public static class Empty extends WinebowlItem {
         public Empty(Properties properties) {
             super(properties);
         }

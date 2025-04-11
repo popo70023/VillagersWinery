@@ -1,7 +1,6 @@
-package com.benchenssever.villagerswinery.block;
+package com.benchenssever.villagerswinery.content.equipment;
 
-import com.benchenssever.villagerswinery.fluid.FluidUtils;
-import com.benchenssever.villagerswinery.tileentity.BasinTileEntity;
+import com.benchenssever.villagerswinery.content.capability.FluidUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -25,12 +24,12 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
-public class Basin extends Block {
+public class BasinBlock extends Block {
     public static final AxisAlignedBB INSIDE_AABB = new AxisAlignedBB(2.0 / 16.0, 4.0 / 16.0, 2.0 / 16.0, 14.0 / 16.0, 14.0 / 16.0, 14.0 / 16.0);
     private static final VoxelShape INSIDE = VoxelShapes.create(INSIDE_AABB);
     protected static final VoxelShape SHAPE = VoxelShapes.join(box(0, 0, 0, 16, 14, 16), VoxelShapes.or(INSIDE, box(2, 0, 0, 14, 2, 16), box(0, 0, 2, 16, 2, 14)), IBooleanFunction.ONLY_FIRST);
 
-    public Basin(Properties properties) {
+    public BasinBlock(Properties properties) {
         super(properties);
     }
 

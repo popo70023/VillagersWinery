@@ -1,4 +1,4 @@
-package com.benchenssever.villagerswinery.drinkable;
+package com.benchenssever.villagerswinery.content.drinkable;
 
 import com.benchenssever.villagerswinery.VillagersWineryMod;
 import net.minecraft.client.util.ITooltipFlag;
@@ -14,16 +14,16 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class DrinkableFluidBucket extends BucketItem {
-    public final Drinks drinks;
+    public final Drinkable drinkable;
 
-    public DrinkableFluidBucket(Supplier<? extends Fluid> supplier, Properties builder, Drinks drinks) {
+    public DrinkableFluidBucket(Supplier<? extends Fluid> supplier, Properties builder, Drinkable drinkable) {
         super(supplier, builder);
-        this.drinks = drinks;
+        this.drinkable = drinkable;
     }
 
     @Override
     public void appendHoverText(@NotNull ItemStack stack, World worldIn, List<ITextComponent> tooltip, @NotNull ITooltipFlag flagIn) {
-        tooltip.add(drinks.getTooltip());
+        tooltip.add(drinkable.getTooltip());
     }
 
     @Override

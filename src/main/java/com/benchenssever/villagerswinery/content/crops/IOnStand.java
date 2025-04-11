@@ -1,4 +1,4 @@
-package com.benchenssever.villagerswinery.block;
+package com.benchenssever.villagerswinery.content.crops;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;

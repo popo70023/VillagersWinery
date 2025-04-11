@@ -1,6 +1,6 @@
 package com.benchenssever.villagerswinery.client;
 
-import com.benchenssever.villagerswinery.model.WineBowlBackedModel;
+import com.benchenssever.villagerswinery.client.model.WineBowlBackedModel;
 import com.benchenssever.villagerswinery.registration.DrinksRegistry;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import net.minecraft.client.renderer.model.IBakedModel;

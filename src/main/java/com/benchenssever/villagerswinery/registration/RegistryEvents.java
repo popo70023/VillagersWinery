@@ -1,17 +1,22 @@
 package com.benchenssever.villagerswinery.registration;
 
-import com.benchenssever.villagerswinery.block.*;
 import com.benchenssever.villagerswinery.client.gui.LiquidBarrelScreen;
+import com.benchenssever.villagerswinery.content.crops.CropVine;
+import com.benchenssever.villagerswinery.content.crops.CropVineStand;
+import com.benchenssever.villagerswinery.content.crops.Stand;
+import com.benchenssever.villagerswinery.content.crops.VineStand;
+import com.benchenssever.villagerswinery.content.equipment.BasinBlock;
+import com.benchenssever.villagerswinery.content.equipment.LiquidBarrelBlock;
 import com.benchenssever.villagerswinery.entity.ai.FollowPlayerSensor;
-import com.benchenssever.villagerswinery.fluid.LiquidBarrelContainer;
-import com.benchenssever.villagerswinery.item.LiquidBarrelItem;
-import com.benchenssever.villagerswinery.model.BasinTileEntityRenderer;
+import com.benchenssever.villagerswinery.client.gui.LiquidBarrelContainer;
+import com.benchenssever.villagerswinery.content.equipment.LiquidBarrelItem;
+import com.benchenssever.villagerswinery.client.model.BasinTileEntityRenderer;
 import com.benchenssever.villagerswinery.recipe.BasinCrushRecipe;
 import com.benchenssever.villagerswinery.recipe.BasinCrushRecipeSerializers;
 import com.benchenssever.villagerswinery.recipe.WineRecipe;
 import com.benchenssever.villagerswinery.recipe.WineRecipeSerializers;
-import com.benchenssever.villagerswinery.tileentity.BasinTileEntity;
-import com.benchenssever.villagerswinery.tileentity.LiquidBarrelTileEntity;
+import com.benchenssever.villagerswinery.content.equipment.BasinTileEntity;
+import com.benchenssever.villagerswinery.content.equipment.LiquidBarrelTileEntity;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
@@ -63,8 +68,8 @@ public class RegistryEvents {
     public static final RegistryObject<Item> grape = ITEMS.register("grape", () -> new Item(new Item.Properties().tab(RegistryEvents.wineryItemGroup).food(new Food.Builder().fast().saturationMod(1).nutrition(3).build())));
 
 
-    public static final RegistryObject<Block> liquidBarrelBlock = BLOCKS.register("liquid_barrel", () -> new LiquidBarrel(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD).noOcclusion()));
-    public static final RegistryObject<Block> basinBlock = BLOCKS.register("basin", () -> new Basin(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD).noOcclusion()));
+    public static final RegistryObject<Block> liquidBarrelBlock = BLOCKS.register("liquid_barrel", () -> new LiquidBarrelBlock(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD).noOcclusion()));
+    public static final RegistryObject<Block> basinBlock = BLOCKS.register("basin", () -> new BasinBlock(AbstractBlock.Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD).noOcclusion()));
     public static final RegistryObject<Block> stand = BLOCKS.register("stand", () -> new Stand(AbstractBlock.Properties.of(Material.PLANT).noCollission().randomTicks().strength(2.5F).sound(SoundType.WOOD).noOcclusion()));
     public static final RegistryObject<Block> vineStand = BLOCKS.register("vine_stand", () -> new VineStand(AbstractBlock.Properties.of(Material.PLANT).noCollission().randomTicks().strength(2.5F).sound(SoundType.VINE).noOcclusion(), Items.VINE));
     public static final RegistryObject<Block> grapeVineStand = BLOCKS.register("grape_vine_stand", () -> new CropVineStand(AbstractBlock.Properties.of(Material.PLANT).noCollission().randomTicks().strength(2.5F).sound(SoundType.VINE).noOcclusion(), RegistryEvents.grapeVine, RegistryEvents.grape));

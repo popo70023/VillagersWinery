@@ -1,6 +1,6 @@
 package com.benchenssever.villagerswinery.recipe;
 
-import com.benchenssever.villagerswinery.fluid.FluidUtils;
+import com.benchenssever.villagerswinery.content.capability.FluidUtils;
 import com.google.gson.JsonObject;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.network.PacketBuffer;

@@ -1,6 +1,6 @@
-package com.benchenssever.villagerswinery.fluid;
+package com.benchenssever.villagerswinery.content.capability;
 
-import com.benchenssever.villagerswinery.drinkable.Drinks;
+import com.benchenssever.villagerswinery.content.drinkable.Drinkable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.Constants;
@@ -46,8 +46,8 @@ public class ItemStackFluidHandler extends FluidHandlerItemStack {
         return FluidStack.loadFluidStackFromNBT(tagCompound.getCompound(FLUID_NBT_KEY));
     }
 
-    public static void setFluid(ItemStack fluidContainer, Drinks drinks, int capacity) {
-        FluidStack fluidStack = new FluidStack(drinks.getFluid(), capacity);
+    public static void setFluid(ItemStack fluidContainer, Drinkable drinkable, int capacity) {
+        FluidStack fluidStack = new FluidStack(drinkable.getFluid(), capacity);
         CompoundNBT tagCompound = fluidContainer.getOrCreateTag();
         tagCompound.put(FLUID_NBT_KEY, fluidStack.writeToNBT(new CompoundNBT()));
     }

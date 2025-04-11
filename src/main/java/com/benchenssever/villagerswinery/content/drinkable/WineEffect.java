@@ -1,4 +1,4 @@
-package com.benchenssever.villagerswinery.drinkable;
+package com.benchenssever.villagerswinery.content.drinkable;
 
 import com.benchenssever.villagerswinery.api.IVillagerEntityMixin;
 import com.benchenssever.villagerswinery.registration.DrinksRegistry;

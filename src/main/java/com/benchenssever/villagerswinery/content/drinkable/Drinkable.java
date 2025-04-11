@@ -1,4 +1,4 @@
-package com.benchenssever.villagerswinery.drinkable;
+package com.benchenssever.villagerswinery.content.drinkable;
 
 import com.benchenssever.villagerswinery.VillagersWineryMod;
 import com.benchenssever.villagerswinery.registration.DrinksRegistry;
@@ -21,13 +21,18 @@ import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 import net.minecraftforge.fml.RegistryObject;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 
 import static net.minecraft.item.Items.BUCKET;
 
-public class Drinks {
+public class Drinkable {
     public static final ResourceLocation STILL_WATER_TEXTURE = new ResourceLocation("block/water_still");
     public static final ResourceLocation FLOWING_WATER_TEXTURE = new ResourceLocation("block/water_flow");
+
+    private static final List<Drinkable> drinkableCollection = new ArrayList<>();
     public final String id;
     public final int color;
     private final RegistryObject<Item> bucket;
@@ -40,7 +45,7 @@ public class Drinks {
     private final boolean isForDrink;
 
     //TODO: 添加factories模式更換支持，來更換可用的初始化class類別，參考FluidAttributes.Builder
-    public Drinks(Builder builder) {
+    public Drinkable(Builder builder) {
         this.id = builder.id;
         this.color = builder.color;
         this.food = builder.food;
@@ -84,6 +89,8 @@ public class Drinks {
         );
 
         tooltip = new TranslationTextComponent("item." + VillagersWineryMod.MODID + "." + id + ".information");
+
+        drinkableCollection.add(this);
     }
 
     private static ForgeFlowingFluid.Properties drinkProperties(Supplier<FlowingFluid> still, Supplier<FlowingFluid> flowing, int color, Supplier<Item> bucket, Supplier<FlowingFluidBlock> block) {
@@ -100,6 +107,85 @@ public class Drinks {
                 .block(block)
                 .slopeFindDistance(3)
                 .explosionResistance(100F);
+    }
+
+    public FlowingFluid getFluid() {
+        return fluid.get();
+    }
+
+    public FlowingFluid getFlowingFluid() {
+        return flowingFluid.get();
+    }
+
+    public Item getBucket() {
+        return bucket.get();
+    }
+
+    public FlowingFluidBlock getFluidBlock() {
+        return fluidBlock.get();
+    }
+
+    public Food getFood() {
+        return food;
+    }
+
+    public TranslationTextComponent getTooltip() {
+        return tooltip;
+    }
+
+    public boolean isAlcohol() {
+        return isAlcohol;
+    }
+
+    public boolean isForDrink() {
+        return isForDrink;
+    }
+
+    public static List<Drinkable> getDrinkableCollection() {
+        return Collections.unmodifiableList(drinkableCollection);
+    }
+
+    public static class Builder {
+        private final String id;
+        private ItemGroup group;
+        private int color = 0xFFFFFFFF;
+        private Food food;
+        private boolean isAlcohol = false;
+        private boolean isForDrink = true;
+
+        public Builder(String id) {
+            this.id = id;
+        }
+
+        public final Builder color(int color) {
+            this.color = color;
+            return this;
+        }
+
+        public final Builder food(Food food) {
+            this.food = food;
+            return this;
+        }
+
+        public final Builder group(ItemGroup group) {
+            this.group = group;
+            return this;
+        }
+
+        public final Builder isAlcohol() {
+            isAlcohol = true;
+            return this;
+        }
+
+        public final Builder notForDrink() {
+            isForDrink = false;
+            return this;
+        }
+
+        public final Drinkable build() {
+            return new Drinkable(this);
+        }
+
     }
 
     public static boolean isCanConsumed(LivingEntity entityLivingBaseIn, IDrinkable drinkable) {
@@ -146,81 +232,6 @@ public class Drinks {
                 }
             }
         }
-    }
-
-    public FlowingFluid getFluid() {
-        return fluid.get();
-    }
-
-    public FlowingFluid getFlowingFluid() {
-        return flowingFluid.get();
-    }
-
-    public Item getBucket() {
-        return bucket.get();
-    }
-
-    public FlowingFluidBlock getFluidBlock() {
-        return fluidBlock.get();
-    }
-
-    public Food getFood() {
-        return food;
-    }
-
-    public TranslationTextComponent getTooltip() {
-        return tooltip;
-    }
-
-    public boolean isAlcohol() {
-        return isAlcohol;
-    }
-
-    public boolean isForDrink() {
-        return isForDrink;
-    }
-
-    public static class Builder {
-        private final String id;
-        ItemGroup group;
-        private int color = 0xFFFFFFFF;
-        private Food food;
-        private boolean isAlcohol = false;
-        public boolean isForDrink = true;
-
-        public Builder(String id) {
-            this.id = id;
-        }
-
-        public final Builder color(int color) {
-            this.color = color;
-            return this;
-        }
-
-        public final Builder food(Food food) {
-            this.food = food;
-            return this;
-        }
-
-        public final Builder group(ItemGroup group) {
-            this.group = group;
-            return this;
-        }
-
-        public final Builder isAlcohol() {
-            isAlcohol = true;
-            return this;
-        }
-
-        public final Builder notForDrink() {
-            isForDrink = false;
-            return this;
-        }
-
-        public final Drinks build() {
-            return new Drinks(this);
-        }
-
     }
 }
 

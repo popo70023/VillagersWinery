@@ -1,7 +1,6 @@
-package com.benchenssever.villagerswinery.block;
+package com.benchenssever.villagerswinery.content.equipment;
 
-import com.benchenssever.villagerswinery.fluid.FluidUtils;
-import com.benchenssever.villagerswinery.tileentity.LiquidBarrelTileEntity;
+import com.benchenssever.villagerswinery.content.capability.FluidUtils;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -22,10 +21,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
-public class LiquidBarrel extends HorizontalBlock {
+public class LiquidBarrelBlock extends HorizontalBlock {
     public static final BooleanProperty VERTICAL = BooleanProperty.create("vertical");
 
-    public LiquidBarrel(AbstractBlock.Properties properties) {
+    public LiquidBarrelBlock(AbstractBlock.Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(VERTICAL, false));
     }

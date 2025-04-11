@@ -1,6 +1,6 @@
-package com.benchenssever.villagerswinery.model;
+package com.benchenssever.villagerswinery.client.model;
 
-import com.benchenssever.villagerswinery.tileentity.BasinTileEntity;
+import com.benchenssever.villagerswinery.content.equipment.BasinTileEntity;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;

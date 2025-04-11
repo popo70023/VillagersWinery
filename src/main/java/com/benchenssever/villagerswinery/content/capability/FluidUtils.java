@@ -1,4 +1,4 @@
-package com.benchenssever.villagerswinery.fluid;
+package com.benchenssever.villagerswinery.content.capability;
 
 import com.benchenssever.villagerswinery.VillagersWineryMod;
 import com.google.gson.JsonObject;

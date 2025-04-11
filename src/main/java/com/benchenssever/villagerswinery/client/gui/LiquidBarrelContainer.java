@@ -1,4 +1,4 @@
-package com.benchenssever.villagerswinery.fluid;
+package com.benchenssever.villagerswinery.client.gui;
 
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import net.minecraft.entity.player.PlayerEntity;

@@ -1,7 +1,7 @@
-package com.benchenssever.villagerswinery.tileentity;
+package com.benchenssever.villagerswinery.content.equipment;
 
-import com.benchenssever.villagerswinery.fluid.FluidUtils;
-import com.benchenssever.villagerswinery.fluid.LiquidBarrelContainer;
+import com.benchenssever.villagerswinery.content.capability.FluidUtils;
+import com.benchenssever.villagerswinery.client.gui.LiquidBarrelContainer;
 import com.benchenssever.villagerswinery.network.NetworkHandler;
 import com.benchenssever.villagerswinery.network.SyncLiquidBarrelPacket;
 import com.benchenssever.villagerswinery.recipe.WineRecipe;

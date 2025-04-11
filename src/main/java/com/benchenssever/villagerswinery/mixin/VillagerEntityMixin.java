@@ -2,11 +2,11 @@ package com.benchenssever.villagerswinery.mixin;
 
 import com.benchenssever.villagerswinery.api.IBrainMixin;
 import com.benchenssever.villagerswinery.api.IVillagerEntityMixin;
-import com.benchenssever.villagerswinery.drinkable.Drinks;
-import com.benchenssever.villagerswinery.drinkable.IDrinkable;
+import com.benchenssever.villagerswinery.content.drinkable.Drinkable;
+import com.benchenssever.villagerswinery.content.drinkable.IDrinkable;
 import com.benchenssever.villagerswinery.entity.ai.FollowPlayerTask;
-import com.benchenssever.villagerswinery.fluid.ItemStackFluidHandler;
-import com.benchenssever.villagerswinery.item.Winebowl;
+import com.benchenssever.villagerswinery.content.capability.ItemStackFluidHandler;
+import com.benchenssever.villagerswinery.content.equipment.WinebowlItem;
 import com.benchenssever.villagerswinery.registration.DrinksRegistry;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import com.google.common.collect.ImmutableList;
@@ -62,11 +62,6 @@ public abstract class VillagerEntityMixin extends AbstractVillagerEntity impleme
         updateTrades();
     }
 
-//    @Inject(method = "<init>(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;Lnet/minecraft/entity/villager/VillagerType;)V", at = @At("TAIL"))
-//    private void villagerFollowPlayer(EntityType<? extends VillagerEntity> entityType, World world, VillagerType type, CallbackInfo ci) {
-//        this.goalSelector.addGoal(2, new FollowPlayerGoal(this, .4D, false));
-//    }
-
     @Inject(method = "makeBrain", at = @At("RETURN"), cancellable = true)
     protected void modifyBrain(Dynamic<?> pDynamic, CallbackInfoReturnable<Brain<?>> cir) {
         Brain<?> newBrain = cir.getReturnValue();
@@ -88,8 +83,8 @@ public abstract class VillagerEntityMixin extends AbstractVillagerEntity impleme
         ItemStack stack = player.getItemInHand(hand);
         if (stack.getItem() == DrinksRegistry.winebowl.get()) {
             FluidStack fluidInside = ItemStackFluidHandler.getFluid(stack);
-            if (fluidInside.getFluid() instanceof IDrinkable && fluidInside.getAmount() >= Winebowl.DEFAULT_CAPACITY && Drinks.isCanConsumed(this, (IDrinkable) fluidInside.getFluid())) {
-                Drinks.onDrinkConsumed(this, (IDrinkable) fluidInside.getFluid());
+            if (fluidInside.getFluid() instanceof IDrinkable && fluidInside.getAmount() >= WinebowlItem.DEFAULT_CAPACITY && Drinkable.isCanConsumed(this, (IDrinkable) fluidInside.getFluid())) {
+                Drinkable.onDrinkConsumed(this, (IDrinkable) fluidInside.getFluid());
                 player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
                 if (!player.abilities.instabuild) {
                     player.setItemInHand(hand, new ItemStack(DrinksRegistry.emptyWinebowl.get()));

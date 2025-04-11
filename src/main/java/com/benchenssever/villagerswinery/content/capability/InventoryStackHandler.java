@@ -1,4 +1,4 @@
-package com.benchenssever.villagerswinery.inventory;
+package com.benchenssever.villagerswinery.content.capability;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;

@@ -1,4 +1,4 @@
-package com.benchenssever.villagerswinery.block;
+package com.benchenssever.villagerswinery.content.crops;
 
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import net.minecraft.block.Block;

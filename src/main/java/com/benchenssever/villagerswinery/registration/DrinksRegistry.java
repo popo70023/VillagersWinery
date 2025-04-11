@@ -1,9 +1,9 @@
 package com.benchenssever.villagerswinery.registration;
 
 import com.benchenssever.villagerswinery.VillagersWineryMod;
-import com.benchenssever.villagerswinery.drinkable.Drinks;
-import com.benchenssever.villagerswinery.drinkable.WineEffect;
-import com.benchenssever.villagerswinery.item.Winebowl;
+import com.benchenssever.villagerswinery.content.drinkable.Drinkable;
+import com.benchenssever.villagerswinery.content.drinkable.WineEffect;
+import com.benchenssever.villagerswinery.content.equipment.WinebowlItem;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
@@ -30,10 +30,10 @@ public class DrinksRegistry {
     public static final RegistryObject<Effect> getIMerchantXp = EFFECT.register("get_merchant_xp", () -> new WineEffect.Villager(EffectType.BENEFICIAL, 0xFF796400, true));
     public static final RegistryObject<Effect> refreshOffers = EFFECT.register("refresh_offers", () -> new WineEffect.Villager(EffectType.BENEFICIAL, 0xFF796400, true));
 
-    public static final RegistryObject<Item> emptyWinebowl = ITEMS.register("empty_winebowl", () -> new Winebowl.Empty(new Item.Properties().tab(RegistryEvents.wineryItemGroup).stacksTo(16)));
-    public static final RegistryObject<Item> winebowl = ITEMS.register("winebowl", () -> new Winebowl(new Item.Properties().tab(RegistryEvents.wineryItemGroup).stacksTo(1)));
+    public static final RegistryObject<Item> emptyWinebowl = ITEMS.register("empty_winebowl", () -> new WinebowlItem.Empty(new Item.Properties().tab(RegistryEvents.wineryItemGroup).stacksTo(16)));
+    public static final RegistryObject<Item> winebowl = ITEMS.register("winebowl", () -> new WinebowlItem(new Item.Properties().tab(RegistryEvents.wineryItemGroup).stacksTo(1)));
 
-    public static final Drinks wort = new Drinks.Builder("wort")
+    public static final Drinkable wort = new Drinkable.Builder("wort")
             .color(0xFFf5b642)
             .food(new Food.Builder()
                     .nutrition(3)
@@ -43,7 +43,7 @@ public class DrinksRegistry {
             .notForDrink()
             .build();
 
-    public static final Drinks beer = new Drinks.Builder("beer")
+    public static final Drinkable beer = new Drinkable.Builder("beer")
             .color(0xFF796400)
             .food(new Food.Builder()
                     .nutrition(1)
@@ -56,7 +56,7 @@ public class DrinksRegistry {
             .isAlcohol()
             .build();
 
-    public static final Drinks grapeJuice = new Drinks.Builder("grape_juice")
+    public static final Drinkable grapeJuice = new Drinkable.Builder("grape_juice")
             .color(0xffc34ac0)
             .food(new Food.Builder()
                     .nutrition(2)
@@ -65,7 +65,7 @@ public class DrinksRegistry {
             .group(RegistryEvents.wineryItemGroup)
             .build();
 
-    public static final Drinks grapeWine = new Drinks.Builder("grape_wine")
+    public static final Drinkable grapeWine = new Drinkable.Builder("grape_wine")
             .color(0xff9d2ebf)
             .food(new Food.Builder()
                     .saturationMod(0.3f)
@@ -76,7 +76,7 @@ public class DrinksRegistry {
             .isAlcohol()
             .build();
 
-    public static final Drinks appleJuice = new Drinks.Builder("apple_juice")
+    public static final Drinkable appleJuice = new Drinkable.Builder("apple_juice")
             .color(0xFFebd834)
             .food(new Food.Builder().nutrition(3)
                     .saturationMod(1.44f)
@@ -85,7 +85,7 @@ public class DrinksRegistry {
             .build();
 
 
-    public static final Drinks cider = new Drinks.Builder("cider")
+    public static final Drinkable cider = new Drinkable.Builder("cider")
             .color(0xFFfcf89a)
             .food(new Food.Builder()
                     .saturationMod(0.3f)
@@ -96,8 +96,6 @@ public class DrinksRegistry {
             .isAlcohol()
             .build();
 
-    public static final Drinks[] drinksCollection = {wort, beer, grapeJuice, grapeWine, appleJuice, cider};
-
     public static void setRegister(IEventBus eventBus) {
         ITEMS.register(eventBus);
         BLOCKS.register(eventBus);
@@ -107,9 +105,9 @@ public class DrinksRegistry {
 
     public static void setRender(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            for (Drinks drinks : drinksCollection) {
-                RenderTypeLookup.setRenderLayer(drinks.getFluid(), RenderType.translucent());
-                RenderTypeLookup.setRenderLayer(drinks.getFlowingFluid(), RenderType.translucent());
+            for (Drinkable drinkable : Drinkable.getDrinkableCollection()) {
+                RenderTypeLookup.setRenderLayer(drinkable.getFluid(), RenderType.translucent());
+                RenderTypeLookup.setRenderLayer(drinkable.getFlowingFluid(), RenderType.translucent());
             }
         });
     }

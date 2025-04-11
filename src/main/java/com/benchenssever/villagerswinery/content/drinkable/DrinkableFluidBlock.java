@@ -1,4 +1,4 @@
-package com.benchenssever.villagerswinery.drinkable;
+package com.benchenssever.villagerswinery.content.drinkable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -15,24 +15,24 @@ import java.util.function.Supplier;
 
 public class DrinkableFluidBlock extends FlowingFluidBlock {
     final private static Direction[] searchOrder = {Direction.UP, Direction.NORTH, Direction.EAST, Direction.WEST, Direction.SOUTH};
-    public final Drinks drinks;
+    public final Drinkable drinkable;
 
-    public DrinkableFluidBlock(Supplier<? extends FlowingFluid> supplier, Properties properties, Drinks drinks) {
+    public DrinkableFluidBlock(Supplier<? extends FlowingFluid> supplier, Properties properties, Drinkable drinkable) {
         super(supplier, properties);
-        this.drinks = drinks;
+        this.drinkable = drinkable;
     }
 
     @Override
     public void entityInside(@NotNull BlockState state, World worldIn, @NotNull BlockPos pos, @NotNull Entity entityIn) {
-        if (worldIn.isClientSide || !(drinks.getFood() != null && entityIn instanceof LivingEntity)) {
+        if (worldIn.isClientSide || !(drinkable.getFood() != null && entityIn instanceof LivingEntity)) {
             return;
         }
         BlockPos sourceDrinkPos = backtraceSource(state, worldIn, pos);
         if (sourceDrinkPos == null) return;
         LivingEntity entityLiving = (LivingEntity) entityIn;
 
-        if (Drinks.isCanConsumed(entityLiving, (IDrinkable) drinks.getFluid())) {
-            Drinks.onDrinkConsumed(entityLiving, (IDrinkable) drinks.getFluid());
+        if (Drinkable.isCanConsumed(entityLiving, (IDrinkable) drinkable.getFluid())) {
+            Drinkable.onDrinkConsumed(entityLiving, (IDrinkable) drinkable.getFluid());
             worldIn.setBlockAndUpdate(sourceDrinkPos, Blocks.AIR.defaultBlockState());
         }
     }

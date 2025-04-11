@@ -1,8 +1,8 @@
-package com.benchenssever.villagerswinery.item;
+package com.benchenssever.villagerswinery.content.equipment;
 
-import com.benchenssever.villagerswinery.drinkable.IDrinkable;
-import com.benchenssever.villagerswinery.fluid.FluidUtils;
-import com.benchenssever.villagerswinery.fluid.ItemStackFluidHandler;
+import com.benchenssever.villagerswinery.content.capability.ItemStackFluidHandler;
+import com.benchenssever.villagerswinery.content.drinkable.IDrinkable;
+import com.benchenssever.villagerswinery.content.capability.FluidUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static com.benchenssever.villagerswinery.tileentity.LiquidBarrelTileEntity.DEFAULT_CAPACITY;
+import static com.benchenssever.villagerswinery.content.equipment.LiquidBarrelTileEntity.DEFAULT_CAPACITY;
 import static net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack.FLUID_NBT_KEY;
 
 public class LiquidBarrelItem extends BlockItem {

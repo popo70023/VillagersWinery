@@ -1,6 +1,6 @@
-package com.benchenssever.villagerswinery.tileentity;
+package com.benchenssever.villagerswinery.content.equipment;
 
-import com.benchenssever.villagerswinery.inventory.InventoryStackHandler;
+import com.benchenssever.villagerswinery.content.capability.InventoryStackHandler;
 import com.benchenssever.villagerswinery.recipe.BasinCrushRecipe;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import net.minecraft.block.BlockState;

@@ -1,4 +1,4 @@
-package com.benchenssever.villagerswinery.drinkable;
+package com.benchenssever.villagerswinery.content.drinkable;
 
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
@@ -9,36 +9,36 @@ import net.minecraftforge.fluids.ForgeFlowingFluid;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class DrinkableFluid extends ForgeFlowingFluid implements IDrinkable {
-    public Drinks drinks;
+    public Drinkable drinkable;
 
-    protected DrinkableFluid(Properties properties, Drinks drinks) {
+    protected DrinkableFluid(Properties properties, Drinkable drinkable) {
         super(properties);
-        this.drinks = drinks;
+        this.drinkable = drinkable;
     }
 
     @Override
     public Food getFood() {
-        return drinks.getFood();
+        return drinkable.getFood();
     }
 
     @Override
     public TranslationTextComponent getTooltip() {
-        return drinks.getTooltip();
+        return drinkable.getTooltip();
     }
 
     @Override
     public boolean isAlcohol() {
-        return drinks.isAlcohol();
+        return drinkable.isAlcohol();
     }
 
     @Override
     public boolean isForDrink() {
-        return drinks.isForDrink();
+        return drinkable.isForDrink();
     }
 
     public static class Flowing extends DrinkableFluid {
-        public Flowing(Properties properties, Drinks drinks) {
-            super(properties, drinks);
+        public Flowing(Properties properties, Drinkable drinkable) {
+            super(properties, drinkable);
             registerDefaultState(getStateDefinition().any().setValue(LEVEL, 7));
         }
 
@@ -57,8 +57,8 @@ public abstract class DrinkableFluid extends ForgeFlowingFluid implements IDrink
     }
 
     public static class Source extends DrinkableFluid {
-        public Source(Properties properties, Drinks drinks) {
-            super(properties, drinks);
+        public Source(Properties properties, Drinkable drinkable) {
+            super(properties, drinkable);
         }
 
         public int getAmount(@NotNull FluidState state) {
