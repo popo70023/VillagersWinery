@@ -186,7 +186,8 @@ public class BasinTileEntity extends TileEntity {
     }
 
     private BasinCrushRecipe getRecipe() {
-        return level.getRecipeManager().getRecipesFor(RegistryEvents.basinCrushRecipe, inputInventory, level)
+        if(level == null) return null;
+        return level.getRecipeManager().getRecipesFor(RegistryEvents.basinCrushRecipe.recipe, inputInventory, level)
                 .stream()
                 .filter(recipe -> recipe.matches(inputInventory, level))
                 .findFirst()

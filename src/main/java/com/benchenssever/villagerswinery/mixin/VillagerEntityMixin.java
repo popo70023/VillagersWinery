@@ -2,11 +2,11 @@ package com.benchenssever.villagerswinery.mixin;
 
 import com.benchenssever.villagerswinery.api.IBrainMixin;
 import com.benchenssever.villagerswinery.api.IVillagerEntityMixin;
+import com.benchenssever.villagerswinery.content.capability.FluidUtils;
+import com.benchenssever.villagerswinery.content.capability.ItemStackFluidHandler;
 import com.benchenssever.villagerswinery.content.drinkable.Drinkable;
 import com.benchenssever.villagerswinery.content.drinkable.IDrinkable;
 import com.benchenssever.villagerswinery.entity.ai.FollowPlayerTask;
-import com.benchenssever.villagerswinery.content.capability.ItemStackFluidHandler;
-import com.benchenssever.villagerswinery.content.equipment.WinebowlItem;
 import com.benchenssever.villagerswinery.registration.DrinksRegistry;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
 import com.google.common.collect.ImmutableList;
@@ -81,13 +81,13 @@ public abstract class VillagerEntityMixin extends AbstractVillagerEntity impleme
     @Inject(method = "mobInteract", at = @At("HEAD"), cancellable = true)
     protected void addDrinkConsumed(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResultType> cir) {
         ItemStack stack = player.getItemInHand(hand);
-        if (stack.getItem() == DrinksRegistry.winebowl.get()) {
-            FluidStack fluidInside = ItemStackFluidHandler.getFluid(stack);
-            if (fluidInside.getFluid() instanceof IDrinkable && fluidInside.getAmount() >= WinebowlItem.DEFAULT_CAPACITY && Drinkable.isCanConsumed(this, (IDrinkable) fluidInside.getFluid())) {
+        if (stack.getItem() == DrinksRegistry.winebowl.filled.get()) {
+            FluidStack fluidInside = ItemStackFluidHandler.getFluidStackFromNBT(stack);
+            if (fluidInside.getFluid() instanceof IDrinkable && fluidInside.getAmount() >= FluidUtils.WINEBOWL_DEFAULT_CAPACITY && Drinkable.isCanConsumed(this, (IDrinkable) fluidInside.getFluid())) {
                 Drinkable.onDrinkConsumed(this, (IDrinkable) fluidInside.getFluid());
                 player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
                 if (!player.abilities.instabuild) {
-                    player.setItemInHand(hand, new ItemStack(DrinksRegistry.emptyWinebowl.get()));
+                    player.setItemInHand(hand, new ItemStack(DrinksRegistry.winebowl.empty.get()));
                 }
                 level.playSound(player, this, SoundEvents.GENERIC_DRINK, this.getSoundSource(), 1.0F, 1.0F);
                 cir.setReturnValue(ActionResultType.sidedSuccess(this.level.isClientSide));

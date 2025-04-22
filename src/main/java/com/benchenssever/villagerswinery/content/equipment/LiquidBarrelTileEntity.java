@@ -153,7 +153,7 @@ public class LiquidBarrelTileEntity extends TileEntity implements ITickableTileE
     }
 
     private WineRecipe getRecipe() {
-        return level.getRecipeManager().getRecipesFor(RegistryEvents.wineRecipe, new Inventory(), level)
+        return level.getRecipeManager().getRecipesFor(RegistryEvents.wineRecipe.recipe, new Inventory(), level)
                 .stream()
                 .filter(recipe -> recipe.matches(getTank().getFluid(), level))
                 .findFirst()

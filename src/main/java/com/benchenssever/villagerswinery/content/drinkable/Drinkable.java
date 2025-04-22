@@ -56,8 +56,7 @@ public class Drinkable {
                 builder.id + "_fluid_bucket",
                 () -> new DrinkableFluidBucket(
                         fluid,
-                        new Item
-                                .Properties()
+                        new Item.Properties()
                                 .tab(builder.group)
                                 .craftRemainder(BUCKET)
                                 .stacksTo(1),

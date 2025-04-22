@@ -1,9 +1,10 @@
 package com.benchenssever.villagerswinery.registration;
 
 import com.benchenssever.villagerswinery.VillagersWineryMod;
+import com.benchenssever.villagerswinery.content.capability.FluidUtils;
 import com.benchenssever.villagerswinery.content.drinkable.Drinkable;
 import com.benchenssever.villagerswinery.content.drinkable.WineEffect;
-import com.benchenssever.villagerswinery.content.equipment.WinebowlItem;
+import com.benchenssever.villagerswinery.content.equipment.Equipments;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
@@ -27,22 +28,6 @@ public class DrinksRegistry {
 
     public static final RegistryObject<Effect> drunk = EFFECT.register("drunk", () -> new WineEffect(EffectType.NEUTRAL, 0xFF796400, false));
     public static final RegistryObject<Effect> addFoodLevel = EFFECT.register("add_food_level", () -> new WineEffect.Villager(EffectType.BENEFICIAL, 0xFF796400, true));
-    public static final RegistryObject<Effect> getIMerchantXp = EFFECT.register("get_merchant_xp", () -> new WineEffect.Villager(EffectType.BENEFICIAL, 0xFF796400, true));
-    public static final RegistryObject<Effect> refreshOffers = EFFECT.register("refresh_offers", () -> new WineEffect.Villager(EffectType.BENEFICIAL, 0xFF796400, true));
-
-    public static final RegistryObject<Item> emptyWinebowl = ITEMS.register("empty_winebowl", () -> new WinebowlItem.Empty(new Item.Properties().tab(RegistryEvents.wineryItemGroup).stacksTo(16)));
-    public static final RegistryObject<Item> winebowl = ITEMS.register("winebowl", () -> new WinebowlItem(new Item.Properties().tab(RegistryEvents.wineryItemGroup).stacksTo(1)));
-
-    public static final Drinkable wort = new Drinkable.Builder("wort")
-            .color(0xFFf5b642)
-            .food(new Food.Builder()
-                    .nutrition(3)
-                    .saturationMod(3.6f)
-                    .build())
-            .group(RegistryEvents.wineryItemGroup)
-            .notForDrink()
-            .build();
-
     public static final Drinkable beer = new Drinkable.Builder("beer")
             .color(0xFF796400)
             .food(new Food.Builder()
@@ -55,16 +40,7 @@ public class DrinksRegistry {
             .group(RegistryEvents.wineryItemGroup)
             .isAlcohol()
             .build();
-
-    public static final Drinkable grapeJuice = new Drinkable.Builder("grape_juice")
-            .color(0xffc34ac0)
-            .food(new Food.Builder()
-                    .nutrition(2)
-                    .saturationMod(0.6f)
-                    .build())
-            .group(RegistryEvents.wineryItemGroup)
-            .build();
-
+    public static final RegistryObject<Effect> getIMerchantXp = EFFECT.register("get_merchant_xp", () -> new WineEffect.Villager(EffectType.BENEFICIAL, 0xFF796400, true));
     public static final Drinkable grapeWine = new Drinkable.Builder("grape_wine")
             .color(0xff9d2ebf)
             .food(new Food.Builder()
@@ -75,16 +51,7 @@ public class DrinksRegistry {
             .group(RegistryEvents.wineryItemGroup)
             .isAlcohol()
             .build();
-
-    public static final Drinkable appleJuice = new Drinkable.Builder("apple_juice")
-            .color(0xFFebd834)
-            .food(new Food.Builder().nutrition(3)
-                    .saturationMod(1.44f)
-                    .build())
-            .group(RegistryEvents.wineryItemGroup)
-            .build();
-
-
+    public static final RegistryObject<Effect> refreshOffers = EFFECT.register("refresh_offers", () -> new WineEffect.Villager(EffectType.BENEFICIAL, 0xFF796400, true));
     public static final Drinkable cider = new Drinkable.Builder("cider")
             .color(0xFFfcf89a)
             .food(new Food.Builder()
@@ -94,6 +61,31 @@ public class DrinksRegistry {
                     .build())
             .group(RegistryEvents.wineryItemGroup)
             .isAlcohol()
+            .build();
+    public static final Equipments.Drinkware winebowl = new Equipments.Drinkware("winebowl", FluidUtils.WINEBOWL_DEFAULT_CAPACITY, FluidUtils.WOODEN_CONTAINER_VALIDATOR, 16);
+    public static final Drinkable wort = new Drinkable.Builder("wort")
+            .color(0xFFf5b642)
+            .food(new Food.Builder()
+                    .nutrition(3)
+                    .saturationMod(3.6f)
+                    .build())
+            .group(RegistryEvents.wineryItemGroup)
+            .notForDrink()
+            .build();
+    public static final Drinkable grapeJuice = new Drinkable.Builder("grape_juice")
+            .color(0xffc34ac0)
+            .food(new Food.Builder()
+                    .nutrition(2)
+                    .saturationMod(0.6f)
+                    .build())
+            .group(RegistryEvents.wineryItemGroup)
+            .build();
+    public static final Drinkable appleJuice = new Drinkable.Builder("apple_juice")
+            .color(0xFFebd834)
+            .food(new Food.Builder().nutrition(3)
+                    .saturationMod(1.44f)
+                    .build())
+            .group(RegistryEvents.wineryItemGroup)
             .build();
 
     public static void setRegister(IEventBus eventBus) {

@@ -32,7 +32,7 @@ public class ClientEventHandler {
     }
 
     private static void registerWineBowlModel(Map<ResourceLocation, IBakedModel> modelRegistry, ModelBakeEvent event) {
-        ModelResourceLocation winebowllocation = new ModelResourceLocation(DrinksRegistry.winebowl.get().getRegistryName(), "inventory");
+        ModelResourceLocation winebowllocation = new ModelResourceLocation(DrinksRegistry.winebowl.filled.get().getRegistryName(), "inventory");
         IBakedModel winebowlexistingModel = modelRegistry.get(winebowllocation);
         if (winebowlexistingModel == null) {
             throw new RuntimeException("Did not find WineBowl in registry");

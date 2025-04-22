@@ -1,6 +1,5 @@
 package com.benchenssever.villagerswinery.content.capability;
 
-import com.benchenssever.villagerswinery.content.drinkable.Drinkable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.Constants;
@@ -23,6 +22,19 @@ public class ItemStackFluidHandler extends FluidHandlerItemStack {
         this.validator = validator;
     }
 
+    public static FluidStack getFluidStackFromNBT(ItemStack fluidContainer) {
+        CompoundNBT tagCompound = fluidContainer.getTag();
+        if (tagCompound == null || !tagCompound.contains(FLUID_NBT_KEY, Constants.NBT.TAG_COMPOUND)) {
+            return FluidStack.EMPTY;
+        }
+        return FluidStack.loadFluidStackFromNBT(tagCompound.getCompound(FLUID_NBT_KEY));
+    }
+
+    public static void setFluidStackToNBT(ItemStack fluidContainer, FluidStack fluidStack) {
+        CompoundNBT tagCompound = fluidContainer.getOrCreateTag();
+        tagCompound.put(FLUID_NBT_KEY, fluidStack.writeToNBT(new CompoundNBT()));
+    }
+
     @Override
     public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
         return validator.test(stack);
@@ -38,17 +50,18 @@ public class ItemStackFluidHandler extends FluidHandlerItemStack {
         return this.isFluidValid(0, fluid);
     }
 
-    public static FluidStack getFluid(ItemStack fluidContainer) {
-        CompoundNBT tagCompound = fluidContainer.getTag();
-        if (tagCompound == null || !tagCompound.contains(FLUID_NBT_KEY, Constants.NBT.TAG_COMPOUND)) {
-            return FluidStack.EMPTY;
-        }
-        return FluidStack.loadFluidStackFromNBT(tagCompound.getCompound(FLUID_NBT_KEY));
-    }
+    public static class SwapEmpty extends ItemStackFluidHandler {
+        private final ItemStack emptyContainer;
 
-    public static void setFluid(ItemStack fluidContainer, Drinkable drinkable, int capacity) {
-        FluidStack fluidStack = new FluidStack(drinkable.getFluid(), capacity);
-        CompoundNBT tagCompound = fluidContainer.getOrCreateTag();
-        tagCompound.put(FLUID_NBT_KEY, fluidStack.writeToNBT(new CompoundNBT()));
+        public SwapEmpty(ItemStack container, ItemStack emptyContainer, int capacity, Predicate<FluidStack> validator) {
+            super(container, capacity, validator);
+            this.emptyContainer = emptyContainer;
+        }
+
+        @Override
+        protected void setContainerToEmpty() {
+            super.setContainerToEmpty();
+            container = emptyContainer;
+        }
     }
 }

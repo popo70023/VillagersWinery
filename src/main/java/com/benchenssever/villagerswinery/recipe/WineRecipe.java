@@ -1,14 +1,19 @@
 package com.benchenssever.villagerswinery.recipe;
 
+import com.benchenssever.villagerswinery.content.capability.FluidUtils;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
+import com.google.gson.JsonObject;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class WineRecipe implements IFluidStackRecipe {
     private final ResourceLocation id;
@@ -49,12 +54,12 @@ public class WineRecipe implements IFluidStackRecipe {
 
     @Override
     public @NotNull IRecipeSerializer<?> getSerializer() {
-        return RegistryEvents.wineRecipeSerializer.get();
+        return RegistryEvents.wineRecipe.serializer.get();
     }
 
     @Override
     public @NotNull IRecipeType<?> getType() {
-        return RegistryEvents.wineRecipe;
+        return RegistryEvents.wineRecipe.recipe;
     }
 
     @Override
@@ -80,5 +85,31 @@ public class WineRecipe implements IFluidStackRecipe {
     @Override
     public @NotNull ItemStack getToastSymbol() {
         return new ItemStack(RegistryEvents.liquidBarrelItem.get());
+    }
+
+    public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<WineRecipe> {
+
+        @Override
+        public @NotNull WineRecipe fromJson(@NotNull ResourceLocation recipeId, JsonObject json) {
+            FluidStack input = FluidUtils.getFluidStackFromJson(json.getAsJsonObject("input"));
+            FluidStack output = FluidUtils.getFluidStackFromJson(json.getAsJsonObject("output"));
+            int time = json.get("time").getAsInt();
+            return new WineRecipe(recipeId, input, output, time);
+        }
+
+        @Override
+        public @Nullable WineRecipe fromNetwork(ResourceLocation recipeId, PacketBuffer buffer) {
+            FluidStack input = buffer.readFluidStack();
+            FluidStack output = buffer.readFluidStack();
+            int time = buffer.readInt();
+            return new WineRecipe(recipeId, input, output, time);
+        }
+
+        @Override
+        public void toNetwork(PacketBuffer buffer, WineRecipe recipe) {
+            buffer.writeFluidStack(recipe.getFluidRecipeInput());
+            buffer.writeFluidStack(recipe.getFluidRecipeOutput());
+            buffer.writeInt(recipe.getSpendTime());
+        }
     }
 }

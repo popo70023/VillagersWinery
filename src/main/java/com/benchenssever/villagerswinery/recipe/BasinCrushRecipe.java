@@ -1,28 +1,34 @@
 package com.benchenssever.villagerswinery.recipe;
 
+import com.benchenssever.villagerswinery.content.capability.FluidUtils;
 import com.benchenssever.villagerswinery.registration.RegistryEvents;
+import com.google.gson.JsonObject;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class BasinCrushRecipe implements IFluidStackRecipe {
     protected final ResourceLocation id;
     protected final Ingredient input;
     protected final FluidStack output;
-    protected final int crushtime;
+    protected final int crushTime;
 
-    public BasinCrushRecipe(ResourceLocation id, Ingredient input, FluidStack output, int crushtime) {
+    public BasinCrushRecipe(ResourceLocation id, Ingredient input, FluidStack output, int crushTime) {
         this.id = id;
         this.input = input;
         this.output = output;
-        this.crushtime = crushtime;
+        this.crushTime = crushTime;
     }
 
     @Override
@@ -41,7 +47,7 @@ public class BasinCrushRecipe implements IFluidStackRecipe {
     }
 
     public int getCrushTime() {
-        return crushtime;
+        return crushTime;
     }
 
     @Override
@@ -51,12 +57,12 @@ public class BasinCrushRecipe implements IFluidStackRecipe {
 
     @Override
     public @NotNull IRecipeSerializer<?> getSerializer() {
-        return RegistryEvents.basinCrushRecipeSerializer.get();
+        return RegistryEvents.basinCrushRecipe.serializer.get();
     }
 
     @Override
     public @NotNull IRecipeType<?> getType() {
-        return RegistryEvents.basinCrushRecipe;
+        return RegistryEvents.basinCrushRecipe.recipe;
     }
 
     @Override
@@ -89,5 +95,32 @@ public class BasinCrushRecipe implements IFluidStackRecipe {
         NonNullList<Ingredient> nonnulllist = NonNullList.create();
         nonnulllist.add(input);
         return nonnulllist;
+    }
+
+    public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<BasinCrushRecipe> {
+
+        @Override
+        public @NotNull BasinCrushRecipe fromJson(@NotNull ResourceLocation recipeId, @NotNull JsonObject json) {
+            Ingredient input = Ingredient.fromJson(JSONUtils.getAsJsonObject(json, "ingredient"));
+            FluidStack output = FluidUtils.getFluidStackFromJson(json.getAsJsonObject("output"));
+            int crushTime = json.get("crushtime").getAsInt();
+            return new BasinCrushRecipe(recipeId, input, output, crushTime);
+        }
+
+        @Override
+        public @Nullable BasinCrushRecipe fromNetwork(@NotNull ResourceLocation recipeId, @NotNull PacketBuffer buffer) {
+            Ingredient input = Ingredient.fromNetwork(buffer);
+            FluidStack output = buffer.readFluidStack();
+            int crushTime = buffer.readInt();
+            return new BasinCrushRecipe(recipeId, input, output, crushTime);
+        }
+
+        @Override
+        public void toNetwork(@NotNull PacketBuffer buffer, BasinCrushRecipe recipe) {
+            recipe.input.toNetwork(buffer);
+            buffer.writeFluidStack(recipe.getFluidRecipeOutput());
+            buffer.writeInt(recipe.getCrushTime());
+
+        }
     }
 }

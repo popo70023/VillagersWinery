@@ -30,7 +30,7 @@ public class LiquidBarrelItem extends BlockItem {
     @Override
     public void appendHoverText(@NotNull ItemStack stack, World worldIn, @NotNull List<ITextComponent> tooltip, @NotNull ITooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        FluidStack fluidStack = ItemStackFluidHandler.getFluid(stack);
+        FluidStack fluidStack = ItemStackFluidHandler.getFluidStackFromNBT(stack);
         if (!fluidStack.isEmpty()) {
             tooltip.add(FluidUtils.addFluidStackTooltip(fluidStack));
 

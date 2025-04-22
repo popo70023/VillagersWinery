@@ -29,6 +29,7 @@ import java.util.function.Predicate;
 //TODO: 要重構
 public class FluidUtils {
     public static final Predicate<FluidStack> WOODEN_CONTAINER_VALIDATOR = (fluidStack) -> fluidStack.getFluid().getAttributes().getTemperature() < 500;
+    public static final int WINEBOWL_DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME / 4;
 
     public static FluidStack tryTransfer(IFluidHandler input, IFluidHandler output, int maxFill) {
         // first, figure out how much we can drain

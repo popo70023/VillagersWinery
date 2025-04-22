@@ -1,22 +1,15 @@
 package com.benchenssever.villagerswinery.registration;
 
+import com.benchenssever.villagerswinery.client.gui.LiquidBarrelContainer;
 import com.benchenssever.villagerswinery.client.gui.LiquidBarrelScreen;
+import com.benchenssever.villagerswinery.client.model.BasinTileEntityRenderer;
 import com.benchenssever.villagerswinery.content.crops.CropVine;
 import com.benchenssever.villagerswinery.content.crops.CropVineStand;
 import com.benchenssever.villagerswinery.content.crops.Stand;
 import com.benchenssever.villagerswinery.content.crops.VineStand;
-import com.benchenssever.villagerswinery.content.equipment.BasinBlock;
-import com.benchenssever.villagerswinery.content.equipment.LiquidBarrelBlock;
+import com.benchenssever.villagerswinery.content.equipment.*;
 import com.benchenssever.villagerswinery.entity.ai.FollowPlayerSensor;
-import com.benchenssever.villagerswinery.client.gui.LiquidBarrelContainer;
-import com.benchenssever.villagerswinery.content.equipment.LiquidBarrelItem;
-import com.benchenssever.villagerswinery.client.model.BasinTileEntityRenderer;
-import com.benchenssever.villagerswinery.recipe.BasinCrushRecipe;
-import com.benchenssever.villagerswinery.recipe.BasinCrushRecipeSerializers;
-import com.benchenssever.villagerswinery.recipe.WineRecipe;
-import com.benchenssever.villagerswinery.recipe.WineRecipeSerializers;
-import com.benchenssever.villagerswinery.content.equipment.BasinTileEntity;
-import com.benchenssever.villagerswinery.content.equipment.LiquidBarrelTileEntity;
+import com.benchenssever.villagerswinery.recipe.*;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
@@ -79,11 +72,8 @@ public class RegistryEvents {
     public static final RegistryObject<TileEntityType<BasinTileEntity>> basinTileEntity = TILE_ENTITIES.register("basin_tileentity", () -> TileEntityType.Builder.of(BasinTileEntity::new, RegistryEvents.basinBlock.get()).build(null));
     public static final RegistryObject<ContainerType<LiquidBarrelContainer>> liquidBarrelContainer = CONTAINERS.register("liquid_barrel_container", () -> IForgeContainerType.create(LiquidBarrelContainer::new));
 
-    public static final RegistryObject<IRecipeSerializer<WineRecipe>> wineRecipeSerializer = RECIPE_SERIALIZERS.register("winerecipe", () -> new WineRecipeSerializers<>(WineRecipe::new));
-    public static final RegistryObject<IRecipeSerializer<BasinCrushRecipe>> basinCrushRecipeSerializer = RECIPE_SERIALIZERS.register("basincrushrecipe", () -> new BasinCrushRecipeSerializers<>(BasinCrushRecipe::new));
-
-    public static final IRecipeType<WineRecipe> wineRecipe = IRecipeType.register("winerecipe");
-    public static final IRecipeType<BasinCrushRecipe> basinCrushRecipe = IRecipeType.register("basincrushrecipe");
+    public static final RecipeRegistration<WineRecipe> wineRecipe = new RecipeRegistration<>("winerecipe", WineRecipe.Serializer::new);
+    public static final RecipeRegistration<BasinCrushRecipe> basinCrushRecipe = new RecipeRegistration<>("basincrushrecipe", BasinCrushRecipe.Serializer::new);
 
     public static final RegistryObject<MemoryModuleType<PlayerEntity>> followPlayerMemory = MEMORY_MODULE_TYPES.register("follow_player_memory", () -> new MemoryModuleType<>(Optional.empty()));
     public static final RegistryObject<SensorType<FollowPlayerSensor>> followPlayerSensor = SENSOR_TYPES.register("follow_player_sensor", () -> new SensorType<>(FollowPlayerSensor::new));
@@ -91,7 +81,7 @@ public class RegistryEvents {
     public static final ItemGroup wineryItemGroup = new ItemGroup("villagerswinery") {
         @Override
         public @NotNull ItemStack makeIcon() {
-            return new ItemStack(DrinksRegistry.emptyWinebowl.get());
+            return new ItemStack(DrinksRegistry.winebowl.empty.get());
         }
     };
 

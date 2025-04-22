@@ -1,10 +1,9 @@
 package com.benchenssever.villagerswinery.content.equipment;
 
+import com.benchenssever.villagerswinery.content.capability.FluidUtils;
 import com.benchenssever.villagerswinery.content.capability.ItemStackFluidHandler;
 import com.benchenssever.villagerswinery.content.drinkable.Drinkable;
 import com.benchenssever.villagerswinery.content.drinkable.IDrinkable;
-import com.benchenssever.villagerswinery.content.capability.FluidUtils;
-import com.benchenssever.villagerswinery.registration.DrinksRegistry;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
@@ -27,17 +26,23 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
-public class WinebowlItem extends Item {
-    public static final int DEFAULT_CAPACITY = FluidAttributes.BUCKET_VOLUME / 4;
+public class DrinkwareItem extends Item {
+    protected final Supplier<? extends Item> swap;
+    protected final int capacity;
+    protected final Predicate<FluidStack> validator;
 
-    public WinebowlItem(Properties properties) {
+    public DrinkwareItem(Properties properties, int capacity, Predicate<FluidStack> validator, Supplier<? extends Item> swap) {
         super(properties);
+        this.swap = swap;
+        this.capacity = capacity;
+        this.validator = validator;
     }
 
     @Override
@@ -46,15 +51,15 @@ public class WinebowlItem extends Item {
         if (playerentity instanceof ServerPlayerEntity) {
             CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayerEntity) playerentity, stack);
         }
-        FluidStack stackFluid = ItemStackFluidHandler.getFluid(stack);
+        FluidStack stackFluid = ItemStackFluidHandler.getFluidStackFromNBT(stack);
 
-        if (playerentity != null && stackFluid.getFluid() instanceof IDrinkable && stackFluid.getAmount() >= DEFAULT_CAPACITY) {
+        if (playerentity != null && stackFluid.getFluid() instanceof IDrinkable && stackFluid.getAmount() >= capacity) {
             if (!worldIn.isClientSide) {
                 Drinkable.onDrinkConsumed(playerentity, (IDrinkable) stackFluid.getFluid());
             }
             playerentity.awardStat(Stats.ITEM_USED.get(this));
             if (!playerentity.abilities.instabuild) {
-                stack = new ItemStack(DrinksRegistry.emptyWinebowl.get());
+                stack = new ItemStack(swap.get());
             }
         }
 
@@ -63,7 +68,7 @@ public class WinebowlItem extends Item {
 
     @Override
     public int getUseDuration(@NotNull ItemStack stack) {
-        Fluid stackFluid = ItemStackFluidHandler.getFluid(stack).getFluid();
+        Fluid stackFluid = ItemStackFluidHandler.getFluidStackFromNBT(stack).getFluid();
         if (stackFluid instanceof IDrinkable) {
             IDrinkable drink = (IDrinkable) stackFluid;
             if (drink.getFood() != null) {
@@ -81,9 +86,9 @@ public class WinebowlItem extends Item {
     @Override
     public @NotNull ActionResult<ItemStack> use(@NotNull World worldIn, PlayerEntity playerIn, @NotNull Hand handIn) {
         ItemStack stack = playerIn.getItemInHand(handIn);
-        FluidStack stackFluid = ItemStackFluidHandler.getFluid(stack);
+        FluidStack stackFluid = ItemStackFluidHandler.getFluidStackFromNBT(stack);
 
-        if (stackFluid.getFluid() instanceof IDrinkable && stackFluid.getAmount() >= DEFAULT_CAPACITY && Drinkable.isCanConsumed(playerIn, (IDrinkable) stackFluid.getFluid())) {
+        if (stackFluid.getFluid() instanceof IDrinkable && stackFluid.getAmount() >= capacity && Drinkable.isCanConsumed(playerIn, (IDrinkable) stackFluid.getFluid())) {
             return DrinkHelper.useDrink(worldIn, playerIn, handIn);
         }
         return ActionResult.fail(playerIn.getItemInHand(handIn));
@@ -91,7 +96,7 @@ public class WinebowlItem extends Item {
 
     @Override
     public @NotNull ITextComponent getName(@NotNull ItemStack stack) {
-        FluidStack fluidStack = ItemStackFluidHandler.getFluid(stack);
+        FluidStack fluidStack = ItemStackFluidHandler.getFluidStackFromNBT(stack);
         return new TranslationTextComponent(this.getDescriptionId(stack), new TranslationTextComponent(fluidStack.getTranslationKey()));
     }
 
@@ -99,7 +104,7 @@ public class WinebowlItem extends Item {
     @Override
     @OnlyIn(Dist.CLIENT)
     public void appendHoverText(@NotNull ItemStack stack, World worldIn, @NotNull List<ITextComponent> tooltip, @NotNull ITooltipFlag flagIn) {
-        FluidStack fluidStack = ItemStackFluidHandler.getFluid(stack);
+        FluidStack fluidStack = ItemStackFluidHandler.getFluidStackFromNBT(stack);
         if (!fluidStack.isEmpty()) {
             tooltip.add(FluidUtils.addFluidAmountTooltip(fluidStack.getAmount()));
 
@@ -115,7 +120,7 @@ public class WinebowlItem extends Item {
         if (this.allowdedIn(group)) {
             for (Drinkable drink : Drinkable.getDrinkableCollection()) {
                 ItemStack stack = new ItemStack(this);
-                ItemStackFluidHandler.setFluid(stack, drink, DEFAULT_CAPACITY);
+                ItemStackFluidHandler.setFluidStackToNBT(stack, new FluidStack(drink.getFluid(), capacity));
                 items.add(stack);
             }
         }
@@ -123,18 +128,12 @@ public class WinebowlItem extends Item {
 
     @Override
     public ICapabilityProvider initCapabilities(ItemStack stack, CompoundNBT nbt) {
-        return new ItemStackFluidHandler(stack, DEFAULT_CAPACITY, FluidUtils.WOODEN_CONTAINER_VALIDATOR) {
-            @Override
-            protected void setContainerToEmpty() {
-                super.setContainerToEmpty();
-                container = new ItemStack(DrinksRegistry.emptyWinebowl.get());
-            }
-        };
+        return new ItemStackFluidHandler.SwapEmpty(stack, new ItemStack(swap.get()), capacity, validator);
     }
 
-    public static class Empty extends WinebowlItem {
-        public Empty(Properties properties) {
-            super(properties);
+    public static class Empty extends DrinkwareItem {
+        public Empty(Properties properties, int capacity, Predicate<FluidStack> validator, Supplier<Item> swap) {
+            super(properties, capacity, validator, swap);
         }
 
         @Override
@@ -151,7 +150,7 @@ public class WinebowlItem extends Item {
 
         @Override
         public ICapabilityProvider initCapabilities(ItemStack stack, CompoundNBT nbt) {
-            return new ItemStackFluidHandler(new ItemStack(DrinksRegistry.winebowl.get()), DEFAULT_CAPACITY, FluidUtils.WOODEN_CONTAINER_VALIDATOR);
+            return new ItemStackFluidHandler(new ItemStack(swap.get()), capacity, validator);
         }
     }
 }
